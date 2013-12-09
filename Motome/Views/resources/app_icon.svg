@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2994"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="app_icon.svg">
+  <defs
+     id="defs2996">
+    <linearGradient
+       id="linearGradient3826">
+      <stop
+         style="stop-color:#26577f;stop-opacity:1;"
+         offset="0"
+         id="stop3828" />
+      <stop
+         id="stop3834"
+         offset="0.42857143"
+         style="stop-color:#26577f;stop-opacity:0.88800001;" />
+      <stop
+         style="stop-color:#26577f;stop-opacity:0.78431374;"
+         offset="1"
+         id="stop3830" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3826"
+       id="linearGradient3832"
+       x1="172.35715"
+       y1="462.36218"
+       x2="493.35715"
+       y2="462.36218"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="566.89812"
+     inkscape:cy="626.29272"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1319"
+     inkscape:window-height="864"
+     inkscape:window-x="60"
+     inkscape:window-y="60"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata2999">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:url(#linearGradient3832);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       id="rect3002"
+       width="320"
+       height="320"
+       x="172.85715"
+       y="302.36218"
+       inkscape:export-filename="C:\Users\Aaron Kehrer\Google Drive\Workspaces\Motome\Views\resources\logo_320x320.png"
+       inkscape:export-xdpi="89.719627"
+       inkscape:export-ydpi="89.719627" />
+    <path
+       style="font-size:46.87632751000000300px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ececec;fill-opacity:1;stroke:none;font-family:Sans"
+       d="m 396.88841,337.33733 -69.38719,155.88137 -1.59878,0 -0.15988,0 -66.90908,-152.44398 -43.48691,0 c -4.21566,2.5e-4 -7.20633,0.7824 -9.03312,2.39817 -1.82681,1.61626 -2.71793,3.80538 -2.71793,6.47507 0,2.67014 0.89112,4.77937 2.71793,6.39514 1.82679,1.61622 4.81746,2.47834 9.03312,2.4781 l 11.19149,0 0,211.19927 -14.94863,0 c -4.21566,3e-5 -7.20634,0.78218 -9.03312,2.39818 -1.82678,1.61603 -2.79787,3.72522 -2.79787,6.39514 0,2.5294 0.97109,4.62892 2.79787,6.31518 1.82678,1.68628 4.81746,2.55806 9.03312,2.55806 l 65.3103,0 c 4.21557,0 7.28618,-0.87178 9.11307,-2.55806 1.8267,-1.68626 2.71782,-3.78578 2.71793,-6.31518 -1.1e-4,-2.66992 -0.89123,-4.77911 -2.71793,-6.39514 -1.82689,-1.616 -4.8975,-2.39815 -9.11307,-2.39818 l -32.61518,0 0,-211.19927 3.35745,0 68.02822,154.92211 10.23222,0 9.83252,0 61.15345,-136.45615 0,166.83303 c -2.6e-4,13.99222 -1.35922,22.93195 -3.99695,26.85955 -4.19705,6.3824 -11.47152,9.51276 -21.90333,9.51276 l -8.63343,0 0,6.79484 103.60115,0 0,-6.79484 -8.47355,0 c -9.59301,0 -16.58767,-2.51914 -21.024,-7.67416 -3.35772,-3.80487 -5.03645,-13.35582 -5.03616,-28.69815 l 0,-163.15583 c -2.9e-4,-13.99199 1.27873,-22.93169 3.91702,-26.85957 4.31643,-6.38216 11.71078,-9.59246 22.14314,-9.5927 l 8.47355,0 0,-6.87476 -69.06744,0 z"
+       id="text3795"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\Aaron Kehrer\Google Drive\Workspaces\Motome\Views\resources\logo_320x320.png"
+       inkscape:export-xdpi="89.719627"
+       inkscape:export-ydpi="89.719627" />
+  </g>
+</svg>

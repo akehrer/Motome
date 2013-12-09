@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>resources/logo_320x320.png</file>
+    <file>resources/arrow_join.png</file>
+    <file>resources/date_next.png</file>
+    <file>resources/date_previous.png</file>
+    <file>resources/page_white_stack.png</file>
+    <file>resources/cog.png</file>
+    <file>resources/folder_add.png</file>
+    <file>resources/folder_delete.png</file>
+  </qresource>
+</RCC>
