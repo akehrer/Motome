@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 # Import standard library modules
 import gzip
+import re
 import os
 import shutil
 import sys
@@ -78,9 +79,10 @@ class MainWindow(QtGui.QMainWindow):
                                                 QtCore.Qt.TextSelectableByMouse)
         self.noteEditor.setObjectName("noteEditor")
         # set a basic fixed-width style
-        self.noteEditor.setStyleSheet('* {font-family: Courier New, monospace, fixed;}')
+        self.noteEditor.setStyleSheet('QTextEdit {Courier New, monospace, fixed}')
         self.ui.verticalLayout_2.insertWidget(0, self.noteEditor)
         self.noteEditor.textChanged.connect(self.start_save)
+        self.noteEditor.anchorClicked.connect(self.load_anchor)
 
         # Set the window location and size
         if 'window_x'in self.conf.keys():
@@ -240,9 +242,6 @@ class MainWindow(QtGui.QMainWindow):
         for key, value in self.conf.items():
                 filedata = filedata + '{0}:{1}\n'.format(key, value)
         self._write_file(filepath, filedata)
-        # with open(filepath, mode='wb', encoding=ENCODING) as f:
-        #     for key, value in self.conf.items():
-        #         f.write(u'{0}:{1}\n'.format(key, value))
 
     def load_anchor(self, url):
         media_path = os.path.join(self.notes_dir, MEDIA_FOLDER, url.path().split('/')[-1])
@@ -289,8 +288,6 @@ class MainWindow(QtGui.QMainWindow):
             filepath = self.current_note.filepath
             self.meta = {}
             data = self._read_file(filepath)
-            # with open(filepath, mode='rb') as f:
-            #     data = f.read()
             self.old_data = data
         except:
             self.noteEditor.blockSignals(False)
@@ -298,13 +295,13 @@ class MainWindow(QtGui.QMainWindow):
             return
 
         if old_content is None:
-            content,self.meta = parse_note_content(data)
+            content, self.meta = parse_note_content(data)
             new_content = content
             self.tab_date = ''
             self.load_history_data(filepath)
         else:
-            new_content,self.meta = parse_note_content(data)
-            content,x = parse_note_content(old_content[0])
+            new_content, self.meta = parse_note_content(data)
+            content, x = parse_note_content(old_content[0])
             dt = old_content[1]
             self.tab_date = '[{Y}-{m}-{D} {H}:{M}:{S}]'.format(Y=dt[0:4],
                                                                 m=dt[4:6],
@@ -320,7 +317,11 @@ class MainWindow(QtGui.QMainWindow):
 
         self.ui.toolBox.setTabText(0, 'Editor: {0} {1}'.format(self.current_note.notename, self.tab_date))
         if reload_editor:
-            self.noteEditor.setPlainText(content.rstrip())
+            # link_pattern = r'\[([^\[]+)\]\(([^\)]+)\)'
+            # link_transform = r'[\1](<a href="\2">\2</a>)'
+            # linked_content = re.sub(link_pattern, link_transform, content)
+            # self.noteEditor.document().setHtml('<pre>' + linked_content + '</pre>')
+            self.noteEditor.set_note_text(content)
 
         if self.preview_tab is None:
             self.update_ui_preview(content)

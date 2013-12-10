@@ -27,7 +27,7 @@ from PySide import QtGui
 from Modules.MainWindow import MainWindow
 
 
-__version__ = "0.1dev"
+__version__ = "0.1.0"
 
 
 class App(QtGui.QApplication):

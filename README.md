@@ -3,22 +3,22 @@ Description
 
 Motome is a note taking application inspired by Notational Velocity, ResophNotes and nvPY. Some of its features are:
 
+ - Note search and creation from a single input
  - Markdown rendering
  - History tracking and the ability to see diffs
  - Note tagging
- - Note search and creation from a single input
  - Note merging & export
  - Auto-saves notes in the background
  - Keyboard shortcuts
- - Handles image syntax for image files in the note directory
+ - Drag and drop files to create links
 
 Some of the motivation behind Motome:
 
- - All note data is yours and stored on your computer
- - All notes are stored in future resistant file formats (unicode text and zip files)
+ - Notes are yours and stored on your machine, not on someone else's servers
+ - Notes are stored in easily accessible text files, not in a database or proprietary format
  - Notes can have histories
 
-Motome is cross platform and has been tested on Windows 7 and OS X 10.6.8.
+Motome is developed with Python and Qt and is cross platform.
 
 Released under the Simplified BSD licence.  Please see the LICENSE file.
 

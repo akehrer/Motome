@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 # Import standard library modules
+import re
 from mimetypes import guess_type
 from os import path
 from shutil import copyfile
@@ -23,6 +24,8 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         self.setAcceptDrops(True)
         self.setReadOnly(False)
         self.setAcceptRichText(False)
+        self.setMouseTracking(True)
+        self.setOpenLinks(False)
         self.setOpenExternalLinks(False)
 
         self.notes_dir = notes_dir
@@ -63,6 +66,14 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         self.setExtraSelections(extra_selections)
         self.setTextCursor(current_cursor)
         pass
+
+    def set_note_text(self, text):
+        link_pattern = r'\[([^\[]+)\]\(([^\)]+)\)'
+        link_transform = r'[\1](<a href="\2">\2</a>)'
+        linked_content = re.sub(link_pattern, link_transform, text)
+        # need to wrap in <pre> so CRLF renders and needs pre-wrap for word wrapping
+        content = ''.join(('<pre style="white-space: pre-wrap;">', linked_content, '</pre>'))
+        self.document().setHtml(content)
 
     def dragEnterEvent(self, e):
         """

@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="icons">
+    <file>resources/about.html</file>
+    <file>resources/keyboard_shortcuts.html</file>
+    <file>resources/markdown_help.html</file>
     <file>resources/logo_320x320.png</file>
     <file>resources/arrow_join.png</file>
     <file>resources/date_next.png</file>

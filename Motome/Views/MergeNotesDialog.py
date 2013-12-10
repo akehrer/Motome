@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MergeNotesDialog.ui'
+# Form implementation generated from reading ui file '..\Motome\Views\MergeNotesDialog.ui'
 #
-# Created: Fri Dec 06 17:13:14 2013
+# Created: Tue Dec 10 11:33:54 2013
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!

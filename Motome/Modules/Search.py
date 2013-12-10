@@ -8,7 +8,7 @@ import gzip
 import os
 import re
 from collections import Counter
-from itertools import tee, islice
+from itertools import tee, islice, imap
 
 # Import utilities
 from Utils import open_and_parse_note, safe_filename
@@ -58,6 +58,9 @@ class SearchNotes(object):
         os.remove(index_filepath)
 
     def run(self, q):
+        """
+        Run query against the index files and return a list of SearchResults.
+        """
         results = []
         query = SearchQuery(q)
         query.words, query.collection = self._build_collection(q)
@@ -177,6 +180,9 @@ class SearchIndex(object):
     words = None
     collection = None
 
+    def __repr__(self):
+        return '<SearchIndex: {0}}>'.format(self.title)
+
 
 class SearchQuery(object):
     def __init__(self, query):
@@ -191,6 +197,9 @@ class SearchQuery(object):
         except AttributeError:
             return None
 
+    def __repr__(self):
+        return '<SearchQuery: {0}>'.format(self.query)
+
 
 class SearchResult(object):
     def __init__(self, notepath, index, query):
@@ -203,12 +212,12 @@ class SearchResult(object):
     @property
     def matchsum(self):
         try:
-            return sum(map(len, [self.tagmatch, self.wordmatch, self.ngrammatch]))
+            return sum(imap(len, [self.tagmatch, self.wordmatch, self.ngrammatch]))
         except TypeError:
             return 0
 
     def __repr__(self):
-        return '<SearchResult: {0}, Rank: {1}>'.format(self.notepath, self.matchsum)
+        return '<SearchResult: {0}, Matchsum: {1}>'.format(self.notepath, self.matchsum)
 
 
 class SearchError(Exception):
