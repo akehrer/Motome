@@ -19,7 +19,7 @@ from config import NOTE_EXTENSION, INDEX_EXTENSION, TAG_QUERY_CHAR, LOCK_EXTENSI
 
 class SearchNotes(object):
     """
-    A class for index creation and search
+    A class for index creation and search of note documents
     """
     def __init__(self, notes_dir, note_extension=NOTE_EXTENSION):
         self.notes_dir = notes_dir
@@ -39,7 +39,10 @@ class SearchNotes(object):
             self._clean_locks()
             self._get_notes_list()
         else:
-            raise SearchError
+            raise SearchLocationError(self.notes_dir)
+
+    def __repr__(self):
+        return '<SearchNotes: {0}>'.format(self.notes_dir)
 
     def add(self, filepath):
         self.notes_list.append(filepath)
@@ -52,7 +55,7 @@ class SearchNotes(object):
         try:
             self.notes_list.remove(filepath)
         except ValueError as e:
-            print(filepath)
+            raise SearchLocationError(filepath)
         safename = safe_filename(os.path.basename(filepath))
         index_filepath = os.path.join(self.index_dir, safename) + INDEX_EXTENSION
         os.remove(index_filepath)
@@ -95,8 +98,7 @@ class SearchNotes(object):
 
         words, collection = self._build_collection(content)
 
-        index = SearchIndex()
-        index.title = metadata['title']
+        index = SearchIndex(metadata['title'])
         index.tags = metadata['tags']
         index.words = words
         index.collection = collection
@@ -171,20 +173,26 @@ class SearchNotes(object):
 
 class SearchIndex(object):
     """
-    An object that contains the search index items for a document.
-    words is a set of unique words
-    collection is a collection.Counter object
+    The search index items for a note.
+    words is a set of the document's unique words
+    collection is a collection.Counter object of the document's ngrams
     """
-    title = None
-    tags = None
-    words = None
-    collection = None
+    def __init__(self, title):
+        self.title = title
+        self.tags = None
+        self.words = None
+        self.collection = None
 
     def __repr__(self):
         return '<SearchIndex: {0}}>'.format(self.title)
 
 
 class SearchQuery(object):
+    """
+    The search query items.
+    words is a set of the query's unique words
+    collection is a collection.Counter object of the query's ngrams
+    """
     def __init__(self, query):
         self.query = query
         self.words = None
@@ -193,7 +201,7 @@ class SearchQuery(object):
     @property
     def tags(self):
         try:
-            return [t[1:] for t in self.query.split() if t[0] is TAG_QUERY_CHAR]
+            return [t[1:] for t in self.query.split() if t[0] == TAG_QUERY_CHAR]
         except AttributeError:
             return None
 
@@ -202,6 +210,9 @@ class SearchQuery(object):
 
 
 class SearchResult(object):
+    """
+    The search result items for a specific note.
+    """
     def __init__(self, notepath, index, query):
         self.notepath = notepath
 
@@ -221,4 +232,14 @@ class SearchResult(object):
 
 
 class SearchError(Exception):
+    """Base class for SearchNotes errors."""
     pass
+
+
+class SearchLocationError(SearchError):
+    """SearchNote location doesn't exist"""
+    def __init__(self, path):
+        self.path = path
+
+    def __repr__(self):
+        return '<SearchLocationError: {0} not found!'.format(self.path)

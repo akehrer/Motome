@@ -3,11 +3,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 # Import standard library modules
-import gzip
-import re
 import os
 import shutil
 import sys
+import zipfile
 from datetime import datetime
 
 # Import extra modules
@@ -150,8 +149,8 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+M'), self, lambda item=None: self.process_keyseq('ctrl_m'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+S'), self, lambda item=None: self.process_keyseq('ctrl_s'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+R'), self, lambda item=None: self.process_keyseq('ctrl_r'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+J'), self, lambda item=None: self.process_keyseq('ctrl_j'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+K'), self, lambda item=None: self.process_keyseq('ctrl_k'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+<'), self, lambda item=None: self.process_keyseq('ctrl_<'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+>'), self, lambda item=None: self.process_keyseq('ctrl_>'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+L'), self, lambda item=None: self.process_keyseq('ctrl_shift_l'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+U'), self, lambda item=None: self.process_keyseq('ctrl_shift_u'))
         QtGui.QShortcut(QtGui.QKeySequence(esc), self, lambda item=None: self.process_keyseq('esc'))
@@ -183,9 +182,9 @@ class MainWindow(QtGui.QMainWindow):
             self.save_file(record=False)
         elif seq == 'ctrl_r':
             self.save_file(record=True)
-        elif seq == 'ctrl_j':
+        elif seq == 'ctrl_<':
             self.keyseq_update_ui_views('down')
-        elif seq == 'ctrl_k':
+        elif seq == 'ctrl_>':
             self.keyseq_update_ui_views('up')
         elif seq == 'ctrl_shift_l':
             self.toggle_notes_list_view()
@@ -459,18 +458,10 @@ class MainWindow(QtGui.QMainWindow):
         if not 'title' in self.meta.keys():
             self.meta['title'] = self.current_note.notename
         self.meta['tags'] = self.ui.tagEdit.text()
-        # write the new file data (using 'wb' keeps the \n in Windows) [http://stackoverflow.com/questions/2536545/]
         filedata = new_content + '\n' + END_OF_TEXT + '\n'
         for key, value in self.meta.items():
                 filedata = filedata + '{0}:{1}\n'.format(key, value)
         self._write_file(filepath, filedata)
-        # with open(filepath, mode='wb', encoding=ENCODING) as f:
-        #     f.write(new_content)
-        #     f.write('\n')
-        #     f.write(END_OF_TEXT + '\n')
-        #     for key, value in self.meta.items():
-        #         f.write(u'{0}:{1}\n'.format(key, value))
-        # update the search index
         self.search.update(filepath)
 
         if record:
@@ -480,11 +471,9 @@ class MainWindow(QtGui.QMainWindow):
             old_filepath = os.path.join(self.notes_dir,old_filename)
 
             self._write_file(old_filepath, self.old_data)
-            # with open(old_filepath, mode='wb', encoding=ENCODING) as fo:
-            #     fo.write(self.old_data)
             zip_filepath = filepath + ZIP_EXTENSION
-            with gzip.GzipFile(zip_filepath, 'a') as myzip:
-                myzip.write(old_filepath,old_filename)
+            with zipfile.ZipFile(zip_filepath, 'a') as myzip:
+                myzip.write(old_filepath, old_filename)
             os.remove(old_filepath)
             self.ui.statusbar.showMessage('Recorded {0}'.format(self.current_note.filepath),5000)
 
@@ -553,7 +542,7 @@ class MainWindow(QtGui.QMainWindow):
         self.history = []
         self.ui.historySlider.blockSignals(True)
         try:
-            with gzip.GzipFile(zip_filepath, 'r') as myzip:
+            with zipfile.ZipFile(zip_filepath, 'r') as myzip:
                 self.history = sorted(myzip.namelist())
             hlen = len(self.history)
             self.ui.historySlider.setMaximum(hlen)
@@ -569,7 +558,7 @@ class MainWindow(QtGui.QMainWindow):
         else:
             try:
                 zip_filepath = self.current_note.filepath + ZIP_EXTENSION
-                with gzip.GzipFile(zip_filepath, 'r') as myzip:
+                with zipfile.ZipFile(zip_filepath, 'r') as myzip:
                     old_content = (unicode(myzip.read(self.history[sliderpos])),self.history[sliderpos][:-4])
             except:
                 old_content = None
@@ -671,7 +660,7 @@ class MainWindow(QtGui.QMainWindow):
             pass
 
     def click_merge_notes(self):
-        dialog = MergeNotesDialog(self.notes_list,self.notes_dir,self.md)
+        dialog = MergeNotesDialog(self.notes_list, self.notes_dir, self.md)
         dialog.exec_()
         self.all_notes = self.load_notemodels()
         self.load_ui_notes_list(self.all_notes)
@@ -753,7 +742,7 @@ class MainWindow(QtGui.QMainWindow):
         styles_dir = os.path.join(os.getcwd(), 'styles')
         dest_dir = os.path.join(self.app_data_dir, 'styles')
         shutil.copytree(styles_dir, dest_dir)
-        # Show them the setting dialog
+        # Show them the settings dialog
         self.load_settings()
 
     def _write_file(self, filepath, filedata):

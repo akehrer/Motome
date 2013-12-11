@@ -47,5 +47,5 @@ class NoteModel(object):
         except AttributeError:
             return None
 
-    def __str__(self):
+    def __repr__(self):
         return '<Note: {0}, Last Modified: {1}>'.format(self.notename, self.timestamp)

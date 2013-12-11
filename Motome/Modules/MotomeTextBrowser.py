@@ -14,10 +14,12 @@ from PySide import QtGui
 # Import configuration values
 from config import HIGHLIGHT_COLOR, MEDIA_FOLDER, PLATFORM
 
-from Utils import safe_filename
+from Utils import safe_filename, grab_urls
 
 
 class MotomeTextBrowser(QtGui.QTextBrowser):
+    """Custom QTextBrowser for the Motome application"""
+
     def __init__(self, parent, notes_dir, *args, **kwargs):
         super(MotomeTextBrowser, self).__init__(parent, *args, **kwargs)
 
@@ -33,7 +35,11 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+B'), self, lambda item=None: self.process_keyseq('ctrl_b'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+I'), self, lambda item=None: self.process_keyseq('ctrl_i'))
 
-    def process_keyseq(self,seq):
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+K'), self, lambda item=None: self.process_insertseq('ctrl_k'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+K'), self,
+                        lambda item=None: self.process_insertseq('ctrl_shift_k'))
+
+    def process_keyseq(self, seq):
         cursor = self.textCursor()
         if not cursor.hasSelection():
             cursor.select(QtGui.QTextCursor.WordUnderCursor)
@@ -47,6 +53,28 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
             cursor.insertText('*{0}*'.format(text))
         else:
             print('No editor code for {0}'.format(seq))
+
+    def process_insertseq(self, seq):
+        cursor = self.textCursor()
+        current_pos = cursor.position()
+
+        link_title = 'Title'
+        link_address = 'http://www.example.com'
+        start_pos = current_pos + 1
+        end_pos = start_pos + len(link_title)
+
+        if cursor.hasSelection():
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            link_title = cursor.selectedText()
+            start_pos = cursor.selectionEnd() + 3
+            end_pos = start_pos + len(link_address)
+
+        if seq == 'ctrl_k':
+            self.insert_hyperlink()
+        elif seq == 'ctrl_shift_k':
+            filepath, _ = QtGui.QFileDialog.getOpenFileName(self, "Select File", path.expanduser('~'))
+            if filepath != '':
+                self.insert_filelink(filepath)
 
     def highlight_search(self, query):
         """
@@ -65,7 +93,6 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
                 extra_selections.append(extra)
         self.setExtraSelections(extra_selections)
         self.setTextCursor(current_cursor)
-        pass
 
     def set_note_text(self, text):
         link_pattern = r'\[([^\[]+)\]\(([^\)]+)\)'
@@ -128,3 +155,70 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         http://qt-project.org/forums/viewthread/3093
         """
         e.accept()
+
+    def insert_hyperlink(self):
+        cursor = self.textCursor()
+        current_pos = cursor.position()
+
+        link_title = 'Link Title'
+        link_address = 'http://www.example.com'
+        start_pos = current_pos + 1
+        end_pos = start_pos + len(link_title)
+
+        clipboard_text = QtGui.QClipboard().text()
+
+        if len(grab_urls(clipboard_text)) > 0:
+            link_address = clipboard_text
+
+        text, ret = QtGui.QInputDialog.getText(self, 'Insert Link', 'Link address:', QtGui.QLineEdit.Normal,
+                                               link_address)
+
+        if cursor.hasSelection():
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            link_title = cursor.selectedText()
+            start_pos = cursor.selectionEnd() + 3
+            end_pos = start_pos + len(link_address)
+
+        if ret:
+            if text != '':
+                link_address = text
+            cursor.insertText('[{0}]({1})'.format(link_title, link_address))
+            cursor.setPosition(start_pos)
+            cursor.setPosition(end_pos, QtGui.QTextCursor.KeepAnchor)
+            self.setTextCursor(cursor)
+
+    def insert_filelink(self, filepath):
+        cursor = self.textCursor()
+        current_pos = cursor.position()
+
+        filename = safe_filename(path.basename(filepath))
+        dst_path = path.join(self.notes_dir, MEDIA_FOLDER, filename)
+        link_address = './{0}/{1}'.format(MEDIA_FOLDER, filename)
+
+        if cursor.hasSelection():
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            link_title = cursor.selectedText()
+        else:
+            link_title = filename
+
+        try:
+            is_image = 'image' in guess_type(filepath)[0]
+        except TypeError:
+            is_image = False
+
+        if is_image:
+            # user sent an image file
+            try:
+                copyfile(filepath, dst_path)
+            except:
+                # file probably already there
+                pass
+            self.insertPlainText('![{0}]({1}) '.format(link_title, link_address))
+        else:
+            try:
+                copyfile(filepath, dst_path)
+            except Exception as e:
+                # file probably already there
+                print(e)
+                pass
+            self.insertPlainText('[{0}]({1})'.format(link_title, link_address))

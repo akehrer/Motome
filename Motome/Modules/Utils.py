@@ -14,6 +14,34 @@ from diff_match_patch import diff_match_patch as dmp
 # Import configuration values
 from config import END_OF_TEXT, ENCODING
 
+# RegExp for finding urls
+# from: https://mail.python.org/pipermail/tutor/2002-September/017228.html
+urls = '(?: %s)' % '|'.join("""http https telnet gopher file wais ftp""".split())
+ltrs = r'\w'
+gunk = r'/#~:.?+=&%@!\-'
+punc = r'.:?\-'
+any = "%(ltrs)s%(gunk)s%(punc)s" % {'ltrs': ltrs,
+                                    'gunk': gunk,
+                                    'punc': punc}
+
+URL_RE = r"""
+    \b                            # start at word boundary
+        %(urls)s    :             # need resource and a colon
+        [%(any)s]  +?             # followed by one or more
+                                  #  of any valid character, but
+                                  #  be conservative and take only
+                                  #  what you need to....
+    (?=                           # look-ahead non-consumptive assertion
+            [%(punc)s]*           # either 0 or more punctuation
+            (?:   [^%(any)s]      #  followed by a non-url char
+                |                 #   or end of the string
+                  $
+            )
+    )
+    """ % {'urls': urls,
+           'any': any,
+           'punc': punc}
+
 
 def enc_write(filepath, filedata):
     # encode things
@@ -59,12 +87,12 @@ def open_and_parse_note(filepath):
 
 
 def safe_filename(filename):
-        try:
-            pattern = re.compile('[\W_]+')
-            root, ext = os.path.splitext(os.path.basename(filename))
-            return pattern.sub('_', root) if ext is '' else ''.join([pattern.sub('_', root), ext])
-        except:
-            return None
+    try:
+        pattern = re.compile('[\W_]+')
+        root, ext = os.path.splitext(os.path.basename(filename))
+        return pattern.sub('_', root) if ext is '' else ''.join([pattern.sub('_', root), ext])
+    except:
+        return None
 
 
 def human_date(timestamp):
@@ -98,7 +126,7 @@ def human_date(timestamp):
         return '%s %d, %d' % (dt.strftime('%b'), dt.day, dt.year)
 
 
-def diff_to_html(text1,text2):
+def diff_to_html(text1, text2):
     """
     Returns an HTML sequence of the difference between two strings
     """
@@ -106,6 +134,14 @@ def diff_to_html(text1,text2):
     diffs = hdiff.diff_main(text1,text2)
     hdiff.diff_cleanupSemantic(diffs)
     return hdiff.diff_prettyHtml(diffs)
+
+
+def grab_urls(text):
+    """ Given a text string, returns all the urls we can find in it.
+    from: https://mail.python.org/pipermail/tutor/2002-September/017228.html
+    """
+    url_re_compile = re.compile(URL_RE, re.VERBOSE | re.MULTILINE)
+    return url_re_compile.findall(text)
 
 
 def build_preview_header_html(title):
