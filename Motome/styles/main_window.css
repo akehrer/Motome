@@ -1,0 +1,31 @@
+QMainWindow {
+    background-color: WhiteSmoke;
+}
+
+QLineEdit {
+    font-family: 'CMU Typewriter Text';
+    font-size: 10pt;
+}
+
+QLabel {
+    font-size: 10pt;
+}
+
+QListWidget {
+    font-size: 10pt;
+}
+
+QScrollBar:vertical  {
+    background: white;
+    width: 12px;
+ }
+
+QScrollBar:horizontal {
+    background: white;
+    height: 12px;
+}
+
+QScrollBar::handle  {
+  background: Gainsboro;
+  min-height: 20px;
+}

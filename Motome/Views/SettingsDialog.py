@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\SettingsDialog.ui'
 #
-# Created: Wed Dec 11 15:02:18 2013
-#      by: pyside-uic 0.2.14 running on PySide 1.1.2
+# Created: Thu Jan 02 11:56:54 2014
+#      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -38,14 +38,9 @@ class Ui_SettingsDialog(object):
         self.pushButton.setObjectName("pushButton")
         self.horizontalLayout.addWidget(self.pushButton)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.conf_checkbox_preview = QtGui.QCheckBox(self.tab)
-        self.conf_checkbox_preview.setChecked(True)
-        self.conf_checkbox_preview.setObjectName("conf_checkbox_preview")
-        self.verticalLayout.addWidget(self.conf_checkbox_preview)
-        self.conf_checkbox_diff = QtGui.QCheckBox(self.tab)
-        self.conf_checkbox_diff.setChecked(True)
-        self.conf_checkbox_diff.setObjectName("conf_checkbox_diff")
-        self.verticalLayout.addWidget(self.conf_checkbox_diff)
+        self.label_2 = QtGui.QLabel(self.tab)
+        self.label_2.setObjectName("label_2")
+        self.verticalLayout.addWidget(self.label_2)
         self.conf_checkbox_history = QtGui.QCheckBox(self.tab)
         self.conf_checkbox_history.setChecked(True)
         self.conf_checkbox_history.setTristate(False)
@@ -55,10 +50,17 @@ class Ui_SettingsDialog(object):
         self.conf_checkbox_merge.setChecked(True)
         self.conf_checkbox_merge.setObjectName("conf_checkbox_merge")
         self.verticalLayout.addWidget(self.conf_checkbox_merge)
+        self.label_4 = QtGui.QLabel(self.tab)
+        self.label_4.setObjectName("label_4")
+        self.verticalLayout.addWidget(self.label_4)
         self.conf_checkbox_deleteempty = QtGui.QCheckBox(self.tab)
         self.conf_checkbox_deleteempty.setChecked(True)
         self.conf_checkbox_deleteempty.setObjectName("conf_checkbox_deleteempty")
         self.verticalLayout.addWidget(self.conf_checkbox_deleteempty)
+        self.conf_checkbox_ctrlsrecord = QtGui.QCheckBox(self.tab)
+        self.conf_checkbox_ctrlsrecord.setChecked(True)
+        self.conf_checkbox_ctrlsrecord.setObjectName("conf_checkbox_ctrlsrecord")
+        self.verticalLayout.addWidget(self.conf_checkbox_ctrlsrecord)
         self.tabWidget.addTab(self.tab, "")
         self.tab_3 = QtGui.QWidget()
         self.tab_3.setObjectName("tab_3")
@@ -105,7 +107,6 @@ class Ui_SettingsDialog(object):
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), SettingsDialog.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), SettingsDialog.reject)
         QtCore.QObject.connect(self.pushButton, QtCore.SIGNAL("clicked()"), SettingsDialog.load_folder_location)
-        QtCore.QObject.connect(self.conf_checkbox_history, QtCore.SIGNAL("clicked(bool)"), self.conf_checkbox_diff.setChecked)
         QtCore.QMetaObject.connectSlotsByName(SettingsDialog)
 
     def retranslateUi(self, SettingsDialog):
@@ -113,65 +114,16 @@ class Ui_SettingsDialog(object):
         self.label_3.setText(QtGui.QApplication.translate("SettingsDialog", "Notes location", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_notesLocation.setPlaceholderText(QtGui.QApplication.translate("SettingsDialog", "Please select a notes location...", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton.setText(QtGui.QApplication.translate("SettingsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.conf_checkbox_preview.setText(QtGui.QApplication.translate("SettingsDialog", "Show Preview Tab", None, QtGui.QApplication.UnicodeUTF8))
-        self.conf_checkbox_diff.setText(QtGui.QApplication.translate("SettingsDialog", "Show Diff Tab", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("SettingsDialog", "Display", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_history.setText(QtGui.QApplication.translate("SettingsDialog", "Show History Bar", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_merge.setText(QtGui.QApplication.translate("SettingsDialog", "Show Merge Notes Button", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("SettingsDialog", "Actions", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_deleteempty.setToolTip(QtGui.QApplication.translate("SettingsDialog", "Should notes that contain no content be deleted, including their history?", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_deleteempty.setText(QtGui.QApplication.translate("SettingsDialog", "Delete empty notes", None, QtGui.QApplication.UnicodeUTF8))
+        self.conf_checkbox_ctrlsrecord.setToolTip(QtGui.QApplication.translate("SettingsDialog", "Should the current note state be recored to the note history when you press Ctrl/Cmd-S", None, QtGui.QApplication.UnicodeUTF8))
+        self.conf_checkbox_ctrlsrecord.setText(QtGui.QApplication.translate("SettingsDialog", "Record current note to history with Ctrl/Cmd-S", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("SettingsDialog", "Settings", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("SettingsDialog", "<html><head/><body><p><a href=\"http://daringfireball.net/projects/markdown/syntax\"><span style=\" text-decoration: underline; color:#0000ff;\">See official syntax for details</span></a></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.textMarkdownHelp.setHtml(QtGui.QApplication.translate("SettingsDialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><title>Markdown Help</title><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:x-large; font-weight:600;\">Headers</span> </p>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">This is an H1</span></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">=============</span></pre>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">This is an H2</span></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">-------------</span></pre>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\"># This is an H1</span></pre>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">## This is an H2</span></pre>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">###### This is an H6</span> </pre>\n"
-"<p style=\" margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:x-large; font-weight:600;\">Paragraphs</span> </p>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">A paragraph is simply one or more consecutive lines of text, separated by one or more blank lines. </p>\n"
-"<p style=\" margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:x-large; font-weight:600;\">Emphasis</span> </p>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:medium; font-weight:600;\">Italics</span> </p>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">*single asterisks*</span></pre>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">_single underscores_</span> </pre>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:medium; font-weight:600;\">Bold</span> </p>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">**double asterisks**</span></pre>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">__double underscores__</span> </pre>\n"
-"<p style=\" margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:x-large; font-weight:600;\">Links</span> </p>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">This is [an example](http://example.com/ &quot;Title&quot;) inline link.</span></pre>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">[This link](http://example.net/) has no title attribute.</span> </pre>\n"
-"<p style=\" margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:x-large; font-weight:600;\">Lists</span> </p>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:medium; font-weight:600;\">Bullet</span> </p>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">*   Red</span></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">*   Green</span></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">*   Blue</span> </pre>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:medium; font-weight:600;\">Numbered</span> </p>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">1.  Bird</span></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">2.  McHale</span></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">3.  Parish</span> </pre>\n"
-"<p style=\" margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:x-large; font-weight:600;\">Images</span> </p>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">![Alt text](/path/to/img.jpg)</span></pre>\n"
-"<pre style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Courier New,courier\';\"><br /></pre>\n"
-"<pre style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Courier New,courier\';\">![Alt text](/path/to/img.jpg &quot;Optional title&quot;)</span> </pre></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("SettingsDialog", "Markdown Help", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QtGui.QApplication.translate("SettingsDialog", "Keyboard Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("SettingsDialog", "About", None, QtGui.QApplication.UnicodeUTF8))

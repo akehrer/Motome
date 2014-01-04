@@ -19,47 +19,91 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="MainWindow.qrc">
+   <iconset>
     <normaloff>:/icons/resources/logo_320x320.png</normaloff>:/icons/resources/logo_320x320.png</iconset>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_5">
     <property name="spacing">
-     <number>2</number>
+     <number>5</number>
+    </property>
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>5</number>
+    </property>
+    <property name="rightMargin">
+     <number>11</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
     </property>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLineEdit" name="omniBar">
-        <property name="placeholderText">
-         <string>Search... Press Enter to create a new note with your seach as the title</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnSettings">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>1</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Settings</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="MainWindow.qrc">
-          <normaloff>:/icons/resources/cog.png</normaloff>:/icons/resources/cog.png</iconset>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QFrame" name="frameOmniSettings">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="spacing">
+        <number>7</number>
+       </property>
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="omniBar">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maxLength">
+          <number>65535</number>
+         </property>
+         <property name="frame">
+          <bool>false</bool>
+         </property>
+         <property name="placeholderText">
+          <string>Search... Press Enter to create a new note with your seach as the title</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSettings">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Settings</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="MainWindow.qrc">
+           <normaloff>:/icons/resources/cog.png</normaloff>:/icons/resources/cog.png</iconset>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </item>
     <item>
      <widget class="QSplitter" name="splitter">
@@ -68,6 +112,12 @@
       </property>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <property name="leftMargin">
+         <number>11</number>
+        </property>
         <item>
          <widget class="QListWidget" name="notesList">
           <property name="sizePolicy">
@@ -82,8 +132,17 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
           <property name="editTriggers">
            <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::EditKeyPressed</set>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>false</bool>
+          </property>
+          <property name="uniformItemSizes">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -99,11 +158,14 @@
            <iconset resource="MainWindow.qrc">
             <normaloff>:/icons/resources/page_white_stack.png</normaloff>:/icons/resources/page_white_stack.png</iconset>
           </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QTabWidget" name="toolBox">
+      <widget class="QStackedWidget" name="toolBox">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -122,22 +184,10 @@
        <property name="styleSheet">
         <string notr="true"/>
        </property>
-       <property name="tabShape">
-        <enum>QTabWidget::Rounded</enum>
-       </property>
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <property name="documentMode">
-        <bool>true</bool>
-       </property>
        <widget class="QWidget" name="tabEditor">
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <attribute name="title">
-         <string>Editor</string>
-        </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <property name="spacing">
           <number>5</number>
@@ -166,6 +216,16 @@
             <number>0</number>
            </property>
            <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Title:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="titleEdit"/>
+           </item>
+           <item>
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Tags: </string>
@@ -173,19 +233,17 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="tagEdit"/>
+            <widget class="QLineEdit" name="tagEdit">
+             <property name="frame">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
         </layout>
        </widget>
        <widget class="QWidget" name="tabPreview">
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <attribute name="title">
-         <string>Preview</string>
-        </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="margin">
           <number>2</number>
@@ -198,6 +256,9 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
            <property name="openLinks">
             <bool>false</bool>
            </property>
@@ -206,18 +267,16 @@
         </layout>
        </widget>
        <widget class="QWidget" name="tabDiff">
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <attribute name="title">
-         <string>Diff</string>
-        </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <property name="margin">
           <number>2</number>
          </property>
          <item>
-          <widget class="QTextBrowser" name="noteDiff"/>
+          <widget class="QTextBrowser" name="noteDiff">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -233,17 +292,20 @@
        </sizepolicy>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <property name="topMargin">
+       <property name="spacing">
         <number>5</number>
        </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
        <property name="bottomMargin">
-        <number>5</number>
+        <number>0</number>
        </property>
        <item>
         <widget class="QSlider" name="historySlider">
@@ -256,14 +318,29 @@
          <property name="maximum">
           <number>1</number>
          </property>
+         <property name="pageStep">
+          <number>1</number>
+         </property>
          <property name="value">
           <number>1</number>
          </property>
          <property name="tracking">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="invertedAppearance">
+          <bool>false</bool>
+         </property>
+         <property name="invertedControls">
+          <bool>false</bool>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBelow</enum>
+         </property>
+         <property name="tickInterval">
+          <number>1</number>
          </property>
         </widget>
        </item>
@@ -279,6 +356,9 @@
           <iconset resource="MainWindow.qrc">
            <normaloff>:/icons/resources/date_previous.png</normaloff>:/icons/resources/date_previous.png</iconset>
          </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -293,19 +373,8 @@
           <iconset resource="MainWindow.qrc">
            <normaloff>:/icons/resources/date_next.png</normaloff>:/icons/resources/date_next.png</iconset>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnMergeHistory">
-         <property name="toolTip">
-          <string>Diff history</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="MainWindow.qrc">
-           <normaloff>:/icons/resources/arrow_join.png</normaloff>:/icons/resources/arrow_join.png</iconset>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -314,17 +383,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1024</width>
-     <height>26</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
   <tabstop>omniBar</tabstop>
@@ -335,7 +393,6 @@
   <tabstop>historySlider</tabstop>
   <tabstop>btnMergeNotes</tabstop>
   <tabstop>tagEdit</tabstop>
-  <tabstop>btnMergeHistory</tabstop>
   <tabstop>btnSettings</tabstop>
   <tabstop>noteDiff</tabstop>
   <tabstop>notePreview</tabstop>
@@ -345,38 +402,6 @@
  </resources>
  <connections>
   <connection>
-   <sender>omniBar</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>search_files(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>206</x>
-     <y>194</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>242</x>
-     <y>24</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>omniBar</sender>
-   <signal>returnPressed()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>new_note()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>373</x>
-     <y>188</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>385</x>
-     <y>23</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>historySlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -384,27 +409,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>391</x>
-     <y>714</y>
+     <y>741</y>
     </hint>
     <hint type="destinationlabel">
      <x>258</x>
      <y>662</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnSettings</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>load_settings()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>996</x>
-     <y>195</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>121</x>
-     <y>485</y>
     </hint>
    </hints>
   </connection>
@@ -415,8 +424,8 @@
    <slot>click_older_date()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>920</x>
-     <y>719</y>
+     <x>962</x>
+     <y>755</y>
     </hint>
     <hint type="destinationlabel">
      <x>840</x>
@@ -431,28 +440,12 @@
    <slot>click_newer_date()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>960</x>
-     <y>719</y>
+     <x>1000</x>
+     <y>755</y>
     </hint>
     <hint type="destinationlabel">
      <x>884</x>
      <y>698</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnMergeHistory</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>click_merge_history()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>987</x>
-     <y>719</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>825</x>
-     <y>721</y>
     </hint>
    </hints>
   </connection>
@@ -464,27 +457,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>208</x>
-     <y>670</y>
+     <y>705</y>
     </hint>
     <hint type="destinationlabel">
      <x>140</x>
      <y>425</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tagEdit</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>start_save()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>996</x>
-     <y>534</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>718</x>
-     <y>270</y>
     </hint>
    </hints>
   </connection>
@@ -521,18 +498,50 @@
    </hints>
   </connection>
   <connection>
-   <sender>notePreview</sender>
-   <signal>anchorClicked(QUrl)</signal>
+   <sender>omniBar</sender>
+   <signal>textChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>load_anchor(QUrl)</slot>
+   <slot>search_files(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>457</y>
+     <x>835</x>
+     <y>24</y>
     </hint>
     <hint type="destinationlabel">
-     <x>962</x>
-     <y>336</y>
+     <x>1017</x>
+     <y>84</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnSettings</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>load_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>992</x>
+     <y>19</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1021</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>omniBar</sender>
+   <signal>returnPressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>new_note()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>887</x>
+     <y>19</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>37</x>
+     <y>38</y>
     </hint>
    </hints>
   </connection>

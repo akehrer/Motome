@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 # Import standard library modules
+import logging
+import os
 import sys
 
 # Import Qt modules
@@ -9,16 +11,22 @@ from PySide.QtGui import QColor
 
 PLATFORM = sys.platform
 
+LOG_LEVEL = logging.DEBUG
+
 ###################################################
 #       Motome Configuration Variables            #
 ###################################################
+
+# app directory
+APP_DIR = os.path.dirname(__file__)
 
 # app data directory in note directory
 NOTE_DATA_DIR = '.motome'
 
 # file extensions
 NOTE_EXTENSION = '.txt'
-ZIP_EXTENSION = '.gz'
+ZIP_EXTENSION = '.zip'
+HTML_EXTENSION = '.html'
 INDEX_EXTENSION = '.index'
 LOCK_EXTENSION = '.lock'
 
@@ -38,3 +46,6 @@ END_OF_TEXT = '\u0003'
 
 # Found search terms highlight color
 HIGHLIGHT_COLOR = QColor.fromRgb(255, 255, 153, a=255)
+
+# Maximum character line length for editor
+EDITOR_LINE_LEN = 95

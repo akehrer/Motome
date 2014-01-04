@@ -53,12 +53,11 @@ class SearchNotes(object):
 
     def remove(self, filepath):
         try:
-            self.notes_list.remove(filepath)
-        except ValueError as e:
-            raise SearchLocationError(filepath)
-        safename = safe_filename(os.path.basename(filepath))
-        index_filepath = os.path.join(self.index_dir, safename) + INDEX_EXTENSION
-        os.remove(index_filepath)
+            safename = safe_filename(os.path.basename(filepath))
+            index_filepath = os.path.join(self.index_dir, safename) + INDEX_EXTENSION
+            os.remove(index_filepath)
+        finally:
+            self._get_notes_list()
 
     def run(self, q):
         """
@@ -85,6 +84,7 @@ class SearchNotes(object):
             self.update(notepath)
 
     def _get_notes_list(self):
+        self.notes_list = []
         for filename in os.listdir(self.notes_dir):
             if filename.endswith(self.note_extension):
                 self.notes_list.append(os.path.join(self.notes_dir, filename))
@@ -122,9 +122,13 @@ class SearchNotes(object):
         """
         Taking a string of text return a set of unique words and a Counter collection of word bigrams.
         """
-        words = re.findall("\w+", content.lower())
-        collection = Counter(self._generate_ngrams(words, 2))
-        return set(words), collection
+        try:
+            words = re.findall("\w+", content.lower())
+            collection = Counter(self._generate_ngrams(words, 2))
+            return set(words), collection
+        except AttributeError:
+            # empty string sent
+            return set(), Counter()
 
     def _generate_ngrams(self, words, n):
         """
@@ -203,6 +207,7 @@ class SearchQuery(object):
         try:
             return [t[1:] for t in self.query.split() if t[0] == TAG_QUERY_CHAR]
         except AttributeError:
+            # no tags in query
             return None
 
     def __repr__(self):
@@ -214,9 +219,10 @@ class SearchResult(object):
     The search result items for a specific note.
     """
     def __init__(self, notepath, index, query):
-        self.notepath = notepath
+        self.filepath = notepath
+        self.index = index
+        self.query = query
 
-        self.tagmatch = [t for t in query.tags if t in index.tags]
         self.wordmatch = list(query.words & index.words)
         self.ngrammatch = query.collection & index.collection
 
@@ -227,8 +233,15 @@ class SearchResult(object):
         except TypeError:
             return 0
 
+    @property
+    def tagmatch(self):
+        try:
+            return [t for t in self.query.tags if t in self.index.tags]
+        except TypeError:
+            return []
+
     def __repr__(self):
-        return '<SearchResult: {0}, Matchsum: {1}>'.format(self.notepath, self.matchsum)
+        return '<SearchResult: {0}, Matchsum: {1}>'.format(self.filepath, self.matchsum)
 
 
 class SearchError(Exception):

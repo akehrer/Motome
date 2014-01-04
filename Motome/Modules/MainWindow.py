@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 # Import standard library modules
+import logging
 import os
 import shutil
 import sys
@@ -19,17 +20,19 @@ from PySide import QtCore, QtGui
 from Views.MainWindow import Ui_MainWindow
 
 # Import configuration values
-from config import NOTE_EXTENSION, ZIP_EXTENSION, END_OF_TEXT, MEDIA_FOLDER
+from config import NOTE_EXTENSION, ZIP_EXTENSION, END_OF_TEXT, MEDIA_FOLDER, HTML_EXTENSION, APP_DIR
 
 # Import additional modules
 from MotomeTextBrowser import MotomeTextBrowser
 from MergeNotesDialog import MergeNotesDialog
-from MergeHistoryDialog import MergeHistoryDialog
 from NoteModel import NoteModel
 from SettingsDialog import SettingsDialog
 from Search import SearchNotes, SearchError
 from Utils import build_preview_footer_html, build_preview_header_html, \
     diff_to_html, parse_note_content, enc_read, enc_write
+
+# Set up the logger
+logger = logging.getLogger(__name__)
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -42,6 +45,11 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setWindowTitle("Motome")
 
+        # load main window style
+        main_style_path = os.path.join(APP_DIR, 'styles', 'main_window.css')
+        main_style = self._read_file(main_style_path)
+        self.setStyleSheet(main_style)
+
         # additional settings
         self.ui.notePreview.setOpenExternalLinks(True)
 
@@ -53,6 +61,13 @@ class MainWindow(QtGui.QMainWindow):
         # note file vars
         self.note_extension = NOTE_EXTENSION
 
+        # create the app storage directory
+        try:
+            os.makedirs(self.app_data_dir)
+            self.first_run = True
+        except OSError:
+            self.first_run = False
+
         self.conf = {}
 
         # Load configuration
@@ -63,13 +78,6 @@ class MainWindow(QtGui.QMainWindow):
         self.preview_tab = None
         self.diff_tab = None
 
-        # create the app storage directory
-        try:
-            os.makedirs(self.app_data_dir)
-            self.first_run = True
-        except OSError:
-            self.first_run = False
-
         # insert the custom text editor
         self.noteEditor = MotomeTextBrowser(self.ui.tabEditor, self.notes_dir)
         self.noteEditor.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|
@@ -77,8 +85,6 @@ class MainWindow(QtGui.QMainWindow):
                                                 QtCore.Qt.TextEditorInteraction|QtCore.Qt.TextSelectableByKeyboard|
                                                 QtCore.Qt.TextSelectableByMouse)
         self.noteEditor.setObjectName("noteEditor")
-        # set a basic fixed-width style
-        self.noteEditor.setStyleSheet('QTextEdit {Courier New, monospace, fixed}')
         self.ui.verticalLayout_2.insertWidget(0, self.noteEditor)
         self.noteEditor.textChanged.connect(self.start_save)
         self.noteEditor.anchorClicked.connect(self.load_anchor)
@@ -91,7 +97,13 @@ class MainWindow(QtGui.QMainWindow):
                                 int(self.conf['window_height']))
             self.setGeometry(rect)
 
-        # load the styles
+
+        # load main window style
+        main_style_path = os.path.join(APP_DIR, 'styles', 'main_window.css')
+        main_style = self._read_file(main_style_path)
+        self.setStyleSheet(main_style)
+
+        # load the text browser styles
         self.load_styles()
 
         # markdown translator
@@ -100,7 +112,7 @@ class MainWindow(QtGui.QMainWindow):
         # current view
         self.current_note = None
         self.old_data = ''
-        self.meta = {}
+        #self.meta = {}
         self.history = []
 
         # set the views
@@ -110,15 +122,11 @@ class MainWindow(QtGui.QMainWindow):
         # save file timer
         self.save_interval = 1000 # msec
         self.save_timer = QtCore.QTimer()
-        self.save_timer.timeout.connect(self.save_file)
+        self.save_timer.timeout.connect(self.save_note)
 
         # search
         self.search = None
         self.query = None
-        self.query_timer = QtCore.QTimer()
-        self.query_timer.setSingleShot(True)
-        self.query_timer.setInterval(250)
-        self.query_timer.timeout.connect(self.search_files)
 
         if not self.first_run:
             self.search = SearchNotes(self.notes_dir)
@@ -134,9 +142,6 @@ class MainWindow(QtGui.QMainWindow):
         self.notes_list_splitter_size = None
 
         # set-up the keyboard shortcuts
-        #ctrl = QtCore.Qt.Key_Control
-        #up = QtCore.Qt.Key_Up
-        #down = QtCore.Qt.Key_Down
         esc = QtCore.Qt.Key_Escape
         delete = QtCore.Qt.Key_Delete
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+N'), self, lambda item=None: self.process_keyseq('ctrl_n'))
@@ -149,9 +154,14 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+M'), self, lambda item=None: self.process_keyseq('ctrl_m'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+S'), self, lambda item=None: self.process_keyseq('ctrl_s'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+R'), self, lambda item=None: self.process_keyseq('ctrl_r'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Up'), self, lambda item=None: self.process_keyseq('ctrl_up'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Down'), self, lambda item=None: self.process_keyseq('ctrl_down'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+<'), self, lambda item=None: self.process_keyseq('ctrl_<'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+>'), self, lambda item=None: self.process_keyseq('ctrl_>'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+L'), self, lambda item=None: self.process_keyseq('ctrl_shift_l'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+H'), self, lambda item=None: self.process_keyseq('ctrl_shift_h'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+O'), self, lambda item=None: self.process_keyseq('ctrl_shift_o'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+F'), self, lambda item=None: self.process_keyseq('ctrl_shift_f'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+U'), self, lambda item=None: self.process_keyseq('ctrl_shift_u'))
         QtGui.QShortcut(QtGui.QKeySequence(esc), self, lambda item=None: self.process_keyseq('esc'))
 
@@ -159,6 +169,7 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence(delete), self.ui.notesList, lambda item=None: self.delete_current_note())
 
         if self.first_run:
+            logger.info('First run')
             self.do_first_run()
 
     def process_keyseq(self,seq):
@@ -179,15 +190,30 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.toolBox.setCurrentIndex(0)
             self.ui.tagEdit.setFocus()
         elif seq == 'ctrl_s':
-            self.save_file(record=False)
+            if 'conf_checkbox_deleteempty' in self.conf.keys() and int(self.conf['conf_checkbox_deleteempty']) > 0:
+                self.save_note(record=True)
+            else:
+                self.save_note(record=False)
         elif seq == 'ctrl_r':
-            self.save_file(record=True)
-        elif seq == 'ctrl_<':
+            self.save_note(record=True)
+        elif seq == 'ctrl_up':
             self.keyseq_update_ui_views('down')
-        elif seq == 'ctrl_>':
+        elif seq == 'ctrl_down':
             self.keyseq_update_ui_views('up')
+        elif seq == 'ctrl_<':
+            self.click_older_date()
+        elif seq == 'ctrl_>':
+            self.click_newer_date()
         elif seq == 'ctrl_shift_l':
             self.toggle_notes_list_view()
+        elif seq == 'ctrl_shift_h':
+            self.toggle_history_bar_view()
+        elif seq == 'ctrl_shift_o':
+            self.toggle_omnibar_view()
+        elif seq == 'ctrl_shift_f':
+            self.toggle_notes_list_view()
+            self.toggle_omnibar_view()
+            self.toggle_history_bar_view()
         elif seq == 'ctrl_shift_u':
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             if self.noteEditor.hasFocus():
@@ -197,11 +223,12 @@ class MainWindow(QtGui.QMainWindow):
         elif seq == 'esc':
             self.ui.omniBar.setText('')
         else:
-            print('No code for {0}'.format(seq))
+            logger.info('No code for {0}'.format(seq))
+            # print('No code for {0}'.format(seq))
 
     def stop(self):
         if self.save_timer.isActive():
-            self.save_file(record=True)
+            self.save_note(record=True)
         window_geo = self.geometry()
         self.conf['window_x'] = window_geo.x()
         self.conf['window_y'] = window_geo.y()
@@ -219,13 +246,6 @@ class MainWindow(QtGui.QMainWindow):
                     self.conf[key] = value
                 except ValueError:
                     pass
-            # with open(filepath, mode='rb') as f:
-            #     for line in f:
-            #         try:
-            #             key, value = line.strip().split(':', 1)
-            #             self.conf[key] = value
-            #         except ValueError:
-            #             pass
             if not 'conf_notesLocation' in self.conf.keys():
                 # Show the settings dialog if no notes location has been configured
                 self.load_settings()
@@ -280,27 +300,31 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.notesList.setCurrentRow(0)
 
     def update_ui_views(self, old_content=None, reload_editor=True):
-        self.noteEditor.blockSignals(True)
-        self.ui.tagEdit.blockSignals(True)
+        try:
+            self.noteEditor.blockSignals(True)
+            self.ui.tagEdit.blockSignals(True)
+        except AttributeError:
+            pass
 
         try:
             filepath = self.current_note.filepath
-            self.meta = {}
             data = self._read_file(filepath)
             self.old_data = data
-        except:
+        except Exception as e:
+            logger.debug('[update_ui_views] %s'%e)
             self.noteEditor.blockSignals(False)
             self.ui.tagEdit.blockSignals(False)
             return
 
         if old_content is None:
-            content, self.meta = parse_note_content(data)
+            #content, self.meta = parse_note_content(data)
+            content = self.current_note.content
             new_content = content
             self.tab_date = ''
-            self.load_history_data(filepath)
+            self.load_history_data()
         else:
-            new_content, self.meta = parse_note_content(data)
-            content, x = parse_note_content(old_content[0])
+            new_content = self.current_note.content
+            content, __ = parse_note_content(old_content[0])
             dt = old_content[1]
             self.tab_date = '[{Y}-{m}-{D} {H}:{M}:{S}]'.format(Y=dt[0:4],
                                                                 m=dt[4:6],
@@ -309,21 +333,28 @@ class MainWindow(QtGui.QMainWindow):
                                                                 M=dt[10:12],
                                                                 S=dt[12:])
 
-        if 'tags' in self.meta.keys():
-            self.ui.tagEdit.setText(self.meta['tags'])
+        if 'tags' in self.current_note.metadata.keys():
+            self.ui.tagEdit.setText(self.current_note.metadata['tags'])
         else:
             self.ui.tagEdit.setText('')
 
-        self.ui.toolBox.setTabText(0, 'Editor: {0} {1}'.format(self.current_note.notename, self.tab_date))
+        if 'title' in self.current_note.metadata.keys():
+            self.ui.titleEdit.setText(self.current_note.metadata['title'])
+        else:
+            self.ui.titleEdit.setText(self.current_note.safename)
+
         if reload_editor:
-            # link_pattern = r'\[([^\[]+)\]\(([^\)]+)\)'
-            # link_transform = r'[\1](<a href="\2">\2</a>)'
-            # linked_content = re.sub(link_pattern, link_transform, content)
-            # self.noteEditor.document().setHtml('<pre>' + linked_content + '</pre>')
+            cursor = self.noteEditor.textCursor()
+            start_pos = cursor.selectionStart()
+            end_pos = cursor.selectionEnd()
             self.noteEditor.set_note_text(content)
+            cursor.setPosition(start_pos)
+            cursor.setPosition(end_pos, QtGui.QTextCursor.KeepAnchor)
+            self.noteEditor.setTextCursor(cursor)
+
 
         if self.preview_tab is None:
-            self.update_ui_preview(content)
+            self.update_ui_preview()
 
         if self.diff_tab is None:
             self.update_ui_diff(content, new_content)
@@ -339,14 +370,15 @@ class MainWindow(QtGui.QMainWindow):
             i = self.ui.notesList.currentRow()
         else:
             i = idx.row()
+
         self.current_note = self.notes_list[i]
         self.update_ui_views()
 
-    def keyseq_update_ui_views(self,direction):
+    def keyseq_update_ui_views(self, direction):
         """
         Moves through the notes list, looping at each end
 
-        direction -- which direction to move 'up' or 'down'
+        :param direction: which direction to move 'up' or 'down'
         """
         current_row = self.ui.notesList.currentRow()
         row_count = self.ui.notesList.count()
@@ -359,25 +391,24 @@ class MainWindow(QtGui.QMainWindow):
         elif direction == 'up' and current_row == row_count-1:
             self.ui.notesList.setCurrentRow(0)
 
-    def update_ui_preview(self, content):
+    def update_ui_preview(self):
+        self.ui.notePreview.setSearchPaths([self.notes_dir, ])
+        html_filename = self.current_note.safename + HTML_EXTENSION
+        url = QtCore.QUrl(html_filename)
         try:
-            header = build_preview_header_html(self.meta['title'])
-        except KeyError:
-            header = build_preview_header_html('')
-        body = self.md.convert(content)  # TODO: getting re MemoryErrors for large files
-        footer = build_preview_footer_html()
-        html = header + body + footer
-        self.ui.toolBox.setTabText(1, 'Preview: {0} {1}'.format(self.current_note.notename, self.tab_date))
-        self.ui.notePreview.setSearchPaths([self.notes_dir,])
-        self.ui.notePreview.setHtml(html)
+            with open(html_filename):
+                pass
+        except IOError:
+            # file doesn't exist, create it
+            self.save_html(self.current_note.content)
+        self.ui.notePreview.setSource(url)
+        self.ui.notePreview.reload()
 
     def update_ui_diff(self, content, new_content):
         if content != new_content:
-            diff_html = diff_to_html(content,new_content)
-            self.ui.toolBox.setTabText(2, 'Diff: {0} {1}'.format(self.current_note.notename, self.tab_date))
+            diff_html = diff_to_html(content, new_content)
         else:
             diff_html = ''
-            self.ui.toolBox.setTabText(2, 'Diff: {0}'.format(self.current_note.notename))
         self.ui.noteDiff.setHtml(diff_html)
 
     def remove_preview_tab(self):
@@ -388,10 +419,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def insert_preview_tab(self):
         try:
-            text = 'Preview: %s [%s]'%(self.current_note.notename,self.tab_date)
-        except TypeError:
+            text = 'Preview: %s [%s]'%(self.current_note.notename, self.tab_date)
+        except TypeError as e:
+            logger.debug('[insert_preview_tab] %s'%e)
             text = 'Preview'
-        self.ui.toolBox.insertTab(1,self.preview_tab,text)
+        self.ui.toolBox.insertTab(1,self.preview_tab, text)
         self.preview_tab = None
 
     def remove_diff_tab(self):
@@ -403,7 +435,8 @@ class MainWindow(QtGui.QMainWindow):
     def insert_diff_tab(self):
         try:
             text = 'Diff: %s [%s]'%(self.current_note.notename,self.tab_date)
-        except TypeError:
+        except TypeError as e:
+            logger.debug('[insert_diff_tab] %s'%e)
             text = 'Diff'
         self.ui.toolBox.insertTab(2,self.diff_tab,text)
         self.diff_tab = None
@@ -435,14 +468,27 @@ class MainWindow(QtGui.QMainWindow):
             self.notes_list_splitter_size = self.ui.splitter.sizes()
             self.ui.splitter.setSizes([0,current_size[1]])
         else:
-            print('Toggle notes list view wierdness {0}'.format(self.notes_list_splitter_size))
+            logger.warning('Toggle notes list view wierdness {0}'.format(self.notes_list_splitter_size))
+            #print('Toggle notes list view wierdness {0}'.format(self.notes_list_splitter_size))
+
+    def toggle_omnibar_view(self):
+        if self.ui.frameOmniSettings.isHidden():
+            self.ui.frameOmniSettings.show()
+        else:
+            self.ui.frameOmniSettings.hide()
+
+    def toggle_history_bar_view(self):
+        if self.ui.frameHistory.isHidden():
+            self.ui.frameHistory.show()
+        else:
+            self.ui.frameHistory.hide()
 
     def start_save(self):
         if self.save_timer.isActive():
             self.save_timer.stop()
         self.save_timer.start(self.save_interval)
 
-    def save_file(self, record=False):
+    def save_note(self, record=False):
         filepath = self.current_note.filepath
         new_content = self.noteEditor.toPlainText()
         # if the new content is an empty note and delete empty notes is enabled
@@ -454,15 +500,13 @@ class MainWindow(QtGui.QMainWindow):
             self.load_ui_notes_list(self.all_notes)
             self.update_ui_views()
             return
+        else:
+            self.current_note.content = new_content
+            self.current_note.metadata['title'] = self.ui.titleEdit.text()
+            self.current_note.metadata['tags'] = self.ui.tagEdit.text()
 
-        if not 'title' in self.meta.keys():
-            self.meta['title'] = self.current_note.notename
-        self.meta['tags'] = self.ui.tagEdit.text()
-        filedata = new_content + '\n' + END_OF_TEXT + '\n'
-        for key, value in self.meta.items():
-                filedata = filedata + '{0}:{1}\n'.format(key, value)
-        self._write_file(filepath, filedata)
         self.search.update(filepath)
+        self.save_html(new_content)
 
         if record:
             # write the old file data to the zip archive
@@ -475,38 +519,47 @@ class MainWindow(QtGui.QMainWindow):
             with zipfile.ZipFile(zip_filepath, 'a') as myzip:
                 myzip.write(old_filepath, old_filename)
             os.remove(old_filepath)
-            self.ui.statusbar.showMessage('Recorded {0}'.format(self.current_note.filepath),5000)
 
         self.save_timer.stop()
         self.all_notes = self.load_notemodels()
         self.update_ui_views(None, False)
 
+    def save_html(self, content):
+        try:
+            header = build_preview_header_html(self.current_note.metadata['title'])
+        except KeyError:
+            # no title in metadata
+            header = build_preview_header_html('')
+        body = self.md.convert(content)  # TODO: getting re MemoryErrors for large files
+        footer = build_preview_footer_html()
+        html = header + body + footer
+        filepath = os.path.join(self.notes_dir, self.current_note.safename) + HTML_EXTENSION
+        self._write_file(filepath, html)
+
     def search_files(self, query=None):
+        self.query = query
         if query == '':
-            self.query = None
-            self.load_ui_notes_list(self.all_notes)
-        elif query is None and self.query_timer.isActive():
-            pass
-        elif query is not None and not self.query_timer.isActive():
-            self.query = query
-            self.query_timer.start()
-        elif query is not None and self.query_timer.isActive():
-            self.query = query
-            self.query_timer.stop()
-            self.query_timer.start()
+            founds = self.all_notes
+        elif query is None:
+            founds = self.all_notes
         else:
             try:
-                founds = self.search.run(self.query)
-            except SearchError:
+                founds = sorted(self.search.run(self.query), key=lambda x: x.matchsum, reverse=True)
+            except SearchError as e:
+                logger.warning('[serach_files] %s'%e)
                 founds = []
-                self.ui.statusbar.showMessage('No notes directory selected, please change your settings',0)
-            self.load_ui_search_list(founds)
+                # self.ui.statusbar.showMessage('No notes directory selected, please change your settings', 0)
+                message_box = QtGui.QMessageBox()
+                message_box.setText('No notes directory selected.'.format(self.current_note.notename))
+                message_box.setInformativeText('Please change your settings.')
+                message_box.exec_()
+        self.load_ui_search_list(founds)
 
     def load_ui_search_list(self, results):
         self.ui.notesList.clear()
         items = []
         for item in results:
-            n = NoteModel(item.notepath)
+            n = NoteModel(item.filepath)
             u = n.notename
             self.ui.notesList.addItem(u)
             items.append(n)
@@ -523,9 +576,6 @@ class MainWindow(QtGui.QMainWindow):
         filepath = os.path.join(self.notes_dir,filename)
         filedata = title + '\n'
         self._write_file(filepath, filedata)
-        # with open(filepath, mode='wb', encoding=ENCODING) as f:
-        #     f.write(title + '\n')
-        # add to search index
         self.search.add(filepath)
         self.all_notes = self.load_notemodels()
         self.current_note = self.all_notes[0]
@@ -537,14 +587,10 @@ class MainWindow(QtGui.QMainWindow):
         cursor.movePosition(QtGui.QTextCursor.MoveOperation.End,QtGui.QTextCursor.MoveMode.MoveAnchor)
         self.noteEditor.setTextCursor(cursor)
 
-    def load_history_data(self,filepath):
-        zip_filepath = filepath + ZIP_EXTENSION
-        self.history = []
+    def load_history_data(self):
         self.ui.historySlider.blockSignals(True)
         try:
-            with zipfile.ZipFile(zip_filepath, 'r') as myzip:
-                self.history = sorted(myzip.namelist())
-            hlen = len(self.history)
+            hlen = len(self.current_note.history)
             self.ui.historySlider.setMaximum(hlen)
             self.ui.historySlider.setSliderPosition(hlen)
         except:
@@ -556,13 +602,10 @@ class MainWindow(QtGui.QMainWindow):
         if sliderpos == self.ui.historySlider.maximum():
             self.update_ui_views()
         else:
-            try:
-                zip_filepath = self.current_note.filepath + ZIP_EXTENSION
-                with zipfile.ZipFile(zip_filepath, 'r') as myzip:
-                    old_content = (unicode(myzip.read(self.history[sliderpos])),self.history[sliderpos][:-4])
-            except:
-                old_content = None
+            self.setCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+            old_content = self.current_note.load_old_note(sliderpos)
             self.update_ui_views(old_content=old_content)
+            self.unsetCursor()
 
     def load_settings(self):
         dialog = SettingsDialog(self.conf)
@@ -625,7 +668,7 @@ class MainWindow(QtGui.QMainWindow):
         if 'style' in self.conf.keys():
             style_dir = os.path.join(self.app_data_dir, 'styles', self.conf['style'])
         else:
-            style_dir = os.path.join(self.app_data_dir, 'styles', 'default')
+            style_dir = os.path.join(APP_DIR, 'styles', 'default')
 
         editor_path = os.path.join(style_dir, 'editor.css')
         preview_path = os.path.join(style_dir, 'preview.css')
@@ -634,6 +677,7 @@ class MainWindow(QtGui.QMainWindow):
         if os.path.exists(editor_path):
             editor_style = self._read_file(editor_path) #open(editor_path, 'r').read()
             self.noteEditor.setStyleSheet(editor_style)
+            self.noteEditor.document().setDefaultStyleSheet(editor_style)
 
         if os.path.exists(preview_path):
             preview_style = self._read_file(preview_path) #open(preview_path, 'r').read()
@@ -641,23 +685,18 @@ class MainWindow(QtGui.QMainWindow):
 
         if os.path.exists(diff_path):
             diff_style = self._read_file(diff_path) #open(diff_path, 'r').read()
-            self.ui.noteDiff.document().setDefaultStyleSheet(diff_style)
+            # self.ui.noteDiff.document().setDefaultStyleSheet(diff_style)
+            self.ui.noteDiff.setStyleSheet(diff_style)
 
     def click_older_date(self):
         sliderpos = self.ui.historySlider.sliderPosition()
         self.ui.historySlider.setSliderPosition(sliderpos - 1)
+        self.load_old_note(sliderpos - 1)
 
     def click_newer_date(self):
         sliderpos = self.ui.historySlider.sliderPosition()
         self.ui.historySlider.setSliderPosition(sliderpos + 1)
-
-    def click_merge_history(self):
-        try:
-            filepath = self.current_note.filepath
-            dialog = MergeHistoryDialog(filepath)
-            dialog.exec_()
-        except TypeError:
-            pass
+        self.load_old_note(sliderpos + 1)
 
     def click_merge_notes(self):
         dialog = MergeNotesDialog(self.notes_list, self.notes_dir, self.md)
@@ -665,19 +704,11 @@ class MainWindow(QtGui.QMainWindow):
         self.all_notes = self.load_notemodels()
         self.load_ui_notes_list(self.all_notes)
         self.update_ui_views()
+        self.search.build_index()
+        self.ui.omniBar.setText('')
 
     def set_ui_views(self):
         try:
-            if int(self.conf['conf_checkbox_preview']) == 0 and self.preview_tab is None:
-                self.remove_preview_tab()
-            elif self.preview_tab is not None:
-                self.insert_preview_tab()
-
-            if int(self.conf['conf_checkbox_diff']) == 0 and self.diff_tab is None:
-                self.remove_diff_tab()
-            elif self.diff_tab is not None:
-                self.insert_diff_tab()
-
             if int(self.conf['conf_checkbox_history']) == 0:
                 self.remove_history_bar()
             elif int(self.conf['conf_checkbox_history']) > 0:
@@ -688,6 +719,7 @@ class MainWindow(QtGui.QMainWindow):
             elif int(self.conf['conf_checkbox_merge']) > 0:
                 self.insert_merge_button()
         except KeyError:
+            logger.debug('[set_ui_views] No conf file')
             pass
 
     def delete_empty_notes(self):
@@ -721,27 +753,40 @@ class MainWindow(QtGui.QMainWindow):
         if message_box.clickedButton() == delete_btn:
             self.delete_note(self.current_note.filepath)
             self.all_notes = self.load_notemodels()
-            self.load_ui_notes_list(self.all_notes)
+            omni_text = self.ui.omniBar.text()
+            if omni_text == '':
+                self.load_ui_notes_list(self.all_notes)
+            else:
+                self.search_files(omni_text)
 
     def delete_note(self, filepath):
+        paths = [filepath,
+                 filepath + HTML_EXTENSION,
+                 filepath + ZIP_EXTENSION]
+        for path in paths:
+            try:
+                os.remove(path)
+                ret = True
+            except OSError as e:
+                logger.warning(e)
+                if not os.path.exists(path):
+                    ret = True
+                else:
+                    ret = False
         try:
             self.search.remove(filepath)
-            os.remove(filepath)
-            os.remove(filepath + ZIP_EXTENSION)
-            return True
-        except OSError:
-            # Probably because there is no zip file
-            if not os.path.exists(filepath):
-                return True
-            else:
-                return False
+            ret = True
+        except:
+            ret = False
+
+        return ret
 
     def do_first_run(self):
         """ Do stuff the first time the app runs """
         # Create styles folder and move base set over
-        styles_dir = os.path.join(os.getcwd(), 'styles')
-        dest_dir = os.path.join(self.app_data_dir, 'styles')
-        shutil.copytree(styles_dir, dest_dir)
+        # styles_dir = os.path.join(os.getcwd(), 'styles')
+        # dest_dir = os.path.join(self.app_data_dir, 'styles')
+        # shutil.copytree(styles_dir, dest_dir)
         # Show them the settings dialog
         self.load_settings()
 

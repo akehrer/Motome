@@ -26,18 +26,6 @@ class SettingsDialog(QtGui.QDialog):
         except KeyError:
             pass
 
-        if 'conf_checkbox_preview' in self.conf.keys():
-            if int(self.conf['conf_checkbox_preview']) == 0:
-                self.ui.conf_checkbox_preview.setChecked(False)
-        else:
-            self.ui.conf_checkbox_preview.setChecked(True)
-
-        if 'conf_checkbox_diff' in self.conf.keys():
-            if int(self.conf['conf_checkbox_diff']) == 0:
-                self.ui.conf_checkbox_diff.setChecked(False)
-        else:
-            self.ui.conf_checkbox_diff.setChecked(True)
-
         if 'conf_checkbox_history' in self.conf.keys():
             if int(self.conf['conf_checkbox_history']) == 0:
                 self.ui.conf_checkbox_history.setChecked(False)

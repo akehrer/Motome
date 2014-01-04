@@ -3,10 +3,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 # Import standard library modules
-import gzip
 import re
+import zipfile
 from datetime import datetime
-from io import open
 from operator import itemgetter
 from os import path, remove
 
@@ -157,14 +156,19 @@ class MergeNotesDialog(QtGui.QDialog):
         now = datetime.now().strftime('%Y%m%d%H%M%S')
         # collect all the diffs
         for item in self.notes_list:
-            note_title = item[1][:-len(self.note_extension)]
-            zip_filepath = item[0] + ZIP_EXTENSION
+            #note_title = item[1][:-len(self.note_extension)]
             try:
-                with gzip.GzipFile(zip_filepath, 'r') as myzip:
-                    self.merged_history.extend([(note_title,name) for name in myzip.namelist()])
+                note_title = item.metadata['title']
+            except TypeError or KeyError:
+                note_title = item.notename
+            #zip_filepath = item[0] + ZIP_EXTENSION
+            zip_filepath = item.filepath + ZIP_EXTENSION
+            try:
+                with zipfile.ZipFile(zip_filepath, 'r') as myzip:
+                    self.merged_history.extend([(note_title, name) for name in myzip.namelist()])
             except:
                 # no history stored for this note
-                self.merged_history.extend([(note_title,now + NOTE_EXTENSION)]) # add .txt to be consistent with zip.namelist
+                self.merged_history.extend([(note_title, now + NOTE_EXTENSION)])
 
         zip_filepath = path.join(self.notes_dir,new_title + self.note_extension + ZIP_EXTENSION)
         current_history = {} # title:content
@@ -173,7 +177,7 @@ class MergeNotesDialog(QtGui.QDialog):
             # get the old content
             old_zip_filepath = path.join(self.notes_dir,h[0] + self.note_extension + ZIP_EXTENSION)
             try:
-                with gzip.GzipFile(old_zip_filepath, 'r') as myzip:
+                with zipfile.ZipFile(old_zip_filepath, 'r') as myzip:
                     old_content,m = parse_note_content(unicode(myzip.read(h[1]))) # meta discarded
             except:
                 old_content = None
@@ -191,6 +195,6 @@ class MergeNotesDialog(QtGui.QDialog):
             temp_filepath = path.join(self.notes_dir,h[1])
             enc_write(temp_filepath, merged)
             # put temp file in zip and delete it
-            with gzip.GzipFile(zip_filepath, 'a') as myzip:
+            with zipfile.ZipFile(zip_filepath, 'a') as myzip:
                 myzip.write(temp_filepath,h[1])
             remove(temp_filepath)

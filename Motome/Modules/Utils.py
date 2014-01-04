@@ -145,9 +145,11 @@ def grab_urls(text):
 
 
 def build_preview_header_html(title):
-    return u"""
+    return """
+<?xml version="1.0" encoding="UTF-8"?>
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>{0}</title>
 </head>
 <body>
