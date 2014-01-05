@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Thu Jan 02 11:56:53 2014
+# Created: Sat Jan 04 20:04:17 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -83,14 +83,6 @@ class Ui_MainWindow(object):
         self.notesList.setUniformItemSizes(True)
         self.notesList.setObjectName("notesList")
         self.verticalLayout_3.addWidget(self.notesList)
-        self.btnMergeNotes = QtGui.QPushButton(self.layoutWidget)
-        self.btnMergeNotes.setText("")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/icons/resources/page_white_stack.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.btnMergeNotes.setIcon(icon2)
-        self.btnMergeNotes.setFlat(True)
-        self.btnMergeNotes.setObjectName("btnMergeNotes")
-        self.verticalLayout_3.addWidget(self.btnMergeNotes)
         self.toolBox = QtGui.QStackedWidget(self.splitter)
         self.toolBox.setEnabled(True)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
@@ -189,17 +181,17 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.historySlider)
         self.btnPrevDate = QtGui.QPushButton(self.frameHistory)
         self.btnPrevDate.setText("")
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(":/icons/resources/date_previous.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.btnPrevDate.setIcon(icon3)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(":/icons/resources/date_previous.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnPrevDate.setIcon(icon2)
         self.btnPrevDate.setFlat(True)
         self.btnPrevDate.setObjectName("btnPrevDate")
         self.horizontalLayout_4.addWidget(self.btnPrevDate)
         self.btnNextDate = QtGui.QPushButton(self.frameHistory)
         self.btnNextDate.setText("")
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(":/icons/resources/date_next.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.btnNextDate.setIcon(icon4)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(":/icons/resources/date_next.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnNextDate.setIcon(icon3)
         self.btnNextDate.setFlat(True)
         self.btnNextDate.setObjectName("btnNextDate")
         self.horizontalLayout_4.addWidget(self.btnNextDate)
@@ -211,7 +203,6 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.historySlider, QtCore.SIGNAL("valueChanged(int)"), MainWindow.load_old_note)
         QtCore.QObject.connect(self.btnPrevDate, QtCore.SIGNAL("clicked()"), MainWindow.click_older_date)
         QtCore.QObject.connect(self.btnNextDate, QtCore.SIGNAL("clicked()"), MainWindow.click_newer_date)
-        QtCore.QObject.connect(self.btnMergeNotes, QtCore.SIGNAL("clicked()"), MainWindow.click_merge_notes)
         QtCore.QObject.connect(self.notesList, QtCore.SIGNAL("clicked(QModelIndex)"), MainWindow.click_update_ui_views)
         QtCore.QObject.connect(self.notesList, QtCore.SIGNAL("itemSelectionChanged()"), MainWindow.click_update_ui_views)
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("textChanged(QString)"), MainWindow.search_files)
@@ -223,8 +214,7 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.toolBox, self.btnPrevDate)
         MainWindow.setTabOrder(self.btnPrevDate, self.btnNextDate)
         MainWindow.setTabOrder(self.btnNextDate, self.historySlider)
-        MainWindow.setTabOrder(self.historySlider, self.btnMergeNotes)
-        MainWindow.setTabOrder(self.btnMergeNotes, self.tagEdit)
+        MainWindow.setTabOrder(self.historySlider, self.tagEdit)
         MainWindow.setTabOrder(self.tagEdit, self.btnSettings)
         MainWindow.setTabOrder(self.btnSettings, self.noteDiff)
         MainWindow.setTabOrder(self.noteDiff, self.notePreview)
@@ -233,7 +223,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
         self.omniBar.setPlaceholderText(QtGui.QApplication.translate("MainWindow", "Search... Press Enter to create a new note with your seach as the title", None, QtGui.QApplication.UnicodeUTF8))
         self.btnSettings.setToolTip(QtGui.QApplication.translate("MainWindow", "Settings", None, QtGui.QApplication.UnicodeUTF8))
-        self.btnMergeNotes.setToolTip(QtGui.QApplication.translate("MainWindow", "Merge & export notes in list", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Title:", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Tags: ", None, QtGui.QApplication.UnicodeUTF8))
         self.btnPrevDate.setToolTip(QtGui.QApplication.translate("MainWindow", "Older", None, QtGui.QApplication.UnicodeUTF8))

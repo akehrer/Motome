@@ -78,6 +78,10 @@ class NoteModel(object):
         return self.safe_filename(self.notename)
 
     @property
+    def unsafename(self):
+        return self.safename.replace('_', ' ')
+
+    @property
     def hashname(self):
         try:
             return md5(self.filepath).hexdigest()

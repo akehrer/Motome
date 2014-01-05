@@ -17,7 +17,7 @@
    <string>Dialog</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="MainWindow.qrc">
+   <iconset>
     <normaloff>:/icons/resources/logo_320x320.png</normaloff>:/icons/resources/logo_320x320.png</iconset>
   </property>
   <property name="modal">
@@ -80,16 +80,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="conf_checkbox_merge">
-         <property name="text">
-          <string>Show Merge Notes Button</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Actions</string>
@@ -147,11 +137,6 @@
          <property name="acceptRichText">
           <bool>false</bool>
          </property>
-         <property name="source">
-          <url>
-           <string>qrc:/icons/resources/markdown_help.html</string>
-          </url>
-         </property>
         </widget>
        </item>
       </layout>
@@ -162,10 +147,10 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QTextBrowser" name="textBrowser">
+        <widget class="QTextBrowser" name="textShorcutsHelp">
          <property name="source">
           <url>
-           <string>qrc:/icons/resources/keyboard_shortcuts.html</string>
+           <string>file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/keyboard_shortcuts.html</string>
           </url>
          </property>
         </widget>
@@ -178,10 +163,10 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QTextBrowser" name="textBrowser_2">
+        <widget class="QTextBrowser" name="textAboutHelp">
          <property name="source">
           <url>
-           <string>qrc:/icons/resources/about.html</string>
+           <string>file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/about.html</string>
           </url>
          </property>
         </widget>

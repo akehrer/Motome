@@ -38,11 +38,11 @@ class SettingsDialog(QtGui.QDialog):
         else:
             self.ui.conf_checkbox_deleteempty.setChecked(True)
 
-        if 'conf_checkbox_merge' in self.conf.keys():
-            if int(self.conf['conf_checkbox_merge']) == 0:
-                self.ui.conf_checkbox_merge.setChecked(False)
-        else:
-            self.ui.conf_checkbox_merge.setChecked(True)
+        # if 'conf_checkbox_merge' in self.conf.keys():
+        #     if int(self.conf['conf_checkbox_merge']) == 0:
+        #         self.ui.conf_checkbox_merge.setChecked(False)
+        # else:
+        #     self.ui.conf_checkbox_merge.setChecked(True)
 
     def load_folder_location(self):
         if 'conf_notesLocation' in self.conf.keys():

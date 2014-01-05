@@ -20,11 +20,11 @@ from PySide import QtCore, QtGui
 from Views.MainWindow import Ui_MainWindow
 
 # Import configuration values
-from config import NOTE_EXTENSION, ZIP_EXTENSION, END_OF_TEXT, MEDIA_FOLDER, HTML_EXTENSION, APP_DIR
+from config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, HTML_EXTENSION, APP_DIR, HTML_FOLDER
 
 # Import additional modules
 from MotomeTextBrowser import MotomeTextBrowser
-from MergeNotesDialog import MergeNotesDialog
+# from MergeNotesDialog import MergeNotesDialog
 from NoteModel import NoteModel
 from SettingsDialog import SettingsDialog
 from Search import SearchNotes, SearchError
@@ -151,7 +151,7 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+D'), self, lambda item=None: self.process_keyseq('ctrl_d'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+L'), self, lambda item=None: self.process_keyseq('ctrl_l'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+T'), self, lambda item=None: self.process_keyseq('ctrl_t'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+M'), self, lambda item=None: self.process_keyseq('ctrl_m'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+M'), self, lambda item=None: self.process_keyseq('ctrl_m'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+S'), self, lambda item=None: self.process_keyseq('ctrl_s'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+R'), self, lambda item=None: self.process_keyseq('ctrl_r'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Up'), self, lambda item=None: self.process_keyseq('ctrl_up'))
@@ -288,6 +288,8 @@ class MainWindow(QtGui.QMainWindow):
             if len(items) > 0:
                 # reverse sort the note list based on last modified time
                 return sorted(items, key=lambda x: x.timestamp, reverse=True)
+            else:
+                return items
         else:
             return items
 
@@ -341,7 +343,7 @@ class MainWindow(QtGui.QMainWindow):
         if 'title' in self.current_note.metadata.keys():
             self.ui.titleEdit.setText(self.current_note.metadata['title'])
         else:
-            self.ui.titleEdit.setText(self.current_note.safename)
+            self.ui.titleEdit.setText(self.current_note.unsafename)
 
         if reload_editor:
             cursor = self.noteEditor.textCursor()
@@ -394,7 +396,7 @@ class MainWindow(QtGui.QMainWindow):
     def update_ui_preview(self):
         self.ui.notePreview.setSearchPaths([self.notes_dir, ])
         html_filename = self.current_note.safename + HTML_EXTENSION
-        url = QtCore.QUrl(html_filename)
+        url = QtCore.QUrl('html/' + html_filename)
         try:
             with open(html_filename):
                 pass
@@ -447,11 +449,11 @@ class MainWindow(QtGui.QMainWindow):
     def insert_history_bar(self):
         self.ui.frameHistory.show()
 
-    def remove_merge_button(self):
-        self.ui.btnMergeNotes.hide()
-
-    def insert_merge_button(self):
-        self.ui.btnMergeNotes.show()
+    # def remove_merge_button(self):
+    #     self.ui.btnMergeNotes.hide()
+    #
+    # def insert_merge_button(self):
+    #     self.ui.btnMergeNotes.show()
 
     def toggle_notes_list_view(self):
         current_size = self.ui.splitter.sizes()
@@ -525,6 +527,14 @@ class MainWindow(QtGui.QMainWindow):
         self.update_ui_views(None, False)
 
     def save_html(self, content):
+        # create the html storage directory
+        try:
+            html_dir = os.path.join(self.notes_dir, HTML_FOLDER)
+            os.makedirs(html_dir)
+        except OSError:
+            # already there
+            pass
+
         try:
             header = build_preview_header_html(self.current_note.metadata['title'])
         except KeyError:
@@ -533,7 +543,7 @@ class MainWindow(QtGui.QMainWindow):
         body = self.md.convert(content)  # TODO: getting re MemoryErrors for large files
         footer = build_preview_footer_html()
         html = header + body + footer
-        filepath = os.path.join(self.notes_dir, self.current_note.safename) + HTML_EXTENSION
+        filepath = os.path.join(self.notes_dir, 'html', self.current_note.safename) + HTML_EXTENSION
         self._write_file(filepath, html)
 
     def search_files(self, query=None):
@@ -613,6 +623,15 @@ class MainWindow(QtGui.QMainWindow):
         if ret:
             # set the current tab to the settings tab
             dialog.ui.tabWidget.setCurrentIndex(0)
+            # set the help source files
+            resource_dir = os.path.join(APP_DIR, 'resources')
+            dialog.ui.textMarkdownHelp.setSearchPaths([resource_dir, ])
+            dialog.ui.textShorcutsHelp.setSearchPaths([resource_dir, ])
+            dialog.ui.textAboutHelp.setSearchPaths([resource_dir, ])
+            md_url = QtCore.QUrl('markdown_help.html')
+            dialog.ui.textMarkdownHelp.setSource('markdown_help.html')
+            dialog.ui.textShorcutsHelp.setSource('keyboard_shortcuts.html')
+            dialog.ui.textAboutHelp.setSource('about.html')
             # a tuple of widget types to find in the settings tab
             to_find = (QtGui.QLineEdit,QtGui.QFontComboBox,QtGui.QComboBox,QtGui.QCheckBox)
             # find all the widgets in the settings tab and set the
@@ -698,14 +717,14 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.historySlider.setSliderPosition(sliderpos + 1)
         self.load_old_note(sliderpos + 1)
 
-    def click_merge_notes(self):
-        dialog = MergeNotesDialog(self.notes_list, self.notes_dir, self.md)
-        dialog.exec_()
-        self.all_notes = self.load_notemodels()
-        self.load_ui_notes_list(self.all_notes)
-        self.update_ui_views()
-        self.search.build_index()
-        self.ui.omniBar.setText('')
+    # def click_merge_notes(self):
+    #     dialog = MergeNotesDialog(self.notes_list, self.notes_dir, self.md)
+    #     dialog.exec_()
+    #     self.all_notes = self.load_notemodels()
+    #     self.load_ui_notes_list(self.all_notes)
+    #     self.update_ui_views()
+    #     self.search.build_index()
+    #     self.ui.omniBar.setText('')
 
     def set_ui_views(self):
         try:
@@ -714,10 +733,10 @@ class MainWindow(QtGui.QMainWindow):
             elif int(self.conf['conf_checkbox_history']) > 0:
                 self.insert_history_bar()
 
-            if int(self.conf['conf_checkbox_merge']) == 0:
-                self.remove_merge_button()
-            elif int(self.conf['conf_checkbox_merge']) > 0:
-                self.insert_merge_button()
+            # if int(self.conf['conf_checkbox_merge']) == 0:
+            #     self.remove_merge_button()
+            # elif int(self.conf['conf_checkbox_merge']) > 0:
+            #     self.insert_merge_button()
         except KeyError:
             logger.debug('[set_ui_views] No conf file')
             pass

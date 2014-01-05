@@ -33,8 +33,9 @@ LOCK_EXTENSION = '.lock'
 # file encoding
 ENCODING = 'utf-8'
 
-# media file sub-folder name
+# sub-folder names
 MEDIA_FOLDER = 'media'
+HTML_FOLDER = 'html'
 
 # The character prepended to tag values when searching
 TAG_QUERY_CHAR = '#'

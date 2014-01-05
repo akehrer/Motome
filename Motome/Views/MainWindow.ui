@@ -146,23 +146,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="btnMergeNotes">
-          <property name="toolTip">
-           <string>Merge &amp; export notes in list</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="MainWindow.qrc">
-            <normaloff>:/icons/resources/page_white_stack.png</normaloff>:/icons/resources/page_white_stack.png</iconset>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="QStackedWidget" name="toolBox">
@@ -391,7 +374,6 @@
   <tabstop>btnPrevDate</tabstop>
   <tabstop>btnNextDate</tabstop>
   <tabstop>historySlider</tabstop>
-  <tabstop>btnMergeNotes</tabstop>
   <tabstop>tagEdit</tabstop>
   <tabstop>btnSettings</tabstop>
   <tabstop>noteDiff</tabstop>
@@ -446,22 +428,6 @@
     <hint type="destinationlabel">
      <x>884</x>
      <y>698</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnMergeNotes</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>click_merge_notes()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>208</x>
-     <y>705</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>140</x>
-     <y>425</y>
     </hint>
    </hints>
   </connection>

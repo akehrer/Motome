@@ -181,30 +181,32 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
                     # not windows
                     fpath = filepath.path()
 
-                filename = safe_filename(os.path.basename(fpath))
-                dst_path = os.path.join(self.notes_dir, MEDIA_FOLDER, filename)
-                media_path = './{0}/{1}'.format(MEDIA_FOLDER, filename)
+                self.insert_filelink(fpath)
 
-                try:
-                    is_image = 'image' in mimetypes.guess_type(fpath)[0]
-                except TypeError:
-                    is_image = False
-
-                if is_image:
-                    # user dropped an image file
-                    try:
-                        shutil.copyfile(fpath, dst_path)
-                    except:
-                        # file probably already there
-                        pass
-                    self.insertPlainText('![{0}]({1}) '.format(filename, media_path))
-                else:
-                    try:
-                        shutil.copyfile(fpath, dst_path)
-                    except Exception as e:
-                        # file probably already there
-                        pass
-                    self.insertPlainText('[{0}]({1})'.format(filename, media_path))
+                # filename = safe_filename(os.path.basename(fpath))
+                # dst_path = os.path.join(self.notes_dir, MEDIA_FOLDER, filename)
+                # media_path = './{0}/{1}'.format(MEDIA_FOLDER, filename)
+                #
+                # try:
+                #     is_image = 'image' in mimetypes.guess_type(fpath)[0]
+                # except TypeError:
+                #     is_image = False
+                #
+                # if is_image:
+                #     # user dropped an image file
+                #     try:
+                #         shutil.copyfile(fpath, dst_path)
+                #     except:
+                #         # file probably already there
+                #         pass
+                #     self.insertHtml('![{0}](<a href="{1}">{1}</a>) '.format(filename, media_path))
+                # else:
+                #     try:
+                #         shutil.copyfile(fpath, dst_path)
+                #     except Exception as e:
+                #         # file probably already there
+                #         pass
+                #     self.insertHtml('[{0}](<a href="{1}">{1}</a>)'.format(filename, media_path))
 
     def dragMoveEvent(self, e):
         """
@@ -245,6 +247,14 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
             self.setTextCursor(cursor)
 
     def insert_filelink(self, filepath):
+        # create the media storage directory
+        try:
+            html_dir = os.path.join(self.notes_dir, MEDIA_FOLDER)
+            os.makedirs(html_dir)
+        except OSError:
+            # already there
+            pass
+
         cursor = self.textCursor()
         current_pos = cursor.position()
 
@@ -269,7 +279,7 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
             except:
                 # file probably already there
                 pass
-            self.insertPlainText('![{0}]({1}) '.format(link_title, link_address))
+            self.insertHtml('![{0}](<a href="{1}">{1}</a>)'.format(link_title, link_address))
         else:
             try:
                 shutil.copyfile(filepath, dst_path)
