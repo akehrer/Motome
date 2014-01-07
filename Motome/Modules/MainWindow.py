@@ -130,6 +130,9 @@ class MainWindow(QtGui.QMainWindow):
         # search
         self.search = None
         self.query = ''
+        self.search_interval = 250 # msec
+        self.search_timer = QtCore.QTimer()
+        self.search_timer.timeout.connect(self.search_files)
 
         if not self.first_run:
             self.search = SearchNotes(self.notes_dir)
@@ -512,17 +515,26 @@ class MainWindow(QtGui.QMainWindow):
         filepath = os.path.join(self.notes_dir, 'html', self.current_note.safename) + HTML_EXTENSION
         self._write_file(filepath, html)
 
-    def search_files(self, query=None):
+    def start_search(self, query):
         self.query = query
-        if query == '':
-            founds = self.all_notes
-        elif query is None:
+
+        if len(query) > 2 and query[:-1] == ' ':
+            self.search_files()
+
+        if self.search_timer.isActive():
+            self.search_timer.stop()
+        self.search_timer.start(self.search_interval)
+
+    def search_files(self):
+        if self.search_timer.isActive():
+            self.search_timer.stop()
+        if self.query is None or self.query == '':
             founds = self.all_notes
         else:
             try:
                 founds = sorted(self.search.run(self.query), key=lambda x: x.matchsum, reverse=True)
             except SearchError as e:
-                logger.warning('[serach_files] %s'%e)
+                logger.warning('[search_files] %s'%e)
                 founds = []
                 message_box = QtGui.QMessageBox()
                 message_box.setText('No notes directory selected.'.format(self.current_note.notename))
@@ -760,7 +772,8 @@ class MainWindow(QtGui.QMainWindow):
             if omni_text == '':
                 self.load_ui_notes_list(self.all_notes)
             else:
-                self.search_files(omni_text)
+                self.query = omni_text
+                self.search_files()
 
     def delete_note(self, filepath):
         paths = [filepath,

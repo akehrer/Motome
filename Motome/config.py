@@ -44,7 +44,7 @@ HTML_FOLDER = 'html'
 TAG_QUERY_CHAR = '#'
 
 # unsafe filename characters, being pretty strict
-UNSAFE_CHARS = '< > : " / \ | ? *'
+UNSAFE_CHARS = '<>:"/\|?*'
 
 # the unicode end of text character
 # http://www.fileformat.info/info/unicode/char/0003/index.htm

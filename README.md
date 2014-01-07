@@ -92,7 +92,7 @@ A note's history can easily be browsed using the slider and buttons at the botto
 ## Including files
 Motome makes it easy to include more than just text information in your notes.  By dragging and dropping a file in the Editor or pressing `Ctrl-Shift-K` you can insert a link to a local data file at the current cursor location.  This file can be of any type and can be opened by clicking on the hyperlink in the Editor or Preview panes.  The file will be opened in whatever application your operating system has assigned to that file type.
 
-Motome stores a copy of any files you attach to a note in the `/media` inside your note directory.
+Motome stores a copy of any files you attach to a note in the `/media` folder inside your note directory.
 
 ## A note on the Motome text files
 

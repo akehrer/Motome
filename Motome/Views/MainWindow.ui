@@ -473,7 +473,7 @@
    <sender>omniBar</sender>
    <signal>textChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>search_files(QString)</slot>
+   <slot>start_search(QString)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>835</x>
@@ -550,5 +550,6 @@
   <slot>click_update_ui_views()</slot>
   <slot>load_anchor(QUrl)</slot>
   <slot>update_slider_tooltip(int)</slot>
+  <slot>start_search(QString)</slot>
  </slots>
 </ui>
