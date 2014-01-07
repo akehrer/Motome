@@ -17,8 +17,8 @@
    <string>Dialog</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/icons/resources/logo_320x320.png</normaloff>:/icons/resources/logo_320x320.png</iconset>
+   <iconset resource="MainWindow.qrc">
+    <normaloff>:/logo/resources/logo_320x320.png</normaloff>:/logo/resources/logo_320x320.png</iconset>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -62,7 +62,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Display</string>
+          <string>Display Settings</string>
          </property>
         </widget>
        </item>
@@ -80,9 +80,22 @@
         </widget>
        </item>
        <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Actions</string>
+          <string>Action Settings</string>
          </property>
         </widget>
        </item>
@@ -112,6 +125,19 @@
          </property>
         </widget>
        </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3">
@@ -136,6 +162,11 @@
          </property>
          <property name="acceptRichText">
           <bool>false</bool>
+         </property>
+         <property name="source">
+          <url>
+           <string>file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/markdown_help.html</string>
+          </url>
          </property>
         </widget>
        </item>

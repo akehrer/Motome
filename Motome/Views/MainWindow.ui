@@ -19,8 +19,8 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/icons/resources/logo_320x320.png</normaloff>:/icons/resources/logo_320x320.png</iconset>
+   <iconset resource="MainWindow.qrc">
+    <normaloff>:/logo/resources/logo_320x320.png</normaloff>:/logo/resources/logo_320x320.png</iconset>
   </property>
   <property name="documentMode">
    <bool>false</bool>
@@ -242,6 +242,9 @@
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
+           <property name="openExternalLinks">
+            <bool>false</bool>
+           </property>
            <property name="openLinks">
             <bool>false</bool>
            </property>
@@ -297,6 +300,9 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Current</string>
          </property>
          <property name="maximum">
           <number>1</number>
@@ -511,6 +517,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>historySlider</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_slider_tooltip(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>435</x>
+     <y>749</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>306</x>
+     <y>730</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>click_update_ui_views(QModelIndex)</slot>
@@ -527,5 +549,6 @@
   <slot>click_omnibar(int,int)</slot>
   <slot>click_update_ui_views()</slot>
   <slot>load_anchor(QUrl)</slot>
+  <slot>update_slider_tooltip(int)</slot>
  </slots>
 </ui>

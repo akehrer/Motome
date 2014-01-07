@@ -95,35 +95,33 @@ def safe_filename(filename):
         return None
 
 
-def human_date(timestamp):
+def human_date(dt):
     """
-    Given a timestamp, return pretty human format representation.
-
-    From: https://github.com/cpbotha/nvpy/blob/master/nvpy/utils.py
+    Given a datetime object, return a more human readable date.
 
     For example, if timestamp is:
-    * today, then do "15:11"
-    * else if it is this year, then do "Aug 4"
-    * else do "Dec 11, 2011"
+    * within a week: Monday 15:11
+    * within a year: Aug 6 15:11
+    * not this week or this year, so we return locale's appropriate date and time representation.
     """
 
-    # this will also give us timestamp in the local timezone
-    dt = datetime.fromtimestamp(timestamp)
     # this returns localtime
     now = datetime.now()
 
-    if dt.date() == now.date():
-        # today: 15:11
-        return dt.strftime('%H:%M')
+    # get a timedelta
+    td = now - dt
 
-    elif dt.year == now.year:
-        # this year: Aug 6
-        # format code %d unfortunately 0-pads
-        return dt.strftime('%b') + ' ' + str(dt.day)
+    if td.days < 7:
+        # within a week: Monday 15:11
+        return dt.strftime('%A %H:%M')
+
+    elif td.days < 365:
+        # within a year: Aug 6 15:11
+        return dt.strftime('%b %d %H:%M')
 
     else:
-        # not today or this year, so we do "Dec 11, 2011"
-        return '%s %d, %d' % (dt.strftime('%b'), dt.day, dt.year)
+        # not this week or this year, so we return locale's appropriate date and time representation."
+        return dt.strftime('%c')
 
 
 def diff_to_html(text1, text2):

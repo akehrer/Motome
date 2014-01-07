@@ -14,7 +14,7 @@ import shutil
 from PySide import QtCore, QtGui
 
 # Import configuration values
-from config import HIGHLIGHT_COLOR, MEDIA_FOLDER, PLATFORM, EDITOR_LINE_LEN
+from config import HIGHLIGHT_COLOR, MEDIA_FOLDER, PLATFORM
 
 from Utils import safe_filename, grab_urls
 
@@ -38,8 +38,6 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         self.setUndoRedoEnabled(True)
         self.setTabChangesFocus(True)
         self.setFrameShape(QtGui.QFrame.NoFrame)
-        # self.setLineWrapColumnOrWidth(EDITOR_LINE_LEN)
-        # self.setLineWrapMode(QtGui.QTextEdit.FixedColumnWidth)
 
         self.notes_dir = notes_dir
 

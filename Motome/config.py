@@ -20,6 +20,9 @@ LOG_LEVEL = logging.DEBUG
 # app directory
 APP_DIR = os.path.dirname(__file__)
 
+# window title prefix
+WINDOW_TITLE = 'Motome'
+
 # app data directory in note directory
 NOTE_DATA_DIR = '.motome'
 
@@ -40,6 +43,9 @@ HTML_FOLDER = 'html'
 # The character prepended to tag values when searching
 TAG_QUERY_CHAR = '#'
 
+# unsafe filename characters, being pretty strict
+UNSAFE_CHARS = '< > : " / \ | ? *'
+
 # the unicode end of text character
 # http://www.fileformat.info/info/unicode/char/0003/index.htm
 # This signifies where the note content ends and any metadata begins
@@ -47,6 +53,3 @@ END_OF_TEXT = '\u0003'
 
 # Found search terms highlight color
 HIGHLIGHT_COLOR = QColor.fromRgb(255, 255, 153, a=255)
-
-# Maximum character line length for editor
-EDITOR_LINE_LEN = 95

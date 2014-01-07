@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\SettingsDialog.ui'
 #
-# Created: Sat Jan 04 20:04:18 2014
+# Created: Tue Jan 07 11:33:10 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -15,7 +15,7 @@ class Ui_SettingsDialog(object):
         SettingsDialog.setWindowModality(QtCore.Qt.ApplicationModal)
         SettingsDialog.resize(578, 348)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icons/resources/logo_320x320.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/logo/resources/logo_320x320.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         SettingsDialog.setWindowIcon(icon)
         SettingsDialog.setModal(True)
         self.verticalLayout_2 = QtGui.QVBoxLayout(SettingsDialog)
@@ -46,6 +46,8 @@ class Ui_SettingsDialog(object):
         self.conf_checkbox_history.setTristate(False)
         self.conf_checkbox_history.setObjectName("conf_checkbox_history")
         self.verticalLayout.addWidget(self.conf_checkbox_history)
+        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem)
         self.label_4 = QtGui.QLabel(self.tab)
         self.label_4.setObjectName("label_4")
         self.verticalLayout.addWidget(self.label_4)
@@ -57,6 +59,8 @@ class Ui_SettingsDialog(object):
         self.conf_checkbox_ctrlsrecord.setChecked(True)
         self.conf_checkbox_ctrlsrecord.setObjectName("conf_checkbox_ctrlsrecord")
         self.verticalLayout.addWidget(self.conf_checkbox_ctrlsrecord)
+        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem1)
         self.tabWidget.addTab(self.tab, "")
         self.tab_3 = QtGui.QWidget()
         self.tab_3.setObjectName("tab_3")
@@ -69,6 +73,7 @@ class Ui_SettingsDialog(object):
         self.textMarkdownHelp = QtGui.QTextBrowser(self.tab_3)
         self.textMarkdownHelp.setReadOnly(True)
         self.textMarkdownHelp.setAcceptRichText(False)
+        self.textMarkdownHelp.setSource(QtCore.QUrl("file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/markdown_help.html"))
         self.textMarkdownHelp.setObjectName("textMarkdownHelp")
         self.verticalLayout_4.addWidget(self.textMarkdownHelp)
         self.tabWidget.addTab(self.tab_3, "")
@@ -109,9 +114,9 @@ class Ui_SettingsDialog(object):
         self.label_3.setText(QtGui.QApplication.translate("SettingsDialog", "Notes location", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_notesLocation.setPlaceholderText(QtGui.QApplication.translate("SettingsDialog", "Please select a notes location...", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton.setText(QtGui.QApplication.translate("SettingsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("SettingsDialog", "Display", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("SettingsDialog", "Display Settings", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_history.setText(QtGui.QApplication.translate("SettingsDialog", "Show History Bar", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("SettingsDialog", "Actions", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("SettingsDialog", "Action Settings", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_deleteempty.setToolTip(QtGui.QApplication.translate("SettingsDialog", "Should notes that contain no content be deleted, including their history?", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_deleteempty.setText(QtGui.QApplication.translate("SettingsDialog", "Delete empty notes", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_ctrlsrecord.setToolTip(QtGui.QApplication.translate("SettingsDialog", "Should the current note state be recored to the note history when you press Ctrl/Cmd-S", None, QtGui.QApplication.UnicodeUTF8))
