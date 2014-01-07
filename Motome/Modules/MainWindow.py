@@ -532,7 +532,11 @@ class MainWindow(QtGui.QMainWindow):
             founds = self.all_notes
         else:
             try:
-                founds = sorted(self.search.run(self.query), key=lambda x: x.matchsum, reverse=True)
+                results = self.search.run(self.query)
+                if len(results[0].query.tags) > 0:
+                    # limit results to those with tag matches
+                    results = [r for r in results if len(r.tagmatch) > 0]
+                founds = sorted(results, key=lambda x: x.matchsum, reverse=True)
             except SearchError as e:
                 logger.warning('[search_files] %s'%e)
                 founds = []
