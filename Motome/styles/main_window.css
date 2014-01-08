@@ -4,15 +4,15 @@ QMainWindow {
 
 QLineEdit {
     font-family: 'CMU Typewriter Text';
-    font-size: 10pt;
+    font-size: 17px;
 }
 
 QLabel {
-    font-size: 10pt;
+    font-size: 17px;
 }
 
 QListWidget {
-    font-size: 10pt;
+    font-size: 17px;
 }
 
 QScrollBar:vertical  {

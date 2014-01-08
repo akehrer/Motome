@@ -4,14 +4,17 @@ from __future__ import unicode_literals
 
 import datetime
 import hashlib
+import logging
 import os
 import re
 import zipfile
 
 from Utils import enc_read, enc_write
 
-from config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION
+from config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING
 
+# Set up the logger
+logger = logging.getLogger(__name__)
 
 class NoteModel(object):
     """
@@ -104,9 +107,11 @@ class NoteModel(object):
         try:
             zip_filepath = self.filepath + ZIP_EXTENSION
             with zipfile.ZipFile(zip_filepath, 'r') as myzip:
-                old_content = unicode(myzip.read(self._history[index]))
+                old_content_bytes = myzip.read(self._history[index])
+                old_content = old_content_bytes.decode(ENCODING)
                 old_date = self._history[index][:-(len(ZIP_EXTENSION)+1)]
         except Exception as e:
+            logger.debug('[NoteModel/load_old_note] %s'%e)
             old_content = None
             old_date = None
         return old_content, old_date

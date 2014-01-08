@@ -100,12 +100,6 @@ class MainWindow(QtGui.QMainWindow):
                                 int(self.conf['window_height']))
             self.setGeometry(rect)
 
-
-        # load main window style
-        main_style_path = os.path.join(APP_DIR, 'styles', 'main_window.css')
-        main_style = self._read_file(main_style_path)
-        self.setStyleSheet(main_style)
-
         # load the text browser styles
         self.load_styles()
 
@@ -315,19 +309,7 @@ class MainWindow(QtGui.QMainWindow):
         except AttributeError:
             pass
 
-        # try:
-        #     filepath = self.current_note.filepath
-        #     data = self._read_file(filepath)
-        #     self.old_data = data
-        # except Exception as e:
-        #     logger.debug('[update_ui_views] %s'%e)
-        #     self.noteEditor.blockSignals(False)
-        #     self.ui.tagEdit.blockSignals(False)
-        #     self.ui.titleEdit.blockSignals(False)
-        #     return
-
         if old_content is None:
-            #content, self.meta = parse_note_content(data)
             content = self.current_note.content
             new_content = content
             tab_date = ''
@@ -544,6 +526,8 @@ class MainWindow(QtGui.QMainWindow):
                 message_box.setText('No notes directory selected.'.format(self.current_note.notename))
                 message_box.setInformativeText('Please change your settings.')
                 message_box.exec_()
+            except IndexError:
+                founds = self.all_notes
         self.load_ui_search_list(founds)
 
     def load_ui_search_list(self, results):
@@ -599,14 +583,17 @@ class MainWindow(QtGui.QMainWindow):
         self.noteEditor.setTextCursor(cursor)
 
     def load_history_data(self):
+        """
+        Updates the history slider with history info from the current note
+        """
         self.ui.historySlider.blockSignals(True)
         try:
             hlen = len(self.current_note.history)
             self.ui.historySlider.setMaximum(hlen)
-            self.ui.historySlider.setSliderPosition(hlen)
+            self.ui.historySlider.setValue(hlen)
         except:
             self.ui.historySlider.setMaximum(0)
-            self.ui.historySlider.setSliderPosition(1)
+            self.ui.historySlider.setValue(1)
         self.ui.historySlider.blockSignals(False)
 
     def load_old_note(self,sliderpos):
