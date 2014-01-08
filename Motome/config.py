@@ -17,8 +17,12 @@ LOG_LEVEL = logging.DEBUG
 #       Motome Configuration Variables            #
 ###################################################
 
-# app directory
-APP_DIR = os.path.dirname(__file__)
+# app directory, determine if application is a script file or frozen exe
+# see: http://stackoverflow.com/questions/404744/determining-application-path-in-a-python-exe-generated-by-pyinstaller
+if getattr(sys, 'frozen', False):
+    APP_DIR = os.path.dirname(sys.executable)
+elif __file__:
+    APP_DIR = os.path.dirname(__file__)
 
 # window title prefix
 WINDOW_TITLE = 'Motome'
@@ -36,11 +40,11 @@ LOCK_EXTENSION = '.lock'
 # file encoding
 ENCODING = 'utf-8'
 
-# sub-folder names
+# note directory sub-folder names
 MEDIA_FOLDER = 'media'
 HTML_FOLDER = 'html'
 
-# The character prepended to tag values when searching
+# the character prepended to tag values when searching
 TAG_QUERY_CHAR = '#'
 
 # unsafe filename characters, being pretty strict
@@ -51,5 +55,5 @@ UNSAFE_CHARS = '<>:"/\|?*'
 # This signifies where the note content ends and any metadata begins
 END_OF_TEXT = '\u0003'
 
-# Found search terms highlight color
+# found search terms highlight color
 HIGHLIGHT_COLOR = QColor.fromRgb(255, 255, 153, a=255)
