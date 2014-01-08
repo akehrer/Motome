@@ -7,7 +7,6 @@ import logging
 import os
 import shutil
 import sys
-import zipfile
 from datetime import datetime
 
 # Import extra modules
@@ -25,7 +24,6 @@ from config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, \
 
 # Import additional modules
 from MotomeTextBrowser import MotomeTextBrowser
-# from MergeNotesDialog import MergeNotesDialog
 from NoteModel import NoteModel
 from SettingsDialog import SettingsDialog
 from Search import SearchNotes, SearchError
@@ -136,7 +134,15 @@ class MainWindow(QtGui.QMainWindow):
         self.all_notes = self.load_notemodels()
         self.notes_list = []
         self.load_ui_notes_list(self.all_notes)
-        self.update_ui_views()
+        try:
+            self.update_ui_views()
+        except AttributeError:
+            # note directory missing?
+            if not os.path.isdir(self.notes_dir):
+                self.first_run = True
+            else:
+                logger.error('Error running __init__ update_ui_views')
+                self.first_run = True
 
         # notes list splitter size for hiding and showing the notes list
         self.notes_list_splitter_size = None
@@ -151,7 +157,6 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+D'), self, lambda item=None: self.process_keyseq('ctrl_d'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+L'), self, lambda item=None: self.process_keyseq('ctrl_l'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+T'), self, lambda item=None: self.process_keyseq('ctrl_t'))
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+M'), self, lambda item=None: self.process_keyseq('ctrl_m'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+S'), self, lambda item=None: self.process_keyseq('ctrl_s'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+R'), self, lambda item=None: self.process_keyseq('ctrl_r'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Up'), self, lambda item=None: self.process_keyseq('ctrl_up'))
@@ -613,15 +618,6 @@ class MainWindow(QtGui.QMainWindow):
         if ret:
             # set the current tab to the settings tab
             dialog.ui.tabWidget.setCurrentIndex(0)
-            # set the help source files
-            resource_dir = os.path.join(APP_DIR, 'resources')
-            dialog.ui.textMarkdownHelp.setSearchPaths([resource_dir, ])
-            dialog.ui.textShorcutsHelp.setSearchPaths([resource_dir, ])
-            dialog.ui.textAboutHelp.setSearchPaths([resource_dir, ])
-            md_url = QtCore.QUrl('markdown_help.html')
-            dialog.ui.textMarkdownHelp.setSource('markdown_help.html')
-            dialog.ui.textShorcutsHelp.setSource('keyboard_shortcuts.html')
-            dialog.ui.textAboutHelp.setSource('about.html')
             # a tuple of widget types to find in the settings tab
             to_find = (QtGui.QLineEdit,QtGui.QFontComboBox,QtGui.QComboBox,QtGui.QCheckBox)
             # find all the widgets in the settings tab and set the

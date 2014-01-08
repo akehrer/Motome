@@ -165,7 +165,7 @@
          </property>
          <property name="source">
           <url>
-           <string>file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/markdown_help.html</string>
+           <string>qrc:/html/resources/markdown_help.html</string>
           </url>
          </property>
         </widget>
@@ -181,7 +181,7 @@
         <widget class="QTextBrowser" name="textShorcutsHelp">
          <property name="source">
           <url>
-           <string>file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/keyboard_shortcuts.html</string>
+           <string>qrc:/html/resources/keyboard_shortcuts.html</string>
           </url>
          </property>
         </widget>
@@ -197,7 +197,7 @@
         <widget class="QTextBrowser" name="textAboutHelp">
          <property name="source">
           <url>
-           <string>file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/about.html</string>
+           <string>qrc:/html/resources/about.html</string>
           </url>
          </property>
         </widget>

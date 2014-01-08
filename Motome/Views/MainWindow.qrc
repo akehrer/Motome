@@ -15,6 +15,11 @@
     <file>resources/page_white_stack.png</file>
     <file>resources/printer.png</file>
   </qresource>
+  <qresource prefix="html">
+    <file>resources/markdown_help.html</file>
+    <file>resources/keyboard_shortcuts.html</file>
+    <file>resources/about.html</file>
+  </qresource>
   <qresource prefix="logo">
     <file>resources/logo_320x320.png</file>
   </qresource>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\SettingsDialog.ui'
 #
-# Created: Wed Jan 08 14:49:22 2014
+# Created: Wed Jan 08 17:03:41 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -73,7 +73,7 @@ class Ui_SettingsDialog(object):
         self.textMarkdownHelp = QtGui.QTextBrowser(self.tab_3)
         self.textMarkdownHelp.setReadOnly(True)
         self.textMarkdownHelp.setAcceptRichText(False)
-        self.textMarkdownHelp.setSource(QtCore.QUrl("file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/markdown_help.html"))
+        self.textMarkdownHelp.setSource(QtCore.QUrl("qrc:/html/resources/markdown_help.html"))
         self.textMarkdownHelp.setObjectName("textMarkdownHelp")
         self.verticalLayout_4.addWidget(self.textMarkdownHelp)
         self.tabWidget.addTab(self.tab_3, "")
@@ -82,7 +82,7 @@ class Ui_SettingsDialog(object):
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.tab_4)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.textShorcutsHelp = QtGui.QTextBrowser(self.tab_4)
-        self.textShorcutsHelp.setSource(QtCore.QUrl("file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/keyboard_shortcuts.html"))
+        self.textShorcutsHelp.setSource(QtCore.QUrl("qrc:/html/resources/keyboard_shortcuts.html"))
         self.textShorcutsHelp.setObjectName("textShorcutsHelp")
         self.verticalLayout_5.addWidget(self.textShorcutsHelp)
         self.tabWidget.addTab(self.tab_4, "")
@@ -91,7 +91,7 @@ class Ui_SettingsDialog(object):
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.tab_2)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.textAboutHelp = QtGui.QTextBrowser(self.tab_2)
-        self.textAboutHelp.setSource(QtCore.QUrl("file:///C:/Users/Aaron Kehrer/Google Drive/Workspaces/Motome/Motome/resources/about.html"))
+        self.textAboutHelp.setSource(QtCore.QUrl("qrc:/html/resources/about.html"))
         self.textAboutHelp.setObjectName("textAboutHelp")
         self.verticalLayout_3.addWidget(self.textAboutHelp)
         self.tabWidget.addTab(self.tab_2, "")
