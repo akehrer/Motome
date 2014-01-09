@@ -7,6 +7,7 @@ import logging
 import os
 import shutil
 import sys
+import time
 from datetime import datetime
 
 # Import extra modules
@@ -20,7 +21,7 @@ from Views.MainWindow import Ui_MainWindow
 
 # Import configuration values
 from config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, \
-    HTML_EXTENSION, APP_DIR, HTML_FOLDER, WINDOW_TITLE, UNSAFE_CHARS
+    HTML_EXTENSION, APP_DIR, HTML_FOLDER, WINDOW_TITLE, UNSAFE_CHARS, VERSION
 
 # Import additional modules
 from MotomeTextBrowser import MotomeTextBrowser
@@ -72,10 +73,6 @@ class MainWindow(QtGui.QMainWindow):
         # Load configuration
         self.load_conf()
 
-        # tab data
-        self.preview_tab = None
-        self.diff_tab = None
-
         # insert the custom text editor
         self.noteEditor = MotomeTextBrowser(self.ui.tabEditor, self.notes_dir)
         self.noteEditor.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|
@@ -107,12 +104,14 @@ class MainWindow(QtGui.QMainWindow):
         # current view
         self.current_note = None
         self.old_data = None
-        #self.meta = {}
         self.history = []
 
         # set the views
         self.set_ui_views()
         self.ui.notePreview.setSearchPaths(self.notes_dir)
+
+        # notes list splitter size for hiding and showing the notes list
+        self.notes_list_splitter_size = None
 
         # save file timer
         self.save_interval = 1000 # msec
@@ -136,16 +135,13 @@ class MainWindow(QtGui.QMainWindow):
         self.load_ui_notes_list(self.all_notes)
         try:
             self.update_ui_views()
-        except AttributeError:
+        except AttributeError as e:
             # note directory missing?
             if not os.path.isdir(self.notes_dir):
                 self.first_run = True
             else:
-                logger.error('Error running __init__ update_ui_views')
+                logger.error('Error running __init__/update_ui_views, %s'%e)
                 self.first_run = True
-
-        # notes list splitter size for hiding and showing the notes list
-        self.notes_list_splitter_size = None
 
         # set-up the keyboard shortcuts
         esc = QtCore.Qt.Key_Escape
@@ -263,6 +259,8 @@ class MainWindow(QtGui.QMainWindow):
     def save_conf(self):
         filepath = os.path.join(self.app_data_dir, 'conf')
         filedata = ''
+        self.conf['motome_version'] = VERSION
+        self.conf['conf_update'] = time.time()
         for key, value in self.conf.items():
                 filedata = filedata + '{0}:{1}\n'.format(key, value)
         self._write_file(filepath, filedata)
@@ -314,6 +312,12 @@ class MainWindow(QtGui.QMainWindow):
         except AttributeError:
             pass
 
+        if self.current_note is None:
+            self.noteEditor.blockSignals(False)
+            self.ui.tagEdit.blockSignals(False)
+            self.ui.titleEdit.blockSignals(False)
+            return
+
         if old_content is None:
             content = self.current_note.content
             new_content = content
@@ -342,19 +346,10 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowTitle(' '.join([WINDOW_TITLE, '-', title, tab_date]))
 
         if reload_editor:
-            # cursor = self.noteEditor.textCursor()
-            # start_pos = cursor.selectionStart()
-            # end_pos = cursor.selectionEnd()
             self.noteEditor.set_note_text(content)
-            # cursor.setPosition(start_pos)
-            # cursor.setPosition(end_pos, QtGui.QTextCursor.KeepAnchor)
-            # self.noteEditor.setTextCursor(cursor)
 
-        if self.preview_tab is None:
-            self.update_ui_preview()
-
-        if self.diff_tab is None:
-            self.update_ui_diff(content, new_content)
+        self.update_ui_preview()
+        self.update_ui_diff(content, new_content)
 
         if self.query is not '':
             self.noteEditor.highlight_search(self.query.split(' '))
@@ -632,22 +627,12 @@ class MainWindow(QtGui.QMainWindow):
                             self.conf[name] = 0
                         else:
                             self.conf[name] = 1
-                    elif name == 'conf_checkbox_diff':
-                        if c.checkState() == QtCore.Qt.CheckState.Unchecked:
-                            self.conf[name] = 0
-                        else:
-                            self.conf[name] = 1
                     elif name == 'conf_checkbox_history':
                         if c.checkState() == QtCore.Qt.CheckState.Unchecked:
                             self.conf[name] = 0
                         else:
                             self.conf[name] = 1
                     elif name == 'conf_checkbox_deleteempty':
-                        if c.checkState() == QtCore.Qt.CheckState.Unchecked:
-                            self.conf[name] = 0
-                        else:
-                            self.conf[name] = 1
-                    elif name == 'conf_checkbox_merge':
                         if c.checkState() == QtCore.Qt.CheckState.Unchecked:
                             self.conf[name] = 0
                         else:
@@ -695,13 +680,13 @@ class MainWindow(QtGui.QMainWindow):
     def click_older_date(self):
         sliderpos = self.ui.historySlider.sliderPosition()
         if sliderpos != self.ui.historySlider.minimum():
-            self.ui.historySlider.setSliderPosition(sliderpos - 1)
+            self.ui.historySlider.setValue(sliderpos - 1)
             self.load_old_note(sliderpos - 1)
 
     def click_newer_date(self):
         sliderpos = self.ui.historySlider.sliderPosition()
         if sliderpos != self.ui.historySlider.maximum():
-            self.ui.historySlider.setSliderPosition(sliderpos + 1)
+            self.ui.historySlider.setValue(sliderpos + 1)
             self.load_old_note(sliderpos + 1)
 
     def set_ui_views(self):

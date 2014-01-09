@@ -1,6 +1,8 @@
 # Import the future
 from __future__ import unicode_literals
 
+VERSION = '0.1.0'
+
 # Import standard library modules
 import logging
 import os

@@ -1,0 +1,2 @@
+import Motome
+Motome.main()

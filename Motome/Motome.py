@@ -28,9 +28,9 @@ class App(QtGui.QApplication):
         font_name_dirs = ['Bright', 'Serif', 'Typewriter']
         for name in font_name_dirs:
             fontpath = os.path.join(APP_DIR, 'styles', 'default', 'fonts', name)
-            for file in os.listdir(fontpath):
-                if file.endswith(".ttf"):
-                    p = os.path.join(fontpath, file)
+            for f in os.listdir(fontpath):
+                if f.endswith(".ttf"):
+                    p = os.path.join(fontpath, f)
                     self.font_database.addApplicationFont(p)
 
         self.lastWindowClosed.connect(self.byebye)
