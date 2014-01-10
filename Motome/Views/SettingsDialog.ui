@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>578</width>
-    <height>348</height>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,7 +46,7 @@
          <item>
           <widget class="QLineEdit" name="conf_notesLocation">
            <property name="placeholderText">
-            <string>Please select a notes location...</string>
+            <string>Required - Please select a notes location...</string>
            </property>
           </widget>
          </item>
@@ -60,27 +60,28 @@
         </layout>
        </item>
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Display Settings</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Author</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="conf_author">
+           <property name="toolTip">
+            <string>Chijiiwa Motome &lt;cmotome@example.com&gt;</string>
+           </property>
+           <property name="placeholderText">
+            <string>Optional - Please enter your name</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QCheckBox" name="conf_checkbox_history">
-         <property name="text">
-          <string>Show History Bar</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <property name="tristate">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
+        <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -93,9 +94,15 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label_4">
+        <widget class="QCheckBox" name="conf_checkbox_history">
          <property name="text">
-          <string>Action Settings</string>
+          <string>Show History Bar</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -113,12 +120,65 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="conf_checkbox_firstlinetitle">
+         <property name="text">
+          <string>Use the first  line of the note as the title</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="conf_checkbox_titleasfilename">
+         <property name="text">
+          <string>Set the note title as the file name</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QCheckBox" name="conf_checkbox_ctrlsrecord">
          <property name="toolTip">
           <string>Should the current note state be recored to the note history when you press Ctrl/Cmd-S</string>
          </property>
          <property name="text">
           <string>Record current note to history with Ctrl/Cmd-S</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="conf_checkbox_recordonswitch">
+         <property name="text">
+          <string>Record changed note data to history when switching notes</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="conf_checkbox_recordonexit">
+         <property name="text">
+          <string>Record changed note data to history on exit</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -229,8 +289,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>282</y>
+     <x>238</x>
+     <y>405</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -245,8 +305,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>295</x>
-     <y>288</y>
+     <x>306</x>
+     <y>405</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -261,8 +321,8 @@
    <slot>load_folder_location()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>433</x>
-     <y>87</y>
+     <x>550</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>212</x>

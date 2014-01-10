@@ -7,6 +7,7 @@ import hashlib
 import logging
 import os
 import re
+import shutil
 import zipfile
 
 from Utils import enc_read, enc_write
@@ -51,17 +52,33 @@ class NoteModel(object):
 
     @metadata.setter
     def metadata(self, value):
-        if value != self._metadata:
-            self._metadata = value
-            self._save_to_file()
+        self._metadata = value
+        self._save_to_file()
 
     @property
     def history(self):
-        zip_filepath = self.filepath + ZIP_EXTENSION
+        zip_filepath = self.historypath
         self._history = []
-        with zipfile.ZipFile(zip_filepath, 'r') as myzip:
-            self._history = sorted(myzip.namelist())
+        try:
+            with zipfile.ZipFile(zip_filepath, 'r') as myzip:
+                self._history = sorted(myzip.infolist(), key=lambda x: x.filename)
+        except IOError:
+            pass
         return self._history
+
+    @property
+    def recorded(self):
+        if len(self.history) == 0:
+            return False
+        else:
+            two_sec = datetime.timedelta(seconds=2)
+            dt = self.history[-1].date_time
+            latest_dt = datetime.datetime(*dt)
+            current_dt = datetime.datetime.fromtimestamp(self.timestamp)
+            if abs(current_dt - latest_dt) < two_sec:
+                return True
+            else:
+                return False
 
     @property
     def filename(self):
@@ -76,6 +93,25 @@ class NoteModel(object):
             return os.path.basename(os.path.splitext(self.filepath)[0])
         except AttributeError:
             return None
+
+    @notename.setter
+    def notename(self, value):
+        basepath, ext = os.path.splitext(self.filepath)
+        newpath = basepath[:-len(self.notename)] + value + ext
+        try:
+            shutil.move(self.filepath, newpath)
+        except OSError:
+            logging.error('Note renaming error: %s to %s'%(self.notename, value))
+            return
+        try:
+            shutil.move(self.historypath, newpath + ZIP_EXTENSION)
+        except IOError:
+            pass
+        self.filepath = newpath
+
+    @property
+    def historypath(self):
+        return self.filepath + ZIP_EXTENSION
 
     @property
     def safename(self):
@@ -107,9 +143,9 @@ class NoteModel(object):
         try:
             zip_filepath = self.filepath + ZIP_EXTENSION
             with zipfile.ZipFile(zip_filepath, 'r') as myzip:
-                old_content_bytes = myzip.read(self._history[index])
+                old_content_bytes = myzip.read(self.history[index])
                 old_content = old_content_bytes.decode(ENCODING)
-                old_date = self._history[index][:-(len(ZIP_EXTENSION)+1)]
+                old_date = self.history[index].filename[:-(len(ZIP_EXTENSION)+1)]
         except Exception as e:
             logger.debug('[NoteModel/load_old_note] %s'%e)
             old_content = None
@@ -126,12 +162,47 @@ class NoteModel(object):
         old_filename = now + NOTE_EXTENSION
         old_filepath = os.path.join(notes_dir, old_filename)
 
+        self._save_to_file()
         self._save_to_file(filepath=old_filepath)
 
         zip_filepath = self.filepath + ZIP_EXTENSION
         with zipfile.ZipFile(zip_filepath, 'a') as myzip:
             myzip.write(old_filepath, old_filename)
         os.remove(old_filepath)
+
+    def rename(self):
+        if self._metadata['title'] == self.notename:
+            return
+        else:
+            self.notename = self._metadata['title']
+
+    def get_status(self):
+        dt = datetime.datetime.fromtimestamp(self.timestamp)
+        html = """<html>
+        <body>
+        <p>
+        {notename}
+        </p>
+        <p>
+        This is the latest version.
+        </p>
+        <p>
+        Last saved: {timestamp}
+        </p>
+        <p>
+        Last Recorded: {recorded}
+        </p>
+        </body>
+        </html>""".format(notename=self.notename, timestamp=dt.strftime('%c'), recorded=self._latest_record_date())
+        return html
+
+    def _latest_record_date(self):
+        try:
+            dt = self.history[-1].date_time
+            latest_dt = datetime.datetime(*dt)
+            return latest_dt.strftime('%c')
+        except IndexError:
+            return 'Never'
 
     def _update_from_file(self):
         self._content, self._metadata = self.parse_note_content(enc_read(self.filepath))
@@ -143,12 +214,13 @@ class NoteModel(object):
         """
         if filepath is None:
             filepath = self.filepath
-        if not 'title' in self._metadata.keys():
-            self._metadata['title'] = self.notename
-        filedata = self._content + '\n' + END_OF_TEXT + '\n'
-        for key, value in self._metadata.items():
+        if not 'title' in self.metadata.keys():
+            self.metadata['title'] = self.notename
+        filedata = self.content + '\n' + END_OF_TEXT + '\n'
+        for key, value in self.metadata.items():
                 filedata = filedata + '{0}:{1}\n'.format(key, value)
         enc_write(filepath, filedata)
+        # self.recorded = False
 
 
     @staticmethod

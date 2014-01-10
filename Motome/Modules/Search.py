@@ -56,6 +56,9 @@ class SearchNotes(object):
             safename = safe_filename(os.path.basename(filepath))
             index_filepath = os.path.join(self.index_dir, safename) + INDEX_EXTENSION
             os.remove(index_filepath)
+        except OSError:
+            # file not there?
+            pass
         finally:
             self._get_notes_list()
 

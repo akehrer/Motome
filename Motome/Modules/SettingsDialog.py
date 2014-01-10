@@ -26,6 +26,11 @@ class SettingsDialog(QtGui.QDialog):
         except KeyError:
             pass
 
+        try:
+            self.ui.conf_author.setText(self.conf['conf_author'])
+        except KeyError:
+            pass
+
         if 'conf_checkbox_history' in self.conf.keys():
             if int(self.conf['conf_checkbox_history']) == 0:
                 self.ui.conf_checkbox_history.setChecked(False)
@@ -37,6 +42,30 @@ class SettingsDialog(QtGui.QDialog):
                 self.ui.conf_checkbox_deleteempty.setChecked(False)
         else:
             self.ui.conf_checkbox_deleteempty.setChecked(True)
+
+        if 'conf_checkbox_recordonexit' in self.conf.keys():
+            if int(self.conf['conf_checkbox_recordonexit']) == 0:
+                self.ui.conf_checkbox_recordonexit.setChecked(False)
+        else:
+            self.ui.conf_checkbox_recordonexit.setChecked(True)
+
+        if 'conf_checkbox_recordonswitch' in self.conf.keys():
+            if int(self.conf['conf_checkbox_recordonswitch']) == 0:
+                self.ui.conf_checkbox_recordonswitch.setChecked(False)
+        else:
+            self.ui.conf_checkbox_recordonswitch.setChecked(True)
+
+        if 'conf_checkbox_titleasfilename' in self.conf.keys():
+            if int(self.conf['conf_checkbox_titleasfilename']) == 0:
+                self.ui.conf_checkbox_titleasfilename.setChecked(False)
+        else:
+            self.ui.conf_checkbox_titleasfilename.setChecked(True)
+
+        if 'conf_checkbox_firstlinetitle' in self.conf.keys():
+            if int(self.conf['conf_checkbox_firstlinetitle']) == 0:
+                self.ui.conf_checkbox_firstlinetitle.setChecked(False)
+        else:
+            self.ui.conf_checkbox_firstlinetitle.setChecked(True)
 
     def load_folder_location(self):
         if 'conf_notesLocation' in self.conf.keys():

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Wed Jan 08 17:03:40 2014
+# Created: Fri Jan 10 15:23:53 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -107,12 +107,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setSizeConstraint(QtGui.QLayout.SetDefaultConstraint)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.label_2 = QtGui.QLabel(self.tabEditor)
-        self.label_2.setObjectName("label_2")
-        self.horizontalLayout_2.addWidget(self.label_2)
-        self.titleEdit = QtGui.QLineEdit(self.tabEditor)
-        self.titleEdit.setObjectName("titleEdit")
-        self.horizontalLayout_2.addWidget(self.titleEdit)
         self.label = QtGui.QLabel(self.tabEditor)
         self.label.setObjectName("label")
         self.horizontalLayout_2.addWidget(self.label)
@@ -210,6 +204,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.btnSettings, QtCore.SIGNAL("clicked()"), MainWindow.load_settings)
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("returnPressed()"), MainWindow.new_note)
         QtCore.QObject.connect(self.historySlider, QtCore.SIGNAL("sliderMoved(int)"), MainWindow.update_slider_tooltip)
+        QtCore.QObject.connect(self.tagEdit, QtCore.SIGNAL("textChanged(QString)"), MainWindow.start_save)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.omniBar, self.notesList)
         MainWindow.setTabOrder(self.notesList, self.toolBox)
@@ -225,7 +220,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
         self.omniBar.setPlaceholderText(QtGui.QApplication.translate("MainWindow", "Search... Press Enter to create a new note with your seach as the title", None, QtGui.QApplication.UnicodeUTF8))
         self.btnSettings.setToolTip(QtGui.QApplication.translate("MainWindow", "Settings", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Title:", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Tags: ", None, QtGui.QApplication.UnicodeUTF8))
         self.historySlider.setToolTip(QtGui.QApplication.translate("MainWindow", "Current", None, QtGui.QApplication.UnicodeUTF8))
         self.btnPrevDate.setToolTip(QtGui.QApplication.translate("MainWindow", "Older", None, QtGui.QApplication.UnicodeUTF8))

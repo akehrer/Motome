@@ -199,16 +199,6 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Title:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="titleEdit"/>
-           </item>
-           <item>
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Tags: </string>
@@ -530,6 +520,22 @@
     <hint type="destinationlabel">
      <x>306</x>
      <y>730</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tagEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>start_save()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>734</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1020</x>
+     <y>329</y>
     </hint>
    </hints>
   </connection>
