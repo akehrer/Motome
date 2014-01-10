@@ -179,8 +179,8 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+T'), self, lambda item=None: self.process_keyseq('ctrl_t'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+S'), self, lambda item=None: self.process_keyseq('ctrl_s'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+R'), self, lambda item=None: self.process_keyseq('ctrl_r'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Up'), self, lambda item=None: self.process_keyseq('ctrl_up'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Down'), self, lambda item=None: self.process_keyseq('ctrl_down'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+]'), self, lambda item=None: self.process_keyseq('ctrl_up'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+['), self, lambda item=None: self.process_keyseq('ctrl_down'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+<'), self, lambda item=None: self.process_keyseq('ctrl_<'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+>'), self, lambda item=None: self.process_keyseq('ctrl_>'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+L'), self, lambda item=None: self.process_keyseq('ctrl_shift_l'))
@@ -188,6 +188,7 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+O'), self, lambda item=None: self.process_keyseq('ctrl_shift_o'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+F'), self, lambda item=None: self.process_keyseq('ctrl_shift_f'))
         QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+U'), self, lambda item=None: self.process_keyseq('ctrl_shift_u'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+P'), self, lambda item=None: self.process_keyseq('ctrl_shift_p'))
         QtGui.QShortcut(QtGui.QKeySequence(esc), self, lambda item=None: self.process_keyseq('esc'))
 
         # remove notes in the note list using the delete key
@@ -245,11 +246,12 @@ class MainWindow(QtGui.QMainWindow):
                 self.noteEditor.insertPlainText('{0}\n'.format(now))
             else:
                 self.ui.omniBar.setText(now)
+        elif seq == 'ctrl_shift_p':
+            self.dblclick_pin_list_item(self.ui.notesList.currentIndex())
         elif seq == 'esc':
             self.ui.omniBar.setText('')
         else:
             logger.info('No code for {0}'.format(seq))
-            # print('No code for {0}'.format(seq))
 
     def stop(self):
         if self.save_timer.isActive():
@@ -327,11 +329,18 @@ class MainWindow(QtGui.QMainWindow):
             return items
 
     def load_ui_notes_list(self, items):
+        pinned_items = [i for i in items if i.pinned]
+        unpinned_items = [i for i in items if not i.pinned]
         self.ui.notesList.clear()
-        for item in items:
+        for item in pinned_items:
+            n = QtGui.QListWidgetItem(QtGui.QIcon(":/icons/resources/bullet_black.png"), item.notename)
+            self.ui.notesList.addItem(n)
+
+        for item in unpinned_items:
             u = item.notename
             self.ui.notesList.addItem(u)
-        self.notes_list = items
+
+        self.notes_list = pinned_items + unpinned_items
         self.ui.notesList.setCurrentRow(0)
 
     def update_ui_views(self, old_content=None, reload_editor=True):
@@ -399,6 +408,20 @@ class MainWindow(QtGui.QMainWindow):
             self.current_note.record(self.notes_dir)
 
         self.update_ui_views()
+
+    def dblclick_pin_list_item(self, index):
+        if index is None:
+            return
+        else:
+            i = index.row()
+
+        note = self.notes_list[i]
+        if note.pinned:
+            note.pinned = False
+        else:
+            note.pinned = True
+
+        self.search_files()
 
     def keyseq_update_ui_views(self, direction):
         """
@@ -593,7 +616,6 @@ class MainWindow(QtGui.QMainWindow):
         self.load_ui_search_list(founds)
 
     def load_ui_search_list(self, results):
-        self.ui.notesList.clear()
         items = []
         for item in results:
             n = NoteModel(item.filepath)
@@ -601,7 +623,7 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.notesList.addItem(u)
             items.append(n)
         self.notes_list = items
-        self.ui.notesList.setCurrentRow(0)
+        self.load_ui_notes_list(items)
 
     def new_note(self):
         tagged_title = self.ui.omniBar.text()
@@ -671,6 +693,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def load_settings(self):
         dialog = SettingsDialog(self.conf)
+        dialog.ui.about_version_label.setText('v' + VERSION)
         ret = dialog.exec_()
         if ret:
             # set the current tab to the settings tab

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>resources/bullet_black.png</file>
     <file>resources/arrow_down.png</file>
     <file>resources/arrow_in.png</file>
     <file>resources/arrow_join.png</file>

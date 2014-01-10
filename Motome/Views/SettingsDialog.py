@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\SettingsDialog.ui'
 #
-# Created: Fri Jan 10 15:23:54 2014
+# Created: Fri Jan 10 17:35:38 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -115,6 +115,10 @@ class Ui_SettingsDialog(object):
         self.textAboutHelp.setSource(QtCore.QUrl("qrc:/html/resources/about.html"))
         self.textAboutHelp.setObjectName("textAboutHelp")
         self.verticalLayout_3.addWidget(self.textAboutHelp)
+        self.about_version_label = QtGui.QLabel(self.tab_2)
+        self.about_version_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.about_version_label.setObjectName("about_version_label")
+        self.verticalLayout_3.addWidget(self.about_version_label)
         self.tabWidget.addTab(self.tab_2, "")
         self.verticalLayout_2.addWidget(self.tabWidget)
         self.buttonBox = QtGui.QDialogButtonBox(SettingsDialog)
@@ -151,6 +155,7 @@ class Ui_SettingsDialog(object):
         self.label.setText(QtGui.QApplication.translate("SettingsDialog", "<html><head/><body><p><a href=\"http://daringfireball.net/projects/markdown/syntax\"><span style=\" text-decoration: underline; color:#0000ff;\">See official syntax for details</span></a></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("SettingsDialog", "Markdown Help", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QtGui.QApplication.translate("SettingsDialog", "Keyboard Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
+        self.about_version_label.setText(QtGui.QApplication.translate("SettingsDialog", "v0.0.0", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("SettingsDialog", "About", None, QtGui.QApplication.UnicodeUTF8))
 
 import MainWindow_rc

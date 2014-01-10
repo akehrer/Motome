@@ -67,6 +67,24 @@ class NoteModel(object):
         return self._history
 
     @property
+    def pinned(self):
+        try:
+            if int(self.metadata['pinned']) > 0:
+                return True
+            else:
+                return False
+        except KeyError:
+            return False
+
+    @pinned.setter
+    def pinned(self, value):
+        if value:
+            self._metadata['pinned'] = 1
+        else:
+            self._metadata['pinned'] = 0
+        self._save_to_file()
+
+    @property
     def recorded(self):
         if len(self.history) == 0:
             return False

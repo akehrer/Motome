@@ -539,6 +539,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>notesList</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>dblclick_pin_list_item(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>74</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>76</x>
+     <y>48</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>click_update_ui_views(QModelIndex)</slot>
@@ -557,5 +573,6 @@
   <slot>load_anchor(QUrl)</slot>
   <slot>update_slider_tooltip(int)</slot>
   <slot>start_search(QString)</slot>
+  <slot>dblclick_pin_list_item(QModelIndex)</slot>
  </slots>
 </ui>
