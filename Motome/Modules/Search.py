@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 # Import standard library modules
 import cPickle as pickle
+import glob
 import gzip
 import os
 import re
@@ -87,10 +88,7 @@ class SearchNotes(object):
             self.update(notepath)
 
     def _get_notes_list(self):
-        self.notes_list = []
-        for filename in os.listdir(self.notes_dir):
-            if filename.endswith(self.note_extension):
-                self.notes_list.append(os.path.join(self.notes_dir, filename))
+        self.notes_list = glob.glob(self.notes_dir + '/*' + NOTE_EXTENSION)
 
     def _build_file_index(self, notepath, commit=True):
         content, metadata = open_and_parse_note(notepath)
@@ -117,9 +115,12 @@ class SearchNotes(object):
     def _load_file_index(self, notepath):
         safename = safe_filename(os.path.basename(notepath))
         index_filepath = os.path.join(self.index_dir, safename) + INDEX_EXTENSION
-        with gzip.GzipFile(index_filepath, 'rb') as myzip:
-            index = pickle.load(myzip)
-        return index
+        try:
+            with gzip.GzipFile(index_filepath, 'rb') as myzip:
+                index = pickle.load(myzip)
+            return index
+        except IOError:
+            raise SearchError
 
     def _build_collection(self, content):
         """

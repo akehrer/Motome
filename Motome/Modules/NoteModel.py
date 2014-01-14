@@ -10,9 +10,7 @@ import re
 import shutil
 import zipfile
 
-from Utils import enc_read, enc_write
-
-from config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING
+from config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -196,22 +194,9 @@ class NoteModel(object):
 
     def get_status(self):
         dt = datetime.datetime.fromtimestamp(self.timestamp)
-        html = """<html>
-        <body>
-        <p>
-        {notename}
-        </p>
-        <p>
-        This is the latest version.
-        </p>
-        <p>
-        Last saved: {timestamp}
-        </p>
-        <p>
-        Last Recorded: {recorded}
-        </p>
-        </body>
-        </html>""".format(notename=self.notename, timestamp=dt.strftime('%c'), recorded=self._latest_record_date())
+        html = STATUS_TEMPLATE.format(notename=self.notename,
+                                      timestamp=dt.strftime('%c'),
+                                      recorded=self._latest_record_date())
         return html
 
     def _latest_record_date(self):
@@ -223,7 +208,7 @@ class NoteModel(object):
             return 'Never'
 
     def _update_from_file(self):
-        self._content, self._metadata = self.parse_note_content(enc_read(self.filepath))
+        self._content, self._metadata = self.parse_note_content(self.enc_read(self.filepath))
         self._last_seen = self.timestamp
 
     def _save_to_file(self, filepath=None):
@@ -237,9 +222,7 @@ class NoteModel(object):
         filedata = self.content + '\n' + END_OF_TEXT + '\n'
         for key, value in self.metadata.items():
                 filedata = filedata + '{0}:{1}\n'.format(key, value)
-        enc_write(filepath, filedata)
-        # self.recorded = False
-
+        self.enc_write(filepath, filedata)
 
     @staticmethod
     def safe_filename(filename):
@@ -283,3 +266,18 @@ class NoteModel(object):
             except ValueError:
                 pass
         return content, meta
+
+    @staticmethod
+    def enc_write(filepath, filedata):
+        # encode things
+        ufilepath = filepath.encode(ENCODING)
+        ufiledata = filedata.encode(ENCODING)
+        with open(ufilepath, mode='wb') as f:
+            f.write(ufiledata)
+
+    @staticmethod
+    def enc_read(filepath):
+        ufilepath = filepath.encode(ENCODING)
+        with open(ufilepath, mode='rb') as f:
+            data = f.read()
+        return data.decode(ENCODING)

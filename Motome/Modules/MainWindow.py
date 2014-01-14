@@ -29,7 +29,7 @@ from NoteModel import NoteModel
 from SettingsDialog import SettingsDialog
 from Search import SearchNotes, SearchError
 from Utils import build_preview_footer_html, build_preview_header_html, \
-    diff_to_html, enc_read, enc_write, human_date
+    diff_to_html, human_date
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -891,7 +891,7 @@ class MainWindow(QtGui.QMainWindow):
                           int(timestring[12:]))
 
     def _write_file(self, filepath, filedata):
-        enc_write(filepath, filedata)
+        NoteModel.enc_write(filepath, filedata)
 
     def _read_file(self, filepath):
-        return enc_read(filepath)
+        return NoteModel.enc_read(filepath)

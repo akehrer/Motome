@@ -12,7 +12,8 @@ from io import open
 from diff_match_patch import diff_match_patch as dmp
 
 # Import configuration values
-from config import END_OF_TEXT, ENCODING
+from config import END_OF_TEXT
+from NoteModel import NoteModel
 
 # RegExp for finding urls
 # from: https://mail.python.org/pipermail/tutor/2002-September/017228.html
@@ -43,19 +44,19 @@ URL_RE = r"""
            'punc': punc}
 
 
-def enc_write(filepath, filedata):
-    # encode things
-    ufilepath = filepath.encode(ENCODING)
-    ufiledata = filedata.encode(ENCODING)
-    with open(ufilepath, mode='wb') as f:
-        f.write(ufiledata)
-
-
-def enc_read(filepath):
-    ufilepath = filepath.encode(ENCODING)
-    with open(ufilepath, mode='rb') as f:
-        data = f.read()
-    return data.decode(ENCODING)
+# def enc_write(filepath, filedata):
+#     # encode things
+#     ufilepath = filepath.encode(ENCODING)
+#     ufiledata = filedata.encode(ENCODING)
+#     with open(ufilepath, mode='wb') as f:
+#         f.write(ufiledata)
+#
+#
+# def enc_read(filepath):
+#     ufilepath = filepath.encode(ENCODING)
+#     with open(ufilepath, mode='rb') as f:
+#         data = f.read()
+#     return data.decode(ENCODING)
 
 
 def parse_note_content(data):
@@ -82,7 +83,7 @@ def parse_note_content(data):
 
 
 def open_and_parse_note(filepath):
-    data = enc_read(filepath)
+    data = NoteModel.enc_read(filepath)
     return parse_note_content(data)
 
 

@@ -59,3 +59,22 @@ END_OF_TEXT = '\u0003'
 
 # found search terms highlight color
 HIGHLIGHT_COLOR = QColor.fromRgb(255, 255, 153, a=255)
+
+# diff status template, to show when at current note record
+STATUS_TEMPLATE = """
+<html>
+    <body>
+        <p>
+            {notename}
+        </p>
+        <p>
+            This is the latest version.
+        </p>
+        <p>
+            Last saved: {timestamp}
+        </p>
+        <p>
+            Last Recorded: {recorded}
+        </p>
+    </body>
+</html>"""
