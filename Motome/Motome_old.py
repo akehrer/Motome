@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Import standard library modules
 import logging
 import os
@@ -7,9 +8,9 @@ import sys
 from PySide import QtGui
 
 # Import app modules
-from Modules.MainWindow import MainWindow
+from Motome.Modules.MainWindow import MainWindow
 
-from config import LOG_LEVEL, APP_DIR
+from Motome.config import LOG_LEVEL, APP_DIR
 
 # Build the logger
 logging.basicConfig(filename='motome.log',

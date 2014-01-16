@@ -1,6 +1,7 @@
 # Import the future
 from __future__ import print_function
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 import datetime
 import hashlib
@@ -10,16 +11,22 @@ import re
 import shutil
 import zipfile
 
-from config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE
+# ZODB Persistence
+from persistent import Persistent
+
+from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE
 
 # Set up the logger
 logger = logging.getLogger(__name__)
 
-class NoteModel(object):
+
+class NoteModel(Persistent):
     """
     The main note model contains the note information and name conversions for a given note.
     """
     def __init__(self, filepath=None):
+        super(NoteModel, self).__init__()
+
         self.filepath = filepath
 
         self._content = ''
@@ -29,6 +36,9 @@ class NoteModel(object):
 
     def __repr__(self):
         return '<Note: {0}, Last Modified: {1}>'.format(self.notename, self.timestamp)
+
+    def __getstate__(self):
+        return self.__dict__.copy()
 
     @property
     def content(self):

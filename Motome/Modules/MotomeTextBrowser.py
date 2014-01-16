@@ -1,6 +1,7 @@
 # Import the future
 from __future__ import print_function
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 # Import standard library modules
 import cgi
@@ -14,9 +15,9 @@ import shutil
 from PySide import QtCore, QtGui
 
 # Import configuration values
-from config import HIGHLIGHT_COLOR, MEDIA_FOLDER, PLATFORM
+from Motome.config import HIGHLIGHT_COLOR, MEDIA_FOLDER, PLATFORM
 
-from Utils import safe_filename, grab_urls
+from Motome.Modules.Utils import safe_filename, grab_urls
 
 # Set up the logger
 logger = logging.getLogger(__name__)

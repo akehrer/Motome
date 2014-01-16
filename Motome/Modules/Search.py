@@ -37,7 +37,7 @@ class SearchNotes(object):
         self.notes_list = []
 
         if os.path.exists(self.notes_dir):
-            self._clean_locks()
+            #self._clean_locks()
             self._get_notes_list()
         else:
             raise SearchLocationError(self.notes_dir)
