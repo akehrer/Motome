@@ -163,7 +163,7 @@ class NoteModel(Persistent):
         try:
             return os.stat(self.filepath).st_mtime
         except:
-            return None
+            return 0.0
 
     def load_old_note(self, index):
         try:
