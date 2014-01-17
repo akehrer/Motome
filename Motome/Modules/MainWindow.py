@@ -10,13 +10,14 @@ import os
 import shutil
 import sys
 import time
+import cPickle as pickle
 from datetime import datetime
 
 # Import the needed ZODB objects
-import transaction
-from ZODB.FileStorage import FileStorage
-from ZODB.DB import DB
-from BTrees.OOBTree import OOBTree
+# import transaction
+# from ZODB.FileStorage import FileStorage
+# from ZODB.DB import DB
+# from BTrees.OOBTree import OOBTree
 
 # Import extra modules
 import markdown
@@ -160,14 +161,12 @@ class MainWindow(QtGui.QMainWindow):
         self.search_timer.timeout.connect(self.search_files)
 
         # DB
-        self.db = None
-        self.db_root = None
-        self.db_notes = None
+        self.db_notes = {}
 
         if not self.first_run:
             # self.search = SearchNotes(self.notes_dir)
             # self.search.build_index()
-            self.build_db_connection()
+            self.load_db_data()
 
         # notes
         self.all_notes = self.load_notemodels()
@@ -278,6 +277,8 @@ class MainWindow(QtGui.QMainWindow):
             for note in self.db_notes.values():
                 if not note.recorded:
                     note.record(self.notes_dir)
+
+        self.save_db_data()
 
         window_geo = self.geometry()
         self.conf['window_x'] = window_geo.x()
@@ -763,7 +764,7 @@ class MainWindow(QtGui.QMainWindow):
             self.notes_dir = self.conf['conf_notesLocation']
             self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
             # set the zodb connection
-            self.build_db_connection()
+            self.load_db_data()
             # self.search = SearchNotes(self.notes_dir)
             self.all_notes = self.load_notemodels()
             # remove any empty file and history (if checked) and reload file list
@@ -888,21 +889,18 @@ class MainWindow(QtGui.QMainWindow):
         """ Do stuff the first time the app runs """
         # Show them the settings dialog
         self.load_settings()
-        self.build_db_connection()
+        self.load_db_data()
 
-    def build_db_connection(self):
-        if self.db is not None:
-            self.db.close()
+    def load_db_data(self):
+        try:
+            with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'rb') as data_file:
+                self.db_notes = pickle.load(data_file)
+        except IOError:
+            self.db_notes = {}
 
-        transaction.abort()
-        db_storage = FileStorage(os.path.join(self.notes_data_dir, 'Motome_data.fs'))
-        self.db = DB(db_storage)
-        connection = self.db.open()
-        self.db_root = connection.root()
-        if not 'notes' in self.db_root.keys():
-            self.db_root['notes'] = OOBTree()
-        self.db_notes = self.db_root['notes']
-        transaction.begin()
+    def save_db_data(self):
+        with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'wb') as data_file:
+            pickle.dump(self.db_notes, data_file, -1)
 
     def set_current_row(self, notename):
         try:
@@ -930,18 +928,3 @@ class MainWindow(QtGui.QMainWindow):
 
     def _read_file(self, filepath):
         return NoteModel.enc_read(filepath)
-
-
-class LoadNoteModelsThread(QtCore.QThread):
-    def __init__(self, notes_dir, db_notes):
-        super(LoadNoteModelsThread, self).__init__()
-        self.notes_dir = notes_dir
-        self.db_notes = db_notes
-
-    def run(self):
-        for filepath in glob.glob(self.notes_dir + '/*' + NOTE_EXTENSION):
-            filename = os.path.basename(filepath)
-            if filename not in self.db_notes.keys():
-                note = NoteModel(filepath)
-                self.db_notes[note.filename] = note
-        transaction.commit()

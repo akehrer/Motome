@@ -44,10 +44,11 @@ class SearchModel(object):
         self.ignore_tags = [t[1:] for t in self.ignore_items if len(t) > 2 and t[0] == TAG_QUERY_CHAR]
 
     def search_notemodel(self, note_model):
-        content_words = note_model.content.lower()
+        content_words = note_model.wordset
         good_tags = len([tag for tag in self.use_tags if tag in note_model.metadata['tags']]) > 0
         bad_tags = len([tag for tag in self.ignore_tags if tag in note_model.metadata['tags']]) == 0
-        good_words = len([word for word in self.use_items if word in content_words]) > 0
+        # good_words = len([word for word in self.use_items if word in content_words]) > 0
+        good_words = set(self.use_items).issubset(content_words)
         bad_words = len([word for word in self.ignore_items if word in content_words]) == 0
 
         return (good_tags or good_words) and (bad_words and bad_tags)

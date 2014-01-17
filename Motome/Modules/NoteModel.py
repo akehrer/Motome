@@ -12,7 +12,7 @@ import shutil
 import zipfile
 
 # ZODB Persistence
-from persistent import Persistent
+# from persistent import Persistent
 
 from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE
 
@@ -20,14 +20,13 @@ from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, 
 logger = logging.getLogger(__name__)
 
 
-class NoteModel(Persistent):
+class NoteModel(object):
     """
     The main note model contains the note information and name conversions for a given note.
     """
     def __init__(self, filepath=None):
-        super(NoteModel, self).__init__()
-
         self.filepath = filepath
+        self.wordset = set()
 
         self._content = ''
         self._metadata = {}
@@ -38,11 +37,13 @@ class NoteModel(Persistent):
         return '<Note: {0}, Last Modified: {1}>'.format(self.notename, self.timestamp)
 
     def __getstate__(self):
-        return self.__dict__.copy()
+        state = self.__dict__.copy()
+        state['_content'] = ''
+        return state
 
     @property
     def content(self):
-        if self.timestamp > self._last_seen:
+        if self.timestamp > self._last_seen or self._content == '':
             self._update_from_file()
         return self._content
 
@@ -220,6 +221,7 @@ class NoteModel(Persistent):
     def _update_from_file(self):
         self._content, self._metadata = self.parse_note_content(self.enc_read(self.filepath))
         self._last_seen = self.timestamp
+        self.wordset = set(re.findall(r'\w+', self._content.lower()))
 
     def _save_to_file(self, filepath=None):
         """
