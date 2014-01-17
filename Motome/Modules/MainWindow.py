@@ -1,13 +1,16 @@
 # Import the future
 from __future__ import print_function
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 # Import standard library modules
+import glob
 import logging
 import os
 import shutil
 import sys
 import time
+import cPickle as pickle
 from datetime import datetime
 
 # Import extra modules
@@ -17,18 +20,19 @@ import markdown
 from PySide import QtCore, QtGui
 
 # Import application window view
-from Views.MainWindow import Ui_MainWindow
+from Motome.Views.MainWindow import Ui_MainWindow
 
 # Import configuration values
-from config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, \
-    HTML_EXTENSION, APP_DIR, HTML_FOLDER, WINDOW_TITLE, UNSAFE_CHARS, VERSION
+from Motome.config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, \
+    APP_DIR, WINDOW_TITLE, UNSAFE_CHARS, VERSION, NOTE_DATA_DIR, TAG_QUERY_CHAR
 
 # Import additional modules
-from MotomeTextBrowser import MotomeTextBrowser
-from NoteModel import NoteModel
-from SettingsDialog import SettingsDialog
-from Search import SearchNotes, SearchError
-from Utils import build_preview_footer_html, build_preview_header_html, \
+from Motome.Modules.MotomeTextBrowser import MotomeTextBrowser
+from Motome.Modules.NoteModel import NoteModel
+from Motome.Modules.SettingsDialog import SettingsDialog
+from Motome.Modules.AutoCompleterModel import AutoCompleteEdit
+from Motome.Modules.Search import SearchNotes, SearchError, SearchModel
+from Motome.Modules.Utils import build_preview_footer_html, build_preview_header_html, \
     diff_to_html, human_date
 
 # Set up the logger
@@ -72,6 +76,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # Load configuration
         self.load_conf()
+        self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
 
         # Set some configuration variables
         if 'conf_checkbox_deleteempty' in self.conf.keys() and int(self.conf['conf_checkbox_deleteempty']) > 0:
@@ -127,6 +132,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # current view
         self.current_note = None
+        self.current_row = 0
         self.old_data = None
         self.history = []
 
@@ -143,19 +149,27 @@ class MainWindow(QtGui.QMainWindow):
         self.save_timer.timeout.connect(self.save_note)
 
         # search
-        self.search = None
+        self.search = SearchModel()
         self.query = ''
         self.search_interval = 250 # msec
         self.search_timer = QtCore.QTimer()
         self.search_timer.timeout.connect(self.search_files)
 
+        # DB
+        self.db_notes = {}
+
+        # tag completer
+        self.tagEditor = AutoCompleteEdit([])
+        self.tagEditor.setObjectName("tagEditor")
+        self.ui.horizontalLayout_2.addWidget(self.tagEditor)
+        self.tagEditor.textEdited.connect(self.start_save)
+
         if not self.first_run:
-            self.search = SearchNotes(self.notes_dir)
-            self.search.build_index()
+            self.load_db_data()
 
         # notes
         self.all_notes = self.load_notemodels()
-        self.notes_list = []
+        self.load_notes_thread = None
         self.load_ui_notes_list(self.all_notes)
         try:
             self.update_ui_views()
@@ -258,9 +272,11 @@ class MainWindow(QtGui.QMainWindow):
             self.save_note()
 
         if self.record_on_exit:
-            for note in self.notes_list:
+            for note in self.db_notes.values():
                 if not note.recorded:
                     note.record(self.notes_dir)
+
+        self.save_db_data()
 
         window_geo = self.geometry()
         self.conf['window_x'] = window_geo.x()
@@ -314,45 +330,81 @@ class MainWindow(QtGui.QMainWindow):
             message_box.exec_()
 
     def load_notemodels(self):
-        items = []
         if os.path.exists(self.notes_dir):
-            for file in os.listdir(self.notes_dir):
-                if file.endswith(self.note_extension):
-                    note = NoteModel(os.path.join(self.notes_dir, file))
-                    items.append(note)
-            if len(items) > 0:
+            notepaths = set(glob.glob(self.notes_dir + '/*' + NOTE_EXTENSION))
+            notenames = map(os.path.basename, notepaths)
+            note_keys = set(self.db_notes.keys())
+            keys_missing_notes = note_keys - set(notenames)
+
+            #remove keys missing notes
+            for filename in keys_missing_notes:
+                del(self.db_notes[filename])
+
+            # add notes missing keys
+            for filepath in notepaths:
+                filename = os.path.basename(filepath)
+                if filename not in self.db_notes.keys():
+                    note = NoteModel(filepath)
+                    self.db_notes[note.filename] = note
+
+            # build the completer list
+            completer_list = set()
+            for note in self.db_notes.values():
+                if 'tags' in note.metadata.keys():
+                    for t in note.metadata['tags'].split():
+                        completer_list.add(t)
+            # attach a completer to the tag editor
+            qlist = QtGui.QStringListModel(list(completer_list))
+            # self.tag_completer.setModel(qlist)
+            self.tagEditor.setCompleterModel(qlist)
+
+            if len(self.db_notes.keys()) > 0:
                 # reverse sort the note list based on last modified time
-                return sorted(items, key=lambda x: x.timestamp, reverse=True)
+                return sorted(self.db_notes.values(), key=lambda x: x.timestamp, reverse=True)
             else:
-                return items
+                return []
         else:
-            return items
+            return []
 
     def load_ui_notes_list(self, items):
         pinned_items = [i for i in items if i.pinned]
         unpinned_items = [i for i in items if not i.pinned]
+
+        if len(items) == 0:
+            self.current_note = None
+
         self.ui.notesList.clear()
+
         for item in pinned_items:
             n = QtGui.QListWidgetItem(QtGui.QIcon(":/icons/resources/bullet_black.png"), item.notename)
             self.ui.notesList.addItem(n)
 
         for item in unpinned_items:
-            u = item.notename
+            u = QtGui.QListWidgetItem(item.notename)
             self.ui.notesList.addItem(u)
 
-        self.notes_list = pinned_items + unpinned_items
-        self.ui.notesList.setCurrentRow(0)
+        if self.current_note is not None:
+            self.set_current_row(self.current_note.notename)
+        else:
+            self.current_row = 0
+            self.update_ui_views()
+
+        if self.current_row < 0:
+            self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
+        else:
+            self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
 
     def update_ui_views(self, old_content=None, reload_editor=True):
         try:
             self.noteEditor.blockSignals(True)
-            self.ui.tagEdit.blockSignals(True)
+            self.tagEditor.blockSignals(True)
         except AttributeError:
             pass
 
         if self.current_note is None:
+            self.noteEditor.set_note_text('')
             self.noteEditor.blockSignals(False)
-            self.ui.tagEdit.blockSignals(False)
+            self.tagEditor.blockSignals(False)
             return
 
         if old_content is None:
@@ -368,9 +420,9 @@ class MainWindow(QtGui.QMainWindow):
             tab_date = '[' + human_date(dt) + ']'
 
         if 'tags' in self.current_note.metadata.keys():
-            self.ui.tagEdit.setText(self.current_note.metadata['tags'])
+            self.tagEditor.setText(self.current_note.metadata['tags'])
         else:
-            self.ui.tagEdit.setText('')
+            self.tagEditor.setText('')
 
         if 'title' in self.current_note.metadata.keys():
             title = self.current_note.metadata['title']
@@ -390,19 +442,26 @@ class MainWindow(QtGui.QMainWindow):
             self.noteEditor.highlight_search(self.query.split(' '))
 
         self.noteEditor.blockSignals(False)
-        self.ui.tagEdit.blockSignals(False)
+        self.tagEditor.blockSignals(False)
 
-    def click_update_ui_views(self, idx=None):
-        if idx is None:
+    def click_update_ui_views(self, index=None):
+        if index is None:
             i = self.ui.notesList.currentRow()
         else:
-            i = idx.row()
+            i = index.row()
+
+        self.current_row = i
 
         if self.save_timer.isActive():
             self.save_timer.stop()
             self.save_note()
 
-        self.current_note = self.notes_list[i]
+        filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
+        try:
+            self.current_note = self.db_notes[filename]  # self.notes_list[i]
+            self.set_current_row(self.current_note.notename)
+        except KeyError:
+            pass
 
         if self.record_on_switch and not self.current_note.recorded:
             self.current_note.record(self.notes_dir)
@@ -415,7 +474,8 @@ class MainWindow(QtGui.QMainWindow):
         else:
             i = index.row()
 
-        note = self.notes_list[i]
+        filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
+        note = self.db_notes[filename]  # self.notes_list[i]
         if note.pinned:
             note.pinned = False
         else:
@@ -445,16 +505,9 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.notesList.setCurrentRow(0)
 
     def update_ui_preview(self):
-        self.ui.notePreview.setSearchPaths([self.notes_dir, ])
-        html_filename = self.current_note.safename + HTML_EXTENSION
-        url = QtCore.QUrl('html/' + html_filename)
-        try:
-            with open(html_filename):
-                pass
-        except IOError:
-            # file doesn't exist, create it
-            self.save_html(self.current_note.content)
-        self.ui.notePreview.setSource(url)
+        content = self.noteEditor.toPlainText()
+        html = self.generate_html(content)
+        self.ui.notePreview.setHtml(html)
         self.ui.notePreview.reload()
 
     def update_ui_diff(self, content, new_content):
@@ -505,18 +558,22 @@ class MainWindow(QtGui.QMainWindow):
         self.save_timer.start(self.save_interval)
 
     def save_note(self, record=False):
+        if self.current_note is None:
+            return
+
         filepath = self.current_note.filepath
         new_content = self.noteEditor.toPlainText()
         # if the new content is an empty note and delete empty notes is enabled
         # delete the note and it's history
         if len(new_content.strip()) == 0 and self.delete_empty_note(filepath):
             self.save_timer.stop()
-            self.search.remove(filepath)
+            # self.search.remove(filepath)
             self.all_notes = self.load_notemodels()
             self.load_ui_notes_list(self.all_notes)
             self.update_ui_views()
             return
         else:
+            self.save_timer.stop()
             if self.old_data:
                 # if we've edited a history record then record the last saved note data
                 # to the history before saving any new data
@@ -530,7 +587,7 @@ class MainWindow(QtGui.QMainWindow):
                 t = self._clean_filename(new_content.split('\n', 1)[0], '').strip()
                 metadata['title'] = t
 
-            metadata['tags'] = self.ui.tagEdit.text()
+            metadata['tags'] = self.tagEditor.text()
 
             if 'conf_author' in self.conf.keys():
                 metadata['author'] = self.conf['conf_author']
@@ -539,38 +596,21 @@ class MainWindow(QtGui.QMainWindow):
             self.current_note.metadata = metadata
 
             if self.title_as_filename:
-                htmlpath = os.path.join(self.notes_dir, 'html', self.current_note.safename) + HTML_EXTENSION
                 self.current_note.rename()
-                self.search.remove(filepath)
-                try:
-                    os.remove(htmlpath)
-                except OSError:
-                    pass
+                # self.search.remove(filepath)
                 # update the notes list
                 self.all_notes = self.load_notemodels()
                 self.ui.notesList.blockSignals(True)
                 self.load_ui_notes_list(self.all_notes)
                 self.ui.notesList.blockSignals(False)
 
-
-        self.search.update(self.current_note.filepath)
-        self.save_html(new_content)
-
+        # self.search.update(self.current_note.filepath)
         if record:
             self.current_note.record(self.notes_dir)
 
-        self.save_timer.stop()
         self.update_ui_views(None, False)
 
-    def save_html(self, content):
-        # create the html storage directory
-        try:
-            html_dir = os.path.join(self.notes_dir, HTML_FOLDER)
-            os.makedirs(html_dir)
-        except OSError:
-            # already there
-            pass
-
+    def generate_html(self, content):
         try:
             header = build_preview_header_html(self.current_note.metadata['title'])
         except KeyError:
@@ -579,8 +619,7 @@ class MainWindow(QtGui.QMainWindow):
         body = self.md.convert(content)  # TODO: getting re MemoryErrors for large files
         footer = build_preview_footer_html()
         html = header + body + footer
-        filepath = os.path.join(self.notes_dir, 'html', self.current_note.safename) + HTML_EXTENSION
-        self._write_file(filepath, html)
+        return html
 
     def start_search(self, query):
         self.query = query
@@ -595,35 +634,12 @@ class MainWindow(QtGui.QMainWindow):
     def search_files(self):
         if self.search_timer.isActive():
             self.search_timer.stop()
-        if self.query is None or self.query == '':
-            founds = self.all_notes
+        if self.query is None or self.query == '' or len(self.query) < 3:
+            founds = self.db_notes.values()
         else:
-            try:
-                results = self.search.run(self.query)
-                if len(results[0].query.tags) > 0:
-                    # limit results to those with tag matches
-                    results = [r for r in results if len(r.tagmatch) > 0]
-                founds = sorted(results, key=lambda x: x.matchsum, reverse=True)
-            except SearchError as e:
-                logger.warning('[search_files] %s'%e)
-                founds = []
-                message_box = QtGui.QMessageBox()
-                message_box.setText('No notes directory selected.'.format(self.current_note.notename))
-                message_box.setInformativeText('Please change your settings.')
-                message_box.exec_()
-            except IndexError:
-                founds = self.all_notes
-        self.load_ui_search_list(founds)
-
-    def load_ui_search_list(self, results):
-        items = []
-        for item in results:
-            n = NoteModel(item.filepath)
-            u = n.notename
-            self.ui.notesList.addItem(u)
-            items.append(n)
-        self.notes_list = items
-        self.load_ui_notes_list(items)
+            self.search.query = self.query
+            founds = [note for note in self.db_notes.values() if self.search.search_notemodel(note)]
+        self.load_ui_notes_list(founds)
 
     def new_note(self):
         tagged_title = self.ui.omniBar.text()
@@ -632,18 +648,15 @@ class MainWindow(QtGui.QMainWindow):
         if tagged_title in self.all_notes:
             return
 
-        # filter the #tags out
-        words = tagged_title.split(' ')
-        tags = ''
-        title = ''
-        for word in words:
-            if word[0] == '#':
-                tags += ' ' + word[1:]
-            else:
-                title += ' ' + word
+        # build new note name
+        self.search.query = tagged_title
 
-        title = title.strip()
-        tags = tags.strip()
+        if len(self.search.use_items) == 0:
+            # no words to use in the title
+            return
+
+        title = ' '.join(self.search.use_items)
+        tags = ' '.join(self.search.use_tags)
 
         # build the new note
         filename = self._clean_filename(title) + NOTE_EXTENSION
@@ -655,11 +668,21 @@ class MainWindow(QtGui.QMainWindow):
         new_note.content = content
 
         # update
-        self.search.add(filepath)
+        # self.search.add(filepath)
+        self.current_note = new_note
+        self.db_notes[new_note.filename] = new_note
         self.all_notes = self.load_notemodels()
-        self.current_note = self.all_notes[0]
-        self.update_ui_views()
+
+        self.ui.omniBar.blockSignals(True)
         self.ui.omniBar.setText('')
+        self.query = ''
+        self.ui.omniBar.blockSignals(False)
+
+        self.ui.notesList.blockSignals(True)
+        self.load_ui_notes_list(self.all_notes)
+        self.update_ui_views()
+        self.ui.notesList.blockSignals(False)
+
         # set the focus on the editor and move the cursor to the end
         self.noteEditor.setFocus()
         cursor = self.noteEditor.textCursor()
@@ -750,7 +773,10 @@ class MainWindow(QtGui.QMainWindow):
             self.set_ui_views()
             # load the notes directory and get all the files
             self.notes_dir = self.conf['conf_notesLocation']
-            self.search = SearchNotes(self.notes_dir)
+            self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
+            # set the zodb connection
+            self.load_db_data()
+            # self.search = SearchNotes(self.notes_dir)
             self.all_notes = self.load_notemodels()
             # remove any empty file and history (if checked) and reload file list
             self.delete_empty_notes()
@@ -820,8 +846,6 @@ class MainWindow(QtGui.QMainWindow):
         if self.delete_empty:
             for n in self.all_notes:
                 data = self._read_file(n.filepath)
-                # with open(n.filepath, mode='rb') as f:
-                #     data = f.read()
                 c, m = NoteModel.parse_note_content(data)
                 if len(c.strip()) == 0:
                     self.delete_note(n.filepath)
@@ -857,8 +881,9 @@ class MainWindow(QtGui.QMainWindow):
     def delete_note(self, filepath):
         ret = False
         paths = [filepath,
-                 filepath + HTML_EXTENSION,
                  filepath + ZIP_EXTENSION]
+        filename = os.path.basename(filepath)
+        del(self.db_notes[filename])
         for path in paths:
             try:
                 os.remove(path)
@@ -875,6 +900,30 @@ class MainWindow(QtGui.QMainWindow):
         """ Do stuff the first time the app runs """
         # Show them the settings dialog
         self.load_settings()
+        self.load_db_data()
+
+    def load_db_data(self):
+        try:
+            with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'rb') as data_file:
+                self.db_notes = pickle.load(data_file)
+        except IOError:
+            self.db_notes = {}
+
+    def save_db_data(self):
+        try:
+            with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'wb') as data_file:
+                pickle.dump(self.db_notes, data_file, -1)
+        except IOError:
+            os.makedirs(self.notes_data_dir)
+            with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'wb') as data_file:
+                pickle.dump(self.db_notes, data_file, -1)
+
+    def set_current_row(self, notename):
+        try:
+            list_item = self.ui.notesList.findItems(notename, QtCore.Qt.MatchExactly)[0]
+            self.current_row = self.ui.notesList.row(list_item)
+        except IndexError:
+            self.current_row = 0
 
     def _clean_filename(self, unclean, replace='_'):
         clean = unclean

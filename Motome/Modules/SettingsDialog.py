@@ -1,12 +1,13 @@
 # Import the future
 from __future__ import print_function
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 # Import Qt modules
 from PySide import QtGui
 
 # Import application window view
-from Views.SettingsDialog import Ui_SettingsDialog
+from Motome.Views.SettingsDialog import Ui_SettingsDialog
 
 
 class SettingsDialog(QtGui.QDialog):

@@ -1,6 +1,7 @@
 # Import the future
 from __future__ import print_function
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 import datetime
 import hashlib
@@ -10,10 +11,11 @@ import re
 import shutil
 import zipfile
 
-from config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE
+from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE
 
 # Set up the logger
 logger = logging.getLogger(__name__)
+
 
 class NoteModel(object):
     """
@@ -21,6 +23,7 @@ class NoteModel(object):
     """
     def __init__(self, filepath=None):
         self.filepath = filepath
+        self.wordset = set()
 
         self._content = ''
         self._metadata = {}
@@ -30,9 +33,14 @@ class NoteModel(object):
     def __repr__(self):
         return '<Note: {0}, Last Modified: {1}>'.format(self.notename, self.timestamp)
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state['_content'] = ''
+        return state
+
     @property
     def content(self):
-        if self.timestamp > self._last_seen:
+        if self.timestamp > self._last_seen or self._content == '':
             self._update_from_file()
         return self._content
 
@@ -153,7 +161,7 @@ class NoteModel(object):
         try:
             return os.stat(self.filepath).st_mtime
         except:
-            return None
+            return 0.0
 
     def load_old_note(self, index):
         try:
@@ -210,6 +218,7 @@ class NoteModel(object):
     def _update_from_file(self):
         self._content, self._metadata = self.parse_note_content(self.enc_read(self.filepath))
         self._last_seen = self.timestamp
+        self.wordset = set(re.findall(r'\w+', self._content.lower()))
 
     def _save_to_file(self, filepath=None):
         """

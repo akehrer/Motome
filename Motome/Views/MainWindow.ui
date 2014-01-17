@@ -205,13 +205,6 @@
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QLineEdit" name="tagEdit">
-             <property name="frame">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
           </layout>
          </item>
         </layout>
@@ -370,7 +363,6 @@
   <tabstop>btnPrevDate</tabstop>
   <tabstop>btnNextDate</tabstop>
   <tabstop>historySlider</tabstop>
-  <tabstop>tagEdit</tabstop>
   <tabstop>btnSettings</tabstop>
   <tabstop>noteDiff</tabstop>
   <tabstop>notePreview</tabstop>
@@ -520,22 +512,6 @@
     <hint type="destinationlabel">
      <x>306</x>
      <y>730</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tagEdit</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>start_save()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>734</x>
-     <y>383</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1020</x>
-     <y>329</y>
     </hint>
    </hints>
   </connection>

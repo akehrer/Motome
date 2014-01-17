@@ -10,3 +10,5 @@ Motome is a note taking application inspired by Notational Velocity, ResophNotes
 Released under the Simplified BSD licence.  Please see the LICENSE file.
 
 """
+
+from Motome.__main__ import main

@@ -1,6 +1,7 @@
 # Import the future
 from __future__ import print_function
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 # Import standard library modules
 import cPickle as pickle
@@ -12,11 +13,46 @@ from collections import Counter
 from itertools import tee, islice, imap
 
 # Import utilities
-from Utils import open_and_parse_note, safe_filename
+from Motome.Modules.Utils import open_and_parse_note, safe_filename
 
 # Import configuration values
-from config import NOTE_EXTENSION, INDEX_EXTENSION, TAG_QUERY_CHAR, LOCK_EXTENSION, NOTE_DATA_DIR
+from Motome.config import NOTE_EXTENSION, INDEX_EXTENSION, TAG_QUERY_CHAR, LOCK_EXTENSION, NOTE_DATA_DIR
 
+
+class SearchModel(object):
+    def __init__(self):
+        self._query = ''
+
+        self.ignore_items = []
+        self.use_items = []
+        self.use_tags = []
+        self.ignore_tags = []
+
+    @property
+    def query(self):
+        return self._query
+
+    @query.setter
+    def query(self, value):
+        self._query = value
+        self.parse_query()
+
+    def parse_query(self):
+        search_terms = self.query.split()
+        self.ignore_items = [t[1:] for t in search_terms if t[0] == '-']
+        self.use_items = [x for x in search_terms if x[0] != '-' and x[0] != TAG_QUERY_CHAR]
+        self.use_tags = [t[1:] for t in search_terms if t[0] == TAG_QUERY_CHAR]
+        self.ignore_tags = [t[1:] for t in self.ignore_items if len(t) > 2 and t[0] == TAG_QUERY_CHAR]
+
+    def search_notemodel(self, note_model):
+        content_words = note_model.wordset
+        good_tags = len([tag for tag in self.use_tags if tag in note_model.metadata['tags']]) > 0
+        bad_tags = len([tag for tag in self.ignore_tags if tag in note_model.metadata['tags']]) == 0
+        # good_words = len([word for word in self.use_items if word in content_words]) > 0
+        good_words = set(self.use_items).issubset(content_words)
+        bad_words = len([word for word in self.ignore_items if word in content_words]) == 0
+
+        return (good_tags or good_words) and (bad_words and bad_tags)
 
 class SearchNotes(object):
     """
@@ -37,7 +73,7 @@ class SearchNotes(object):
         self.notes_list = []
 
         if os.path.exists(self.notes_dir):
-            self._clean_locks()
+            #self._clean_locks()
             self._get_notes_list()
         else:
             raise SearchLocationError(self.notes_dir)
