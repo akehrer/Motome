@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Fri Jan 10 17:35:37 2014
+# Created: Fri Jan 17 16:10:25 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -110,10 +110,6 @@ class Ui_MainWindow(object):
         self.label = QtGui.QLabel(self.tabEditor)
         self.label.setObjectName("label")
         self.horizontalLayout_2.addWidget(self.label)
-        self.tagEdit = QtGui.QLineEdit(self.tabEditor)
-        self.tagEdit.setFrame(False)
-        self.tagEdit.setObjectName("tagEdit")
-        self.horizontalLayout_2.addWidget(self.tagEdit)
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
         self.toolBox.addWidget(self.tabEditor)
         self.tabPreview = QtGui.QWidget()
@@ -204,7 +200,6 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.btnSettings, QtCore.SIGNAL("clicked()"), MainWindow.load_settings)
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("returnPressed()"), MainWindow.new_note)
         QtCore.QObject.connect(self.historySlider, QtCore.SIGNAL("sliderMoved(int)"), MainWindow.update_slider_tooltip)
-        QtCore.QObject.connect(self.tagEdit, QtCore.SIGNAL("textChanged(QString)"), MainWindow.start_save)
         QtCore.QObject.connect(self.notesList, QtCore.SIGNAL("doubleClicked(QModelIndex)"), MainWindow.dblclick_pin_list_item)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.omniBar, self.notesList)
@@ -212,8 +207,7 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.toolBox, self.btnPrevDate)
         MainWindow.setTabOrder(self.btnPrevDate, self.btnNextDate)
         MainWindow.setTabOrder(self.btnNextDate, self.historySlider)
-        MainWindow.setTabOrder(self.historySlider, self.tagEdit)
-        MainWindow.setTabOrder(self.tagEdit, self.btnSettings)
+        MainWindow.setTabOrder(self.historySlider, self.btnSettings)
         MainWindow.setTabOrder(self.btnSettings, self.noteDiff)
         MainWindow.setTabOrder(self.noteDiff, self.notePreview)
 

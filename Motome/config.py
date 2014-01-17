@@ -27,7 +27,7 @@ elif __file__:
     APP_DIR = os.path.dirname(__file__)
 
 # window title prefix
-WINDOW_TITLE = 'Motome'
+WINDOW_TITLE = 'Mo\u0305to\u0305me'
 
 # app data directory in note directory
 NOTE_DATA_DIR = '.motome'

@@ -11,9 +11,6 @@ import re
 import shutil
 import zipfile
 
-# ZODB Persistence
-# from persistent import Persistent
-
 from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE
 
 # Set up the logger

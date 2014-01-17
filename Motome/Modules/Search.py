@@ -1,6 +1,7 @@
 # Import the future
 from __future__ import print_function
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 # Import standard library modules
 import cPickle as pickle
@@ -12,10 +13,10 @@ from collections import Counter
 from itertools import tee, islice, imap
 
 # Import utilities
-from Utils import open_and_parse_note, safe_filename
+from Motome.Modules.Utils import open_and_parse_note, safe_filename
 
 # Import configuration values
-from config import NOTE_EXTENSION, INDEX_EXTENSION, TAG_QUERY_CHAR, LOCK_EXTENSION, NOTE_DATA_DIR
+from Motome.config import NOTE_EXTENSION, INDEX_EXTENSION, TAG_QUERY_CHAR, LOCK_EXTENSION, NOTE_DATA_DIR
 
 
 class SearchModel(object):
