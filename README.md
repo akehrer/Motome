@@ -53,7 +53,7 @@ When running Motome for the first time you will be shown the settings dialog whe
 
 ![First Run Settings](screenshots/motome_first_run_0.1.0.png)
 
-The application will then create a .Motome folder in your home directory to store configuration settings and you can always change your settings by using the small gear icon next to the search input.
+The application will then create a `.Motome` folder in your home directory to store configuration settings and you can always change your settings by using the small gear icon next to the search input.
 
 Using Motome
 ============
@@ -66,9 +66,12 @@ Using the search input, type in the title of your new note and press Enter.  Thi
 You can easily switch to the search input using `Ctrl-F` or `Ctrl-N`.  Pressing `Esc` will clear the search text.
 
 ## Searching you notes
-Search results are automatically updated as you type. Motome will show you any notes that contain your search words, ordered by relevancy.  You can use `#hashtag` words in the search to limit results to the relevent tags. 
+Search results are automatically updated as you type. Motome will show you any notes that contain your search words, ordered by relevancy.  You can use `#hashtag` words in the search to limit results to the relevent tags. To exclude any words or hashtags from your search use a `-minus` sign in front of the term to exclude.
 
 You can easily switch to the search input using `Ctrl-F` or `Ctrl-N`.  Pressing `Esc` will clear the search text and show all your notes in the note list.
+
+## Pinning notes
+For notes you use often Motome provides the ability to pin them to the top of the notes list for easy access.  Double-clicking on any note in the notes list will pin or unpin it.  Alternately your can use the keyboard shortcut `Ctrl-Shift-P` to pin/unpin the current note.
 
 ## Switching bewteen views
 Motome is very keyboard focused, to the point that accessing the Preview and Diff views requires using `Ctrl-P` and `Ctrl-D` respectivly.  To get back to the Editor press `Ctrl-E`.  The preview pane contains an HTML rendering of the text entered in the Editor pane.  The text is passed through a [markdown](http://daringfireball.net/projects/markdown/) parser before being shown in the Preview, so any markdown formatting will be converted to HTML.

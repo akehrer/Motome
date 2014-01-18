@@ -572,7 +572,8 @@ class MainWindow(QtGui.QMainWindow):
             self.save_timer.stop()
             # self.search.remove(filepath)
             self.all_notes = self.load_notemodels()
-            self.load_ui_notes_list(self.all_notes)
+            # self.load_ui_notes_list(self.all_notes)
+            self.search_files()
             self.update_ui_views()
             return
         else:
@@ -601,11 +602,11 @@ class MainWindow(QtGui.QMainWindow):
 
             if self.title_as_filename:
                 self.current_note.rename()
-                # self.search.remove(filepath)
                 # update the notes list
                 self.all_notes = self.load_notemodels()
                 self.ui.notesList.blockSignals(True)
-                self.load_ui_notes_list(self.all_notes)
+                # self.load_ui_notes_list(self.all_notes)
+                self.search_files()
                 self.ui.notesList.blockSignals(False)
 
         # self.search.update(self.current_note.filepath)
