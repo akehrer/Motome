@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Motome by akehrer</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Motome</h1>
+        <p>Cross platform note taking application with note histories and markdown rendering</p>
+
+        <p class="view"><a href="https://github.com/akehrer/Motome">View the Project on GitHub <small>akehrer/Motome</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/akehrer/Motome/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/akehrer/Motome/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/akehrer/Motome">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h1>
+
+<p>Motome is a note taking and information aggregation application inspired by Notational Velocity,
+ResophNotes, nvPY.</p>
+
+<p>Some of its features are:</p>
+
+<ul>
+<li>Note search and creation from a single input</li>
+<li>Markdown rendering</li>
+<li>History tracking and the ability to see diffs</li>
+<li>Note tagging</li>
+<li>Auto-saves notes in the background</li>
+<li>Keyboard shortcuts</li>
+<li>Local storage and link to any file type</li>
+<li>Drag and drop files to create links</li>
+</ul><p>The motivation behind Motome:</p>
+
+<ul>
+<li>Notes are yours and stored on the machine of your choosing</li>
+<li>Notes are stored in easily accessible text files, not in a database or proprietary format</li>
+<li>Notes can have histories</li>
+<li>Notes can be more than just text by including additional data files like images, pdfs, spreadsheets, and rich text documents (the inspiration for this comes from bigger note taking apps like Evernote and OneNote)</li>
+</ul><p>Motome is developed with <a href="http://www.python.org/">Python</a> and <a href="http://qt-project.org/">Qt</a> and is cross platform.</p>
+
+<p>Released under an open BSD licence.  Please see the LICENSE file.</p>
+
+<h1>
+<a name="screenshots" class="anchor" href="#screenshots"><span class="octicon octicon-link"></span></a>Screenshots</h1>
+
+<p><img src="screenshots/motome_editor_pane_0.1.0.png" alt="Editor"><img src="screenshots/motome_preview_pane_0.1.0.png" alt="Preview"><img src="screenshots/motome_diff_pane_0.1.0.png" alt="Diff"></p>
+
+<h1>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h1>
+
+<ul>
+<li>A <a href="http://www.python.org/">Python</a> installation (currently known to work with ver. 2.7)</li>
+<li>The <a href="http://qt-project.org/wiki/PySide">PySide</a> Qt framework</li>
+<li>
+<a href="http://pypi.python.org/pypi/Markdown">Markdown</a> for Python</li>
+<li>
+<a href="http://code.google.com/p/google-diff-match-patch/">diff-match-patch</a> for prettier note diffs</li>
+</ul><h1>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h1>
+
+<p>Currently Motome is in a pre-release state and there is no automated installation.  The easiest way to get Motome is to make sure you have the dependencies installed and either clone the git repository or download the zip file from github.</p>
+
+<h1>
+<a name="first-run" class="anchor" href="#first-run"><span class="octicon octicon-link"></span></a>First Run</h1>
+
+<p>When running Motome for the first time you will be shown the settings dialog where you need to pick a directory to store your notes in.</p>
+
+<p><img src="screenshots/motome_first_run_0.1.0.png" alt="First Run Settings"></p>
+
+<p>The application will then create a <code>.Motome</code> folder in your home directory to store configuration settings and you can always change your settings by using the small gear icon next to the search input.</p>
+
+<h1>
+<a name="using-motome" class="anchor" href="#using-motome"><span class="octicon octicon-link"></span></a>Using Motome</h1>
+
+<h2>
+<a name="creating-a-new-note" class="anchor" href="#creating-a-new-note"><span class="octicon octicon-link"></span></a>Creating a new note</h2>
+
+<p>Using the search input, type in the title of your new note and press Enter.  This will create a new text document with the title set as both the file name and the initial content.  If you include <code>#hashtags</code> in the title text they will be converted to tag values and attached to your note.</p>
+
+<pre><code>#blogidea The 99 Habits of Highly Effective Procrastinators
+</code></pre>
+
+<p>You can easily switch to the search input using <code>Ctrl-F</code> or <code>Ctrl-N</code>.  Pressing <code>Esc</code> will clear the search text.</p>
+
+<h2>
+<a name="searching-you-notes" class="anchor" href="#searching-you-notes"><span class="octicon octicon-link"></span></a>Searching you notes</h2>
+
+<p>Search results are automatically updated as you type. Motome will show you any notes that contain your search words, ordered by relevancy.  You can use <code>#hashtag</code> words in the search to limit results to the relevant tags. To exclude any words or hashtags from your search use a <code>-minus</code> sign in front of the term to exclude.</p>
+
+<p>You can easily switch to the search input using <code>Ctrl-F</code> or <code>Ctrl-N</code>.  Pressing <code>Esc</code> will clear the search text and show all your notes in the note list.</p>
+
+<h2>
+<a name="pinning-notes" class="anchor" href="#pinning-notes"><span class="octicon octicon-link"></span></a>Pinning notes</h2>
+
+<p>For notes you use often Motome provides the ability to pin them to the top of the notes list for easy access.  Double-clicking on any note in the notes list will pin or unpin it.  Alternately your can use the keyboard shortcut <code>Ctrl-Shift-P</code> to pin/unpin the current note.</p>
+
+<h2>
+<a name="switching-between-views" class="anchor" href="#switching-between-views"><span class="octicon octicon-link"></span></a>Switching between views</h2>
+
+<p>Motome is very keyboard focused, to the point that accessing the Preview and Diff views requires using <code>Ctrl-P</code> and <code>Ctrl-D</code> respectively.  To get back to the Editor press <code>Ctrl-E</code>.  The preview pane contains an HTML rendering of the text entered in the Editor pane.  The text is passed through a <a href="http://daringfireball.net/projects/markdown/">markdown</a> parser before being shown in the Preview, so any markdown formatting will be converted to HTML.</p>
+
+<p>Here are some additional useful keyboard shortcuts:</p>
+
+<ul>
+<li>
+<code>Ctrl-T</code> - Switch to the Tags editor</li>
+<li>
+<code>Ctrl-Up</code> - Move up one note in the notes list</li>
+<li>
+<code>Ctrl-Down</code> - Move down one note in the notes list</li>
+<li>
+<code>Ctrl-Shift-U</code> - Add the current date and time at the cursor location</li>
+</ul><p>Explination of all the keyboard shortcuts is available in the Keyboard Shortcuts tab in the Settings dialog.</p>
+
+<h2>
+<a name="note-history" class="anchor" href="#note-history"><span class="octicon octicon-link"></span></a>Note history</h2>
+
+<p>Motome autosaves your notes in the background and by default will save and record the current text to the note history when you press <code>Ctrl-S</code>.  This feature can be turned off in the Settings dialog, but you can still tell Motome to save and record using <code>Ctrl-R</code>.</p>
+
+<p>The full text of each historical note is stored in a .zip archive with the filename set as the date and time the record was taken.</p>
+
+<p>A note's history can easily be browsed using the slider and buttons at the bottom of the window.  The content of the historical record will be shown in the Editor and Preview panes and the difference between the historical note and the current text will be shown in the Diff pane.  Toggling between the panes can be done using the <code>Ctrl-E</code>, <code>Ctrl-P</code>, and <code>Ctrl-D</code> keyboard shortcuts.  Moving forward and backward in the history can be done with the <code>Ctrl-&lt;</code> and <code>Ctrl-&gt;</code> shortcuts.</p>
+
+<h2>
+<a name="including-files" class="anchor" href="#including-files"><span class="octicon octicon-link"></span></a>Including files</h2>
+
+<p>Motome makes it easy to include more than just text information in your notes.  By dragging and dropping a file in the Editor or pressing <code>Ctrl-Shift-K</code> you can insert a link to a local data file at the current cursor location.  This file can be of any type and can be opened by clicking on the hyperlink in the Editor or Preview panes.  The file will be opened in whatever application your operating system has assigned to that file type.</p>
+
+<p>Motome stores a copy of any files you attach to a note in the <code>/media</code> folder inside your note directory.</p>
+
+<h2>
+<a name="a-note-on-the-motome-text-files" class="anchor" href="#a-note-on-the-motome-text-files"><span class="octicon octicon-link"></span></a>A note on the Motome text files</h2>
+
+<p>The text files Motome writes are slightly unique.  You should be able to read and edit them just like any other text file but they have a few important features that Motome uses:</p>
+
+<ul>
+<li>Motome saves the note files using UTF-8 encoding</li>
+<li>There is a special <a href="http://en.wikipedia.org/wiki/Control_character">ASCII control charater</a> called End-of-text (␃) that Motome uses to delineate note content from note metadata.  This is represented in the text file by a UTF code point U+0003 and may show up in other text editors as a strange looking character.  All the text in the metadata section is editable just like in a normal text file and as long as you keep the ␃ character Motome will know what to do.</li>
+</ul><h1>
+<a name="bugs-feedback--helping-out" class="anchor" href="#bugs-feedback--helping-out"><span class="octicon octicon-link"></span></a>Bugs, Feedback &amp; Helping Out</h1>
+
+<p>Contributions and feedback are greatly appreciated and welcome.  Please see the CONTRIBUTING file to see how you can help.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/akehrer">akehrer</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
