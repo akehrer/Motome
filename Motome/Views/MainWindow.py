@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Fri Jan 17 16:10:25 2014
+# Created: Sat Jan 18 10:40:18 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -102,6 +102,10 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setSpacing(5)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 2)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
+        self.horizontalLayout_3.setSpacing(0)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setSpacing(2)
         self.horizontalLayout_2.setSizeConstraint(QtGui.QLayout.SetDefaultConstraint)

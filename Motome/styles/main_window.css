@@ -2,6 +2,14 @@ QMainWindow {
     background-color: WhiteSmoke;
 }
 
+QSplitter {
+    background-color: WhiteSmoke;
+}
+
+QStackedWidget {
+    background-color: white;
+}
+
 QLineEdit {
     font-family: 'CMU Typewriter Text';
     font-size: 17px;
@@ -12,6 +20,7 @@ QLabel {
 }
 
 QListWidget {
+    font-family: 'CMU Typewriter Text';
     font-size: 17px;
 }
 

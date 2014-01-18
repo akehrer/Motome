@@ -109,7 +109,7 @@ class MainWindow(QtGui.QMainWindow):
                                                 QtCore.Qt.TextEditorInteraction|QtCore.Qt.TextSelectableByKeyboard|
                                                 QtCore.Qt.TextSelectableByMouse)
         self.noteEditor.setObjectName("noteEditor")
-        self.ui.verticalLayout_2.insertWidget(0, self.noteEditor)
+        self.ui.horizontalLayout_3.insertWidget(1, self.noteEditor)
         self.noteEditor.textChanged.connect(self.start_save)
         self.noteEditor.anchorClicked.connect(self.load_anchor)
 

@@ -188,6 +188,13 @@
           <number>2</number>
          </property>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+          </layout>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <property name="spacing">
             <number>2</number>
