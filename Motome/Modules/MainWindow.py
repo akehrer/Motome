@@ -228,7 +228,7 @@ class MainWindow(QtGui.QMainWindow):
             self.click_merge_notes()
         elif seq == 'ctrl_t':
             self.ui.toolBox.setCurrentIndex(0)
-            self.ui.tagEdit.setFocus()
+            self.ui.tagEditor.setFocus()
         elif seq == 'ctrl_s':
             if 'conf_checkbox_deleteempty' in self.conf.keys() and int(self.conf['conf_checkbox_deleteempty']) > 0:
                 self.save_note(record=True)
@@ -560,6 +560,9 @@ class MainWindow(QtGui.QMainWindow):
     def save_note(self, record=False):
         if self.current_note is None:
             return
+        
+        if self.tagEditor._completer.popup().isVisible():
+            return
 
         filepath = self.current_note.filepath
         new_content = self.noteEditor.toPlainText()
@@ -585,7 +588,8 @@ class MainWindow(QtGui.QMainWindow):
             metadata = self.current_note.metadata
             if self.first_line_title:
                 t = self._clean_filename(new_content.split('\n', 1)[0], '').strip()
-                metadata['title'] = t
+                if t != '':
+                    metadata['title'] = t
 
             metadata['tags'] = self.tagEditor.text()
 
