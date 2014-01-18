@@ -3,6 +3,9 @@ from PySide import QtCore, QtGui
 
 
 class AutoCompleteEdit(QtGui.QLineEdit):
+    """ Implements autocomplete on a QLineEdit with changeable completer list
+    Many thanks to: https://bitbucket.org/3david/qtodotxt/src/ec1e74eef575/qtodotxt/ui/controls/autocomplete_lineedit.py
+    """
     def __init__(self, model, separator=' ', addSpaceAfterCompleting = True):
         super(AutoCompleteEdit, self).__init__()
         self._separator = separator

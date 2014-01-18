@@ -228,7 +228,7 @@ class MainWindow(QtGui.QMainWindow):
             self.click_merge_notes()
         elif seq == 'ctrl_t':
             self.ui.toolBox.setCurrentIndex(0)
-            self.ui.tagEditor.setFocus()
+            self.tagEditor.setFocus()
         elif seq == 'ctrl_s':
             if 'conf_checkbox_deleteempty' in self.conf.keys() and int(self.conf['conf_checkbox_deleteempty']) > 0:
                 self.save_note(record=True)
