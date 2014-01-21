@@ -5,7 +5,7 @@ html { font-size: 100%; overflow-y: scroll; -webkit-text-size-adjust: 100%; -ms-
 
 body{
 color:#444;
-font-family:'CMU Bright';
+font-family:'CMU Bright', sans-serif;
 font-size:17px;
 line-height:125%;
 padding:1em;
@@ -33,7 +33,7 @@ max-width:100%;
 }
 
 h1,h2,h3,h4,h5,h6{
-font-family: 'CMU Serif';
+font-family: 'CMU Serif', serif;
 font-weight:normal;
 color:#111;
 line-height:145%;
@@ -54,7 +54,7 @@ border-left: 0.5em #EEE solid;
 }
 hr { display: block; height: 2px; border: 0; border-top: 1px solid #aaa;border-bottom: 1px solid #eee; margin: 1em 0; padding: 0; }
 pre, code, kbd, samp { color: #000; font-family:'CMU Typewriter Text' monospace; _font-family: 'Computer Modern Typewriter', monospace; font-size: 0.98em; }
-pre { white-space: pre; white-space: pre-wrap; word-wrap: break-word; }
+pre { white-space: pre-wrap; word-wrap: break-word; }
 
 b, strong { font-weight: bold; }
 

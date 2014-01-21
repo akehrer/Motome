@@ -10,11 +10,11 @@ class AutoCompleteEdit(QtGui.QLineEdit):
         super(AutoCompleteEdit, self).__init__()
         self._separator = separator
         self._addSpaceAfterCompleting = addSpaceAfterCompleting
-        self._completer = QtGui.QCompleter(model)
-        self._completer.setCompletionMode(QtGui.QCompleter.UnfilteredPopupCompletion)
-        self._completer.setWidget(self)
+        self.completer = QtGui.QCompleter(model)
+        self.completer.setCompletionMode(QtGui.QCompleter.UnfilteredPopupCompletion)
+        self.completer.setWidget(self)
         self.connect(
-                self._completer,
+                self.completer,
                 QtCore.SIGNAL('activated(QString)'),
                 self._insertCompletion)
         self._keysToIgnore = [QtCore.Qt.Key_Enter,
@@ -27,7 +27,7 @@ class AutoCompleteEdit(QtGui.QLineEdit):
         This is the event handler for the QCompleter.activated(QString) signal,
         it is called when the user selects an item in the completer popup.
         """
-        extra = len(completion) - len(self._completer.completionPrefix())
+        extra = len(completion) - len(self.completer.completionPrefix())
         extra_text = completion[-extra:]
         if self._addSpaceAfterCompleting:
             extra_text += ' '
@@ -43,24 +43,24 @@ class AutoCompleteEdit(QtGui.QLineEdit):
         return textUnderCursor
 
     def keyPressEvent(self, event):
-        if self._completer.popup().isVisible():
+        if self.completer.popup().isVisible():
             if event.key() in self._keysToIgnore:
                 event.ignore()
                 return
         super(AutoCompleteEdit, self).keyPressEvent(event)
         completionPrefix = self.textUnderCursor()
-        if completionPrefix != self._completer.completionPrefix():
+        if completionPrefix != self.completer.completionPrefix():
             self._updateCompleterPopupItems(completionPrefix)
         if len(event.text()) > 0:
-            self._completer.complete()
+            self.completer.complete()
 
     def _updateCompleterPopupItems(self, completionPrefix):
         """
         Filters the completer's popup items to only show items
         with the given prefix.
         """
-        self._completer.setCompletionPrefix(completionPrefix)
-        self._completer.popup().setCurrentIndex(self._completer.completionModel().index(0,0))
+        self.completer.setCompletionPrefix(completionPrefix)
+        self.completer.popup().setCurrentIndex(self.completer.completionModel().index(0,0))
 
     def setCompleterModel(self, items):
-        self._completer.setModel(items)
+        self.completer.setModel(items)

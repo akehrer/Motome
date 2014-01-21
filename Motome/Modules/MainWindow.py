@@ -24,16 +24,16 @@ from Motome.Views.MainWindow import Ui_MainWindow
 
 # Import configuration values
 from Motome.config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, \
-    APP_DIR, WINDOW_TITLE, UNSAFE_CHARS, VERSION, NOTE_DATA_DIR, TAG_QUERY_CHAR
+    APP_DIR, WINDOW_TITLE, UNSAFE_CHARS, VERSION, NOTE_DATA_DIR, HTML_FOLDER, HTML_EXTENSION
 
 # Import additional modules
 from Motome.Modules.MotomeTextBrowser import MotomeTextBrowser
 from Motome.Modules.NoteModel import NoteModel
 from Motome.Modules.SettingsDialog import SettingsDialog
 from Motome.Modules.AutoCompleterModel import AutoCompleteEdit
-from Motome.Modules.Search import SearchNotes, SearchError, SearchModel
+from Motome.Modules.Search import SearchModel
 from Motome.Modules.Utils import build_preview_footer_html, build_preview_header_html, \
-    diff_to_html, human_date
+    diff_to_html, human_date, grab_urls
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -115,6 +115,8 @@ class MainWindow(QtGui.QMainWindow):
 
         # catch link clicks in the Preview pane
         self.ui.notePreview.anchorClicked.connect(self.load_anchor)
+        self.ui.notePreview.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.notePreview.customContextMenuRequested.connect(self.show_custom_preview_menu)
 
         # Set the window location and size
         if 'window_x'in self.conf.keys():
@@ -125,6 +127,7 @@ class MainWindow(QtGui.QMainWindow):
             self.setGeometry(rect)
 
         # load the text browser styles
+        self.style_dir = os.path.join(APP_DIR, 'styles', 'default')
         self.load_styles()
 
         # markdown translator
@@ -375,7 +378,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.ui.notesList.clear()
 
-        for item in pinned_items:
+        for item in sorted(pinned_items):
             n = QtGui.QListWidgetItem(QtGui.QIcon(":/icons/resources/bullet_black.png"), item.notename)
             self.ui.notesList.addItem(n)
 
@@ -510,6 +513,7 @@ class MainWindow(QtGui.QMainWindow):
     def update_ui_preview(self):
         content = self.noteEditor.toPlainText()
         html = self.generate_html(content)
+        self.ui.notePreview.setSearchPaths([self.notes_dir])
         self.ui.notePreview.setHtml(html)
         self.ui.notePreview.reload()
 
@@ -564,14 +568,13 @@ class MainWindow(QtGui.QMainWindow):
         if self.current_note is None:
             return
         
-        if self.tagEditor._completer.popup().isVisible():
+        if self.tagEditor.completer.popup().isVisible():
             return
 
-        filepath = self.current_note.filepath
         new_content = self.noteEditor.toPlainText()
         # if the new content is an empty note and delete empty notes is enabled
         # delete the note and it's history
-        if len(new_content.strip()) == 0 and self.delete_empty_note(filepath):
+        if len(new_content.strip()) == 0 and self.delete_empty_note(self.current_note):
             self.save_timer.stop()
             # self.search.remove(filepath)
             self.all_notes = self.load_notemodels()
@@ -608,11 +611,9 @@ class MainWindow(QtGui.QMainWindow):
                 # update the notes list
                 self.all_notes = self.load_notemodels()
                 self.ui.notesList.blockSignals(True)
-                # self.load_ui_notes_list(self.all_notes)
                 self.search_files()
                 self.ui.notesList.blockSignals(False)
 
-        # self.search.update(self.current_note.filepath)
         if record:
             self.current_note.record(self.notes_dir)
 
@@ -629,6 +630,28 @@ class MainWindow(QtGui.QMainWindow):
         html = header + body + footer
         return html
 
+    def export_html(self):
+        html = self.ui.notePreview.toHtml()
+        urls = self.noteEditor.get_note_links()
+        media_urls = [url for url in urls if MEDIA_FOLDER in url[1]]
+        export_dir = os.path.join(self.notes_dir, HTML_FOLDER, self.current_note.safename)
+        stylesheets_dir = os.path.join(export_dir, 'stylesheets')
+        media_dir = os.path.join(export_dir, MEDIA_FOLDER)
+        dirs_to_make = [export_dir, stylesheets_dir, media_dir]
+        # make the needed directories
+        for dir in dirs_to_make:
+            try:
+                os.makedirs(dir)
+            except OSError:
+                pass
+        # copy the needed files
+        shutil.copy(os.path.join(self.style_dir, 'preview.css'), os.path.join(stylesheets_dir, 'preview.css'))
+        for mediapath in media_urls:
+            filename = os.path.basename(mediapath[1])
+            shutil.copy(os.path.join(self.notes_dir, MEDIA_FOLDER, filename), os.path.join(media_dir, filename))
+        htmlpath = os.path.join(export_dir, self.current_note.safename + HTML_EXTENSION)
+        self._write_file(htmlpath, html)
+
     def start_search(self, query):
         self.query = query
 
@@ -643,9 +666,9 @@ class MainWindow(QtGui.QMainWindow):
         if self.search_timer.isActive():
             self.search_timer.stop()
         if self.query is None or self.query == '' or len(self.query) < 3:
-            founds = self.db_notes.values()
+            founds = self.all_notes
         else:
-            self.search.query = self.query
+            self.search.query = self.query.lower()
             founds = [note for note in self.db_notes.values() if self.search.search_notemodel(note)]
         self.load_ui_notes_list(founds)
 
@@ -796,13 +819,13 @@ class MainWindow(QtGui.QMainWindow):
 
     def load_styles(self):
         if 'style' in self.conf.keys():
-            style_dir = os.path.join(self.app_data_dir, 'styles', self.conf['style'])
+            self.style_dir = os.path.join(self.app_data_dir, 'styles', self.conf['style'])
         else:
-            style_dir = os.path.join(APP_DIR, 'styles', 'default')
+            self.style_dir = os.path.join(APP_DIR, 'styles', 'default')
 
-        editor_path = os.path.join(style_dir, 'editor.css')
-        preview_path = os.path.join(style_dir, 'preview.css')
-        diff_path = os.path.join(style_dir, 'diff.css')
+        editor_path = os.path.join(self.style_dir, 'editor.css')
+        preview_path = os.path.join(self.style_dir, 'preview.css')
+        diff_path = os.path.join(self.style_dir, 'diff.css')
 
         if os.path.exists(editor_path):
             editor_style = self._read_file(editor_path)
@@ -855,7 +878,7 @@ class MainWindow(QtGui.QMainWindow):
                 data = self._read_file(n.filepath)
                 c, m = NoteModel.parse_note_content(data)
                 if len(c.strip()) == 0:
-                    self.delete_note(n.filepath)
+                    self.delete_note(n)
             self.all_notes = self.load_notemodels()
 
     def delete_empty_note(self, filepath):
@@ -876,7 +899,7 @@ class MainWindow(QtGui.QMainWindow):
         message_box.exec_()
 
         if message_box.clickedButton() == delete_btn:
-            self.delete_note(self.current_note.filepath)
+            self.delete_note(self.current_note)
             self.all_notes = self.load_notemodels()
             omni_text = self.ui.omniBar.text()
             if omni_text == '':
@@ -885,12 +908,10 @@ class MainWindow(QtGui.QMainWindow):
                 self.query = omni_text
                 self.search_files()
 
-    def delete_note(self, filepath):
+    def delete_note(self, note):
         ret = False
-        paths = [filepath,
-                 filepath + ZIP_EXTENSION]
-        filename = os.path.basename(filepath)
-        del(self.db_notes[filename])
+        paths = [note.filepath,
+                 note.historypath]
         for path in paths:
             try:
                 os.remove(path)
@@ -901,6 +922,7 @@ class MainWindow(QtGui.QMainWindow):
                     ret = True
                 else:
                     ret = False
+        del(self.db_notes[note.filename])
         return ret
 
     def do_first_run(self):
@@ -931,6 +953,14 @@ class MainWindow(QtGui.QMainWindow):
             self.current_row = self.ui.notesList.row(list_item)
         except IndexError:
             self.current_row = 0
+
+    def show_custom_preview_menu(self, point):
+        preview_rclk_menu = self.ui.notePreview.createStandardContextMenu()
+        preview_rclk_menu.addSeparator()
+        preview_rclk_menu.addAction(QtGui.QIcon(":/icons/resources/html.png"), 'Export HTML')
+        preview_rclk_menu.triggered.connect(self.export_html)
+        preview_rclk_menu.exec_(self.ui.notePreview.mapToGlobal(point))
+        del preview_rclk_menu
 
     def _clean_filename(self, unclean, replace='_'):
         clean = unclean

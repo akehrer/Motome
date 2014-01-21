@@ -1,8 +1,7 @@
 Description
 ===========
 
-Motome is a note taking and information aggregation application inspired by Notational Velocity,
-ResophNotes, nvPY.
+Motome is a note taking and information aggregation application inspired by many other note taking programs.
 
 Some of its features are:
 
@@ -17,8 +16,8 @@ Some of its features are:
 
 The motivation behind Motome:
 
-- Notes are yours and stored on the machine of your choosing
-- Notes are stored in easily accessible text files, not in a database or proprietary format
+- Notes are yours and stored where you want them
+- Notes are stored in easily accessible text files, not in a database or inaccessible format
 - Notes can have histories
 - Notes can be more than just text by including additional data files like images, pdfs, spreadsheets, and rich text documents (the inspiration for this comes from bigger note taking apps like Evernote and OneNote)
 
@@ -82,7 +81,7 @@ Here are some additional useful keyboard shortcuts:
 - `Ctrl-Down` - Move down one note in the notes list
 - `Ctrl-Shift-U` - Add the current date and time at the cursor location
 
-Explination of all the keyboard shortcuts is available in the Keyboard Shortcuts tab in the Settings dialog.
+Explanation of all the keyboard shortcuts is available in the Keyboard Shortcuts tab in the Settings dialog.
 
 ## Note history
 Motome autosaves your notes in the background and by default will save and record the current text to the note history when you press `Ctrl-S`.  This feature can be turned off in the Settings dialog, but you can still tell Motome to save and record using `Ctrl-R`.
@@ -101,7 +100,7 @@ Motome stores a copy of any files you attach to a note in the `/media` folder in
 The text files Motome writes are slightly unique.  You should be able to read and edit them just like any other text file but they have a few important features that Motome uses:
 
 - Motome saves the note files using UTF-8 encoding
-- There is a special [ASCII control charater](http://en.wikipedia.org/wiki/Control_character) called End-of-text (␃) that Motome uses to delineate note content from note metadata.  This is represented in the text file by a UTF code point U+0003 and may show up in other text editors as a strange looking character.  All the text in the metadata section is editable just like in a normal text file and as long as you keep the ␃ character Motome will know what to do.
+- There is a special [ASCII control character](http://en.wikipedia.org/wiki/Control_character) called End-of-text (␃) that Motome uses to delineate note content from note metadata.  This is represented in the text file by a UTF code point U+0003 and may show up in other text editors as a strange looking character.  All the text in the metadata section is editable just like in a normal text file and as long as you keep the ␃ character Motome will know what to do.
 
 Bugs, Feedback & Helping Out
 ==============================

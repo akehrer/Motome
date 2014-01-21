@@ -135,6 +135,7 @@ def build_preview_header_html(title):
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>{0}</title>
+<link rel="stylesheet" href="stylesheets/preview.css">
 </head>
 <body>
     """.format(title)

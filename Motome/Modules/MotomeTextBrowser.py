@@ -111,17 +111,17 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
 
         link_title = 'Title'
         link_address = 'http://www.example.com'
-        start_pos = current_pos + 1
-        end_pos = start_pos + len(link_title)
 
-        if cursor.hasSelection():
+        if not cursor.hasSelection():
             cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            text = cursor.selectedText()
+            if text == '':
+                text = 'example text'
+        else:
             link_title = cursor.selectedText()
-            start_pos = cursor.selectionEnd() + 3
-            end_pos = start_pos + len(link_address)
 
         if seq == 'ctrl_k':
-            self.insert_hyperlink()
+            self.insert_hyperlink(title=link_title)
         elif seq == 'ctrl_shift_k':
             filepath, _ = QtGui.QFileDialog.getOpenFileName(self, "Select File", os.path.expanduser('~'))
             if filepath != '':
@@ -159,6 +159,10 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         linked_content = re.sub(link_pattern, link_transform, text)
         self.setHtml(linked_content.replace('\n', '<br />'))
 
+    def get_note_links(self):
+        url_re_compile = re.compile(r'\[([^\[]+)\]\(([^\)]+)\)', re.VERBOSE | re.MULTILINE)
+        return url_re_compile.findall(self.toPlainText())
+
     def dragEnterEvent(self, e):
         """
         Need to accept drag enter events
@@ -189,11 +193,15 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         """
         e.accept()
 
-    def insert_hyperlink(self):
+    def insert_hyperlink(self, title=None):
         cursor = self.textCursor()
         current_pos = cursor.position()
 
-        link_title = 'Link Title'
+        if title is not None:
+            link_title = title
+        else:
+            link_title = 'Link Title'
+
         link_address = 'http://www.example.com'
         start_pos = current_pos + 1
         end_pos = start_pos + len(link_title)
@@ -207,8 +215,6 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
                                                link_address)
 
         if cursor.hasSelection():
-            cursor.select(QtGui.QTextCursor.WordUnderCursor)
-            link_title = cursor.selectedText()
             start_pos = cursor.selectionEnd() + 3
             end_pos = start_pos + len(link_address)
 

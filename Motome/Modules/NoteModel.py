@@ -186,7 +186,7 @@ class NoteModel(object):
 
         :param notes_dir:
         """
-        history_dir = notes_dir + HISTORY_FOLDER
+        history_dir = os.path.join(notes_dir, HISTORY_FOLDER)
         now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         old_filename = now + NOTE_EXTENSION
         old_filepath = os.path.join(history_dir, old_filename)
