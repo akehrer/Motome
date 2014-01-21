@@ -640,7 +640,7 @@ class MainWindow(QtGui.QMainWindow):
         return html
 
     def export_html(self):
-        html = self.ui.notePreview.toHtml()
+        html = self.generate_html(self.noteEditor.toPlainText())
         urls = self.noteEditor.get_note_links()
         media_urls = [url for url in urls if MEDIA_FOLDER in url[1]]
         export_dir = os.path.join(self.notes_dir, HTML_FOLDER, self.current_note.safename)
