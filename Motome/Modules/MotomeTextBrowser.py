@@ -157,7 +157,10 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         link_pattern = r'\[([^\[]+)\]\(([^\)]+)\)'
         link_transform = r'[\1](<a href="\2">\2</a>)'
         linked_content = re.sub(link_pattern, link_transform, text)
-        self.setHtml(linked_content.replace('\n', '<br />'))
+        intralink_pattern = r'\[\[([^\[]+)\]\]'
+        intralink_transform = r'[[<a href="\1">\1</a>]]'
+        intralink_content = re.sub(intralink_pattern, intralink_transform, linked_content)
+        self.setHtml(intralink_content.replace('\n', '<br />'))
 
     def get_note_links(self):
         url_re_compile = re.compile(r'\[([^\[]+)\]\(([^\)]+)\)', re.VERBOSE | re.MULTILINE)

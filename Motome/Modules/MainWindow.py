@@ -317,7 +317,16 @@ class MainWindow(QtGui.QMainWindow):
         self._write_file(filepath, filedata)
 
     def load_anchor(self, url):
-        media_path = os.path.join(self.notes_dir, MEDIA_FOLDER, url.path().split('/')[-1])
+        url_path = url.path()
+
+        # intranote link?
+        if url_path+NOTE_EXTENSION in self.db_notes.keys():
+            filename = url_path + NOTE_EXTENSION
+            self.current_note = self.db_notes[filename]
+            self.update_ui_views()
+            return
+
+        media_path = os.path.join(self.notes_dir, MEDIA_FOLDER, url_path.split('/')[-1])
         if os.path.isfile(media_path):
             ret = QtGui.QDesktopServices.openUrl(QtCore.QUrl('file:///' + media_path, QtCore.QUrl.TolerantMode))
         else:
