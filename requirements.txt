@@ -1,3 +1,2 @@
 markdown
 PySide
-diff_match_patch

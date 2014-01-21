@@ -403,6 +403,8 @@ class MainWindow(QtGui.QMainWindow):
 
         if self.current_note is None:
             self.noteEditor.set_note_text('')
+            self.tagEditor.setText('')
+            self.setWindowTitle(' '.join([WINDOW_TITLE]))
             self.noteEditor.blockSignals(False)
             self.tagEditor.blockSignals(False)
             return
@@ -436,7 +438,8 @@ class MainWindow(QtGui.QMainWindow):
             self.noteEditor.set_note_text(content)
 
         self.update_ui_preview()
-        self.update_ui_diff(content, new_content)
+        fromdesc = ' '.join([title, tab_date])
+        self.update_ui_diff(content, new_content, fromdesc=fromdesc, todesc=title)
 
         if self.query is not '':
             self.noteEditor.highlight_search(self.query.split(' '))
@@ -510,9 +513,9 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.notePreview.setHtml(html)
         self.ui.notePreview.reload()
 
-    def update_ui_diff(self, content, new_content):
+    def update_ui_diff(self, content, new_content, fromdesc, todesc):
         if content != new_content:
-            diff_html = diff_to_html(content, new_content)
+            diff_html = diff_to_html(content, new_content, fromdesc, todesc)
         else:
             diff_html = self.current_note.get_status()
         self.ui.noteDiff.setHtml(diff_html)
@@ -779,9 +782,8 @@ class MainWindow(QtGui.QMainWindow):
             # load the notes directory and get all the files
             self.notes_dir = self.conf['conf_notesLocation']
             self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
-            # set the zodb connection
+            # set the db connection
             self.load_db_data()
-            # self.search = SearchNotes(self.notes_dir)
             self.all_notes = self.load_notemodels()
             # remove any empty file and history (if checked) and reload file list
             self.delete_empty_notes()

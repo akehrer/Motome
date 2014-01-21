@@ -39,7 +39,6 @@ Dependencies
 - A [Python](http://www.python.org/) installation (currently known to work with ver. 2.7)
 - The [PySide](http://qt-project.org/wiki/PySide) Qt framework
 - [Markdown](http://pypi.python.org/pypi/Markdown) for Python
-- [diff-match-patch](http://code.google.com/p/google-diff-match-patch/) for prettier note diffs
 
 Installation
 ============

@@ -1,6 +1,5 @@
 QTextEdit {
     font-family: 'CMU Typewriter Text', monospace, fixed;
-    font-size: 10pt;
-	padding-left: 1em;
+    font-size: 17px;
     background-color: WhiteSmoke;
 }

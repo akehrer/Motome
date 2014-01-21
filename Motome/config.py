@@ -45,6 +45,7 @@ ENCODING = 'utf-8'
 # note directory sub-folder names
 MEDIA_FOLDER = 'media'
 HTML_FOLDER = 'html'
+HISTORY_FOLDER = 'archive'
 
 # the character prepended to tag values when searching
 TAG_QUERY_CHAR = '#'

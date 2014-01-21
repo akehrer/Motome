@@ -11,7 +11,7 @@ import re
 import shutil
 import zipfile
 
-from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE
+from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE, HISTORY_FOLDER
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -135,7 +135,11 @@ class NoteModel(object):
 
     @property
     def historypath(self):
-        return self.filepath + ZIP_EXTENSION
+        return os.path.join(self.notedirectory, HISTORY_FOLDER, self.filename) + ZIP_EXTENSION # self.filepath + ZIP_EXTENSION
+
+    @property
+    def notedirectory(self):
+        return os.path.dirname(self.filepath)
 
     @property
     def safename(self):
@@ -165,7 +169,7 @@ class NoteModel(object):
 
     def load_old_note(self, index):
         try:
-            zip_filepath = self.filepath + ZIP_EXTENSION
+            zip_filepath = self.historypath
             with zipfile.ZipFile(zip_filepath, 'r') as myzip:
                 old_content_bytes = myzip.read(self.history[index])
                 old_content = old_content_bytes.decode(ENCODING)
@@ -182,14 +186,15 @@ class NoteModel(object):
 
         :param notes_dir:
         """
+        history_dir = notes_dir + HISTORY_FOLDER
         now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         old_filename = now + NOTE_EXTENSION
-        old_filepath = os.path.join(notes_dir, old_filename)
+        old_filepath = os.path.join(history_dir, old_filename)
 
         self._save_to_file()
         self._save_to_file(filepath=old_filepath)
 
-        zip_filepath = self.filepath + ZIP_EXTENSION
+        zip_filepath = self.historypath  # self.filepath + ZIP_EXTENSION
         with zipfile.ZipFile(zip_filepath, 'a') as myzip:
             myzip.write(old_filepath, old_filename)
         os.remove(old_filepath)

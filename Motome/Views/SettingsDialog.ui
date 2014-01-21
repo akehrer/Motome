@@ -186,17 +186,21 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_2">
+        <widget class="Line" name="line">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="about_version_label">
+         <property name="text">
+          <string>v0.0.0</string>
          </property>
-        </spacer>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -260,15 +264,11 @@
            <string>qrc:/html/resources/about.html</string>
           </url>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="about_version_label">
-         <property name="text">
-          <string>v0.0.0</string>
+         <property name="openExternalLinks">
+          <bool>true</bool>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <property name="openLinks">
+          <bool>false</bool>
          </property>
         </widget>
        </item>

@@ -4,31 +4,41 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 # Import standard library modules
+import difflib
 import os
 import re
 from datetime import datetime
-from io import open
 
-# Import extra modules
-from diff_match_patch import diff_match_patch as dmp
-
-# Import configuration values
 from Motome.config import END_OF_TEXT
 from Motome.Modules.NoteModel import NoteModel
 
-# def enc_write(filepath, filedata):
-#     # encode things
-#     ufilepath = filepath.encode(ENCODING)
-#     ufiledata = filedata.encode(ENCODING)
-#     with open(ufilepath, mode='wb') as f:
-#         f.write(ufiledata)
-#
-#
-# def enc_read(filepath):
-#     ufilepath = filepath.encode(ENCODING)
-#     with open(ufilepath, mode='rb') as f:
-#         data = f.read()
-#     return data.decode(ENCODING)
+# RegEx to find urls
+# https://mail.python.org/pipermail/tutor/2002-September/017228.html
+urls = '(?: %s)' % '|'.join("""http telnet gopher file wais ftp""".split())
+ltrs = r'\w'
+gunk = r'/#~:.?+=&%@!\-'
+punc = r'.:?\-'
+any = "%(ltrs)s%(gunk)s%(punc)s" % { 'ltrs' : ltrs,
+                                     'gunk' : gunk,
+                                     'punc' : punc }
+
+URL_RE = r"""
+    \b                            # start at word boundary
+        %(urls)s    :             # need resource and a colon
+        [%(any)s]  +?             # followed by one or more
+                                  #  of any valid character, but
+                                  #  be conservative and take only
+                                  #  what you need to....
+    (?=                           # look-ahead non-consumptive assertion
+            [%(punc)s]*           # either 0 or more punctuation
+            (?:   [^%(any)s]      #  followed by a non-url char
+                |                 #   or end of the string
+                  $
+            )
+    )
+    """ % {'urls': urls,
+           'any': any,
+           'punc': punc}
 
 
 def parse_note_content(data):
@@ -97,14 +107,17 @@ def human_date(dt):
         return dt.strftime('%c')
 
 
-def diff_to_html(text1, text2):
+def diff_to_html(text1, text2, fromdesc='', todesc='Current'):
     """
     Returns an HTML sequence of the difference between two strings
     """
-    hdiff = dmp()
-    diffs = hdiff.diff_main(text1,text2)
-    hdiff.diff_cleanupSemantic(diffs)
-    return hdiff.diff_prettyHtml(diffs)
+    # hdiff = dmp()
+    # diffs = hdiff.diff_main(text1,text2)
+    # hdiff.diff_cleanupSemantic(diffs)
+    # return hdiff.diff_prettyHtml(diffs)
+    hdiff = difflib.HtmlDiff(wrapcolumn=80)
+    return hdiff.make_file(text1.splitlines(True), text2.splitlines(True),
+                           fromdesc=fromdesc, todesc=todesc, context=True)
 
 
 def grab_urls(text):

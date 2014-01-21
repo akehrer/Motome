@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Sat Jan 18 10:40:18 2014
+# Created: Tue Jan 21 10:49:56 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -140,6 +140,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.noteDiff = QtGui.QTextBrowser(self.tabDiff)
         self.noteDiff.setFrameShape(QtGui.QFrame.NoFrame)
+        self.noteDiff.setLineWrapMode(QtGui.QTextEdit.NoWrap)
         self.noteDiff.setObjectName("noteDiff")
         self.verticalLayout_4.addWidget(self.noteDiff)
         self.toolBox.addWidget(self.tabDiff)
