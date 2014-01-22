@@ -246,7 +246,10 @@ class NoteModel(object):
             filepath = self.filepath
         if not 'title' in self.metadata.keys():
             self.metadata['title'] = self.notename
-        filedata = self.content + '\n' + END_OF_TEXT + '\n'
+        if self.content[-1] == '\n':
+            filedata = self.content + END_OF_TEXT + '\n'
+        else:
+            filedata = self.content + '\n' + END_OF_TEXT + '\n'
         for key, value in self.metadata.items():
                 filedata = filedata + '{0}:{1}\n'.format(key, value)
         self.enc_write(filepath, filedata)
@@ -286,7 +289,7 @@ class NoteModel(object):
             try:
                 key, value = line.strip().split(':', 1)
                 if key == 'tags':
-                    tags = set(re.findall(r'\w+', value))  # all unique tags
+                    tags = sorted(set(re.findall(r'\w+', value)))  # all unique tags sorted alphabetically
                     meta['tags'] = ' '.join(tags)
                 else:
                     meta[key] = value

@@ -387,7 +387,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.ui.notesList.clear()
 
-        for item in sorted(pinned_items):
+        for item in sorted(pinned_items, key=lambda x: x.notename):
             n = QtGui.QListWidgetItem(QtGui.QIcon(":/icons/resources/bullet_black.png"), item.notename)
             self.ui.notesList.addItem(n)
 

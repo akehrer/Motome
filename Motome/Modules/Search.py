@@ -46,8 +46,13 @@ class SearchModel(object):
 
     def search_notemodel(self, note_model):
         content_words = note_model.wordset
-        good_tags = len([tag for tag in self.use_tags if tag in note_model.metadata['tags']]) > 0
-        no_bad_tags = len([tag for tag in self.ignore_tags if tag in note_model.metadata['tags']]) == 0
+        try:
+            good_tags = len([tag for tag in self.use_tags if tag in note_model.metadata['tags']]) > 0
+            no_bad_tags = len([tag for tag in self.ignore_tags if tag in note_model.metadata['tags']]) == 0
+        except KeyError:
+            # the note has no 'tags' metadata
+            good_tags = False
+            no_bad_tags = False
         good_words = all([word in content_words for word in self.use_items])
         no_bad_words = len([word for word in self.ignore_items if word in content_words]) == 0
         
@@ -57,7 +62,7 @@ class SearchModel(object):
             return good_words and (no_bad_words and no_bad_tags)
         else:
             return False
-        # return (good_tags or (good_words and words_in_set)) and (bad_words and bad_tags)
+
 
 class SearchNotes(object):
     """
