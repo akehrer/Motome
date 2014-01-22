@@ -135,7 +135,7 @@ class NoteModel(object):
 
     @property
     def historypath(self):
-        return os.path.join(self.notedirectory, HISTORY_FOLDER, self.filename) + ZIP_EXTENSION # self.filepath + ZIP_EXTENSION
+        return os.path.join(self.notedirectory, HISTORY_FOLDER, self.filename) + ZIP_EXTENSION
 
     @property
     def notedirectory(self):
@@ -223,7 +223,7 @@ class NoteModel(object):
     def _update_from_file(self):
         self._content, self._metadata = self.parse_note_content(self.enc_read(self.filepath))
         self._last_seen = self.timestamp
-        self.wordset = set(re.findall(r'\w+', self._content.lower()))
+        self.wordset = ' '.join(set(re.findall(r'\w+', self._content.lower())))
 
     def _save_to_file(self, filepath=None):
         """
@@ -273,7 +273,7 @@ class NoteModel(object):
             try:
                 key, value = line.strip().split(':', 1)
                 if key == 'tags':
-                    tags = re.findall(r'\w+', value)  # find all words
+                    tags = set(re.findall(r'\w+', value))  # all unique tags
                     meta['tags'] = ' '.join(tags)
                 else:
                     meta[key] = value

@@ -48,14 +48,13 @@ class SearchModel(object):
         content_words = note_model.wordset
         good_tags = len([tag for tag in self.use_tags if tag in note_model.metadata['tags']]) > 0
         no_bad_tags = len([tag for tag in self.ignore_tags if tag in note_model.metadata['tags']]) == 0
-        good_words = len([word for word in self.use_items if word in content_words]) > 0
-        words_in_set = set(self.use_items).issubset(content_words)
+        good_words = all([word in content_words for word in self.use_items])
         no_bad_words = len([word for word in self.ignore_items if word in content_words]) == 0
         
         if good_tags and no_bad_tags:
-            return words_in_set
+            return good_words
         elif len(self.use_tags) == 0:
-            return (good_words and words_in_set) and (no_bad_words and no_bad_tags)
+            return good_words and (no_bad_words and no_bad_tags)
         else:
             return False
         # return (good_tags or (good_words and words_in_set)) and (bad_words and bad_tags)
