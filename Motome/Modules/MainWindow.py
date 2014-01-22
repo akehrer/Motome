@@ -918,21 +918,13 @@ class MainWindow(QtGui.QMainWindow):
                 self.search_files()
 
     def delete_note(self, note):
-        ret = False
-        paths = [note.filepath,
-                 note.historypath]
-        for path in paths:
-            try:
-                os.remove(path)
-                ret = True
-            except OSError as e:
-                logger.warning(e)
-                if not os.path.exists(path):
-                    ret = True
-                else:
-                    ret = False
-        del(self.db_notes[note.filename])
-        return ret
+        if note.remove():
+            del self.db_notes[note.filename]
+        else:
+            message_box = QtGui.QMessageBox()
+            message_box.setText('Delete Error!'.format(self.current_note.notename))
+            message_box.setInformativeText('There was a problem deleting all the note files. Please check the {0} '
+                                           'directory for any remaining data.'.format(self.notes_dir))
 
     def do_first_run(self):
         """ Do stuff the first time the app runs """

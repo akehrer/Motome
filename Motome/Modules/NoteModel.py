@@ -205,6 +205,19 @@ class NoteModel(object):
         else:
             self.notename = self._metadata['title']
 
+    def remove(self):
+        ret = False
+        paths = [self.filepath,
+                 self.historypath]
+        for path in paths:
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                    ret = True
+                except OSError as e:
+                    logger.warning(e)
+        return ret
+
     def get_status(self):
         dt = datetime.datetime.fromtimestamp(self.timestamp)
         html = STATUS_TEMPLATE.format(notename=self.notename,
