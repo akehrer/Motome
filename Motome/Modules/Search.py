@@ -44,38 +44,24 @@ class SearchModel(object):
         self.use_words = [x for x in search_terms if x[0] != '-' and x[0] != TAG_QUERY_CHAR]
         self.use_tags = [t[1:] for t in search_terms if t[0] == TAG_QUERY_CHAR]
         self.ignore_tags = [t[1:] for t in self.ignore_items if len(t) > 2 and t[0] == TAG_QUERY_CHAR]
-        self.ignore_words = [t[1:] for t in self.ignore_items if len(t) > 2 and t[0] != TAG_QUERY_CHAR]
+        self.ignore_words = [t for t in self.ignore_items if len(t) > 2 and t[0] != TAG_QUERY_CHAR]
 
     def search_notemodel(self, note_model):
         content_words = note_model.wordset
+        try:
+            content_tags = note_model.metadata['tags']
+        except KeyError:
+            content_tags = ''
+            
         has_tag_filters = len(self.use_tags + self.ignore_tags) > 0  # are there tags in the search term
         has_word_filters = len(self.use_words + self.ignore_words) > 0  # are there words in the search term
-        try:
-            good_tags = len([tag for tag in self.use_tags if tag in note_model.metadata['tags']])
-            no_bad_tags = len([tag for tag in self.ignore_tags if tag in note_model.metadata['tags']])
-        except KeyError:
-            # the note has no 'tags' metadata
-            good_tags = 0
-            no_bad_tags = 1
-        if len(self.use_words) > 0:
-            good_words = len([word for word in self.use_words if word in content_words])
-        else:
-            good_words = 0
-        no_bad_words = len([word for word in self.ignore_words if word in content_words])
 
-        if has_tag_filters:
-            if has_word_filters:
-                if good_tags > 0 and no_bad_tags == 0:
-                    if len(self.ignore_words) > 0:
-                        return good_words >= 0 and no_bad_words == 0
-                    else:
-                        return good_words > 0
-                else:
-                    return False
-            else:
-                return good_tags > 0 and no_bad_tags == 0
-        else:
-            return good_words > 0 and no_bad_words == 0
+        yay_tags = all([tag in content_tags for tag in self.use_tags]) if has_tag_filters else True
+        boo_tags = all([tag not in content_tags for tag in self.ignore_tags]) if has_tag_filters else True
+        yay_words = all([word in content_words for word in self.use_words]) if has_word_filters else True
+        boo_words = all([word not in content_words for word in self.ignore_words]) if has_word_filters else True
+
+        return all([yay_words, boo_words, yay_tags, boo_tags])
 
 
 class SearchNotes(object):
