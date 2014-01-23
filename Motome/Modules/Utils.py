@@ -116,8 +116,9 @@ def diff_to_html(text1, text2, fromdesc='', todesc='Current'):
     # hdiff.diff_cleanupSemantic(diffs)
     # return hdiff.diff_prettyHtml(diffs)
     hdiff = difflib.HtmlDiff(wrapcolumn=80)
-    return hdiff.make_file(text1.splitlines(True), text2.splitlines(True),
+    diff_table = hdiff.make_table(text1.splitlines(True), text2.splitlines(True),
                            fromdesc=fromdesc, todesc=todesc, context=True)
+    return build_diff_header_html() + diff_table + build_diff_footer_html()
 
 
 def grab_urls(text):
@@ -142,4 +143,37 @@ def build_preview_header_html(title):
 
 
 def build_preview_footer_html():
-    return u'</body>\n</html>'
+    return '</body>\n</html>'
+
+
+def build_diff_header_html():
+    return """
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <title></title>
+</head>
+<body>
+    """
+
+def build_diff_footer_html():
+    return """
+<table class="diff" summary="Legends">
+    <tr> <th colspan="2"> Legends </th> </tr>
+    <tr> <td> <table border="" summary="Colors">
+                  <tr><th> Colors </th> </tr>
+                  <tr><td class="diff_add">&nbsp;Added&nbsp;</td></tr>
+                  <tr><td class="diff_chg">Changed</td> </tr>
+                  <tr><td class="diff_sub">Deleted</td> </tr>
+              </table></td>
+         <td> <table border="" summary="Links">
+                  <tr><th colspan="2"> Links </th> </tr>
+                  <tr><td>(f)irst change</td> </tr>
+                  <tr><td>(n)ext change</td> </tr>
+                  <tr><td>(t)op</td> </tr>
+              </table></td> </tr>
+</table>
+</body>
+</html>
+    """

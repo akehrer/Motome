@@ -63,8 +63,6 @@ class SearchModel(object):
             good_words = 0
         no_bad_words = len([word for word in self.ignore_words if word in content_words])
 
-        print(note_model.notename, good_tags, good_words, no_bad_tags, no_bad_words)
-
         if has_tag_filters:
             if has_word_filters:
                 if good_tags > 0 and no_bad_tags == 0:

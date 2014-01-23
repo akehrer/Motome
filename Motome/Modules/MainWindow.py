@@ -535,6 +535,7 @@ class MainWindow(QtGui.QMainWindow):
         else:
             diff_html = self.current_note.get_status()
         self.ui.noteDiff.setHtml(diff_html)
+        self.ui.noteDiff.reload()
 
     def remove_history_bar(self):
         self.ui.frameHistory.hide()
@@ -850,7 +851,7 @@ class MainWindow(QtGui.QMainWindow):
 
         if os.path.exists(diff_path):
             diff_style = self._read_file(diff_path)
-            self.ui.noteDiff.setStyleSheet(diff_style)
+            self.ui.noteDiff.document().setDefaultStyleSheet(diff_style)
 
     def click_older_date(self):
         sliderpos = self.ui.historySlider.sliderPosition()

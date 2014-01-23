@@ -2,6 +2,12 @@ QMainWindow {
     background-color: WhiteSmoke;
 }
 
+QTextBrowser {
+    font-family: 'CMU Typewriter Text', monospace, fixed;
+    font-size: 17px;
+    background-color: WhiteSmoke;
+}
+
 QSplitter {
     background-color: WhiteSmoke;
 }
@@ -11,7 +17,7 @@ QStackedWidget {
 }
 
 QLineEdit {
-    font-family: 'CMU Typewriter Text';
+    font-family: 'CMU Typewriter Text', monospace, fixed;
     font-size: 17px;
 }
 
@@ -20,7 +26,7 @@ QLabel {
 }
 
 QListWidget {
-    font-family: 'CMU Typewriter Text';
+    font-family: 'CMU Typewriter Text', monospace, fixed;
     font-size: 17px;
 }
 
