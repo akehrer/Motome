@@ -342,6 +342,9 @@ class MainWindow(QtGui.QMainWindow):
             message_box.exec_()
 
     def load_notemodels(self):
+        if self.tagEditor.completer.popup().isVisible():
+            return
+
         if os.path.exists(self.notes_dir):
             notepaths = set(glob.glob(self.notes_dir + '/*' + NOTE_EXTENSION))
             notenames = map(os.path.basename, notepaths)
@@ -691,11 +694,11 @@ class MainWindow(QtGui.QMainWindow):
         # build new note name
         self.search.query = tagged_title
 
-        if len(self.search.use_items) == 0:
+        if len(self.search.use_words) == 0:
             # no words to use in the title
             return
 
-        title = ' '.join(self.search.use_items)
+        title = ' '.join(self.search.use_words)
         tags = ' '.join(self.search.use_tags)
 
         # build the new note
@@ -910,6 +913,7 @@ class MainWindow(QtGui.QMainWindow):
         if message_box.clickedButton() == delete_btn:
             self.delete_note(self.current_note)
             self.all_notes = self.load_notemodels()
+            self.current_note = None
             omni_text = self.ui.omniBar.text()
             if omni_text == '':
                 self.load_ui_notes_list(self.all_notes)

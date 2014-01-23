@@ -120,15 +120,19 @@ class NoteModel(object):
 
     @notename.setter
     def notename(self, value):
+        """ Renaming the note so make sure all the files get renamed too
+        """
         basepath, ext = os.path.splitext(self.filepath)
-        newpath = basepath[:-len(self.notename)] + value + ext
+        newname = value + ext
+        newpath = basepath[:-len(self.notename)] + newname
         try:
             shutil.move(self.filepath, newpath)
         except OSError:
             logging.error('Note renaming error: %s to %s'%(self.notename, value))
             return
         try:
-            shutil.move(self.historypath, newpath + ZIP_EXTENSION)
+            new_history = os.path.join(self.notedirectory, HISTORY_FOLDER, newname) + ZIP_EXTENSION
+            shutil.move(self.historypath, new_history)
         except IOError:
             pass
         self.filepath = newpath
