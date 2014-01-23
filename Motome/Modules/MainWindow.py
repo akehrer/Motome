@@ -665,6 +665,17 @@ class MainWindow(QtGui.QMainWindow):
         htmlpath = os.path.join(export_dir, self.current_note.safename + HTML_EXTENSION)
         self._write_file(htmlpath, html)
 
+        message_box = QtGui.QMessageBox()
+        message_box.setTextFormat(QtCore.Qt.RichText)
+        message_box.setWindowTitle("HTML Export Complete")
+        message_box.setText("<center><b>HTML Export Complete</b></center>")
+        message_box.setInformativeText('<center>Click to open the export directory<br>'
+                                       '<a href="file:///{0}">{0}</a></center>'.format(export_dir))
+        ok_btn = message_box.addButton(QtGui.QMessageBox.Ok)
+        message_box.setDefaultButton(ok_btn)
+
+        message_box.exec_()
+
     def start_search(self, query):
         self.query = query
 
