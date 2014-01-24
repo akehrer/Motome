@@ -43,8 +43,15 @@ Dependencies
 Installation
 ============
 
-Currently Motome is in a pre-release state and there is no automated installation.  The easiest way to get Motome is
-to make sure you have the dependencies installed and either clone the git repository or download the zip file from github.
+Currently Motome is in a pre-release state and there are no OS specific binaries and no automated installation.  The easiest way to get Motome is to make sure you have the dependencies installed and either clone the git repository or download the zip file from github and run:
+
+    python setup.py install
+    
+If the `python/Scripts` folder is in you path then you should be able to start the application by typing
+
+    Motome
+    
+at a command prompt.
 
 First Run
 =========
@@ -72,7 +79,7 @@ You can easily switch to the search input using `Ctrl-F` or `Ctrl-N`.  Pressing 
 ## Searching you notes
 Search results are automatically updated as you type. Motome will show you any notes that contain your search words,
 ordered by relevancy.  You can use `#hashtag` words in the search to limit results to the relevant tags. To exclude any
-words or hashtags from your search use a `-minus` sign in front of the term to exclude.
+words or hashtags from your search use a `-minus` sign in front of the term to be excluded.
 
 You can easily switch to the search input using `Ctrl-F` or `Ctrl-N`.  Pressing `Esc` will clear the search text and
 show all your notes in the note list.
@@ -91,8 +98,8 @@ parser before being shown in the Preview, so any markdown formatting will be con
 Here are some additional useful keyboard shortcuts:
 
 - `Ctrl-T` - Switch to the Tags editor
-- `Ctrl-Up` - Move up one note in the notes list
-- `Ctrl-Down` - Move down one note in the notes list
+- `Ctrl-[` - Move up one note in the notes list
+- `Ctrl-]` - Move down one note in the notes list
 - `Ctrl-Shift-U` - Add the current date and time at the cursor location
 
 Explanation of all the keyboard shortcuts is available in the Keyboard Shortcuts tab in the Settings dialog.
@@ -102,7 +109,7 @@ Motome autosaves your notes in the background and by default will save and recor
 when you press `Ctrl-S`.  This feature can be turned off in the Settings dialog, but you can still tell Motome to save and record using `Ctrl-R`.
 
 The full text of each historical note is stored in a .zip archive with the filename set as the date and time the record
-was taken.
+was taken.  These zip files are stored in the `/archve` folder inside you note directory.
 
 A note's history can easily be browsed using the slider and buttons at the bottom of the window.  The content of the
 historical record will be shown in the Editor and Preview panes and the difference between the historical note and the
@@ -117,6 +124,9 @@ can be of any type and can be opened by clicking on the hyperlink in the Editor 
 opened in whatever application your operating system has assigned to that file type.
 
 Motome stores a copy of any files you attach to a note in the `/media` folder inside your note directory.
+
+## HTML Export
+Right-clicking on the Preview pane will bring up the option to export the current HTML data.  The .html file is stored in a folder with the note's title in the `/html` folder inside the note directory and any stylesheets or media files are copied over so styles and links work. This folder can then be moved or deleted as needed since it is not needed by Motome for the Preview display.
 
 ## A note on the Motome text files
 
