@@ -23,12 +23,12 @@ class NoteModel(object):
     """
     def __init__(self, filepath=None):
         self.filepath = filepath
-        self.wordset = set()
+        self.wordset = ''
 
         self._content = ''
         self._metadata = {}
         self._history = []
-        self._last_seen = 0
+        self._last_seen = -1
 
     def __repr__(self):
         return '<Note: {0}, Last Modified: {1}>'.format(self.notename, self.timestamp)
@@ -124,7 +124,7 @@ class NoteModel(object):
         """
         basepath, ext = os.path.splitext(self.filepath)
         newname = value + ext
-        newpath = basepath[:-len(self.notename)] + newname
+        newpath = ''.join([basepath[:-len(self.notename)], newname])
         try:
             shutil.move(self.filepath, newpath)
         except OSError:
@@ -168,8 +168,8 @@ class NoteModel(object):
     def timestamp(self):
         try:
             return os.stat(self.filepath).st_mtime
-        except:
-            return 0.0
+        except OSError:
+            return -1
 
     def load_old_note(self, index):
         try:
@@ -196,10 +196,12 @@ class NoteModel(object):
         old_filepath = os.path.join(history_dir, old_filename)
         
         # create the history storage directory
-        try:
-            os.makedirs(history_dir)
-        except OSError:
-            pass
+        if not os.path.exists(history_dir):
+            try:
+                os.makedirs(history_dir)
+            except OSError as e:
+                logger.warning(e)
+                return
 
         self._save_to_file()
         self._save_to_file(filepath=old_filepath)
@@ -226,6 +228,13 @@ class NoteModel(object):
                     ret = True
                 except OSError as e:
                     logger.warning(e)
+        if ret:
+            # clear all info
+            self.wordset = ''
+            self._content = ''
+            self._metadata = {}
+            self._history = []
+            self._last_seen = -1
         return ret
 
     def get_status(self):
@@ -244,9 +253,13 @@ class NoteModel(object):
             return 'Never'
 
     def _update_from_file(self):
-        self._content, self._metadata = self.parse_note_content(self.enc_read(self.filepath))
-        self._last_seen = self.timestamp
-        self.wordset = ' '.join(set(re.findall(r'\w+', self._content.lower())))
+        try:
+            self._content, self._metadata = self.parse_note_content(self.enc_read(self.filepath))
+            self._last_seen = self.timestamp
+            self.wordset = ' '.join(set(re.findall(r'\w+', self._content.lower())))
+        except IOError:
+            # file not there or couldn't access it, things may be different
+            self._last_seen = -1
 
     def _save_to_file(self, filepath=None):
         """
@@ -271,12 +284,10 @@ class NoteModel(object):
         :param filename:
         :return: safer filename or None on failure
         """
-        try:
-            pattern = re.compile('[\W_]+')  # find all words
-            root, ext = os.path.splitext(os.path.basename(filename))
-            return pattern.sub('_', root) if ext is '' else ''.join([pattern.sub('_', root), ext])
-        except:
-            return None
+        # TODO: Look at a slugify module instead
+        pattern = re.compile('[\W_]+')  # find all words
+        root, ext = os.path.splitext(os.path.basename(filename))
+        return pattern.sub('_', root) if ext is '' else ''.join([pattern.sub('_', root), ext])
 
     @staticmethod
     def parse_note_content(data):

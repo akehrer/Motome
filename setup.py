@@ -53,5 +53,6 @@ setup(
         "Environment :: Win32 (MS Windows)",
         "Topic :: Utilities",
         "License :: OSI Approved :: BSD License",
-    ]
+    ],
+    test_suite='tests',
 )
