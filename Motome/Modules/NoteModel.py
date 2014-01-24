@@ -194,6 +194,12 @@ class NoteModel(object):
         now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         old_filename = now + NOTE_EXTENSION
         old_filepath = os.path.join(history_dir, old_filename)
+        
+        # create the history storage directory
+        try:
+            os.makedirs(history_dir)
+        except OSError:
+            pass
 
         self._save_to_file()
         self._save_to_file(filepath=old_filepath)
