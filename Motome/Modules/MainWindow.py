@@ -953,7 +953,7 @@ class MainWindow(QtGui.QMainWindow):
             with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'rb') as data_file:
                 self.db_notes = pickle.load(data_file)
         except IOError:
-            self.db_notes = {}
+            self.load_notemodels()
 
     def save_db_data(self):
         try:
