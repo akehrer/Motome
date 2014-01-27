@@ -1,4 +1,3 @@
-Description
 ===========
 
 Motome is a note taking and information aggregation application inspired
