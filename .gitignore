@@ -1,0 +1,6 @@
+.*
+*.pyc
+*.pyo
+build/
+dist/
+test_notes*/

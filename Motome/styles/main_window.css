@@ -1,0 +1,46 @@
+QMainWindow {
+    background-color: WhiteSmoke;
+}
+
+QTextBrowser {
+    font-family: 'CMU Typewriter Text', monospace, fixed;
+    font-size: 17px;
+    background-color: WhiteSmoke;
+}
+
+QSplitter {
+    background-color: WhiteSmoke;
+}
+
+QStackedWidget {
+    background-color: white;
+}
+
+QLineEdit {
+    font-family: 'CMU Typewriter Text', monospace, fixed;
+    font-size: 17px;
+}
+
+QLabel {
+    font-size: 17px;
+}
+
+QListWidget {
+    font-family: 'CMU Typewriter Text', monospace, fixed;
+    font-size: 17px;
+}
+
+QScrollBar:vertical  {
+    background: white;
+    width: 12px;
+ }
+
+QScrollBar:horizontal {
+    background: white;
+    height: 12px;
+}
+
+QScrollBar::handle  {
+  background: Gainsboro;
+  min-height: 20px;
+}

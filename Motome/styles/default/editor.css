@@ -1,0 +1,19 @@
+
+/*
+A bit of a cheat
+This is applied to the widget and is ignored by the document
+*/
+QTextEdit {
+    font-family: 'CMU Typewriter Text';
+    font-size: 17px;
+    padding-top: 10px;
+	padding-left: 10px;
+	background-color: white;
+}
+
+/*
+A bit of a cheat
+This is applied to the document and ignored by the widget
+*/
+body { line-height: 125%; }
+a{ color: #6D7B8D; text-decoration:none;}

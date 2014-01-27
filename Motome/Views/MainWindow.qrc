@@ -1,0 +1,27 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>resources/bullet_black.png</file>
+    <file>resources/arrow_down.png</file>
+    <file>resources/arrow_in.png</file>
+    <file>resources/arrow_join.png</file>
+    <file>resources/arrow_up.png</file>
+    <file>resources/cog.png</file>
+    <file>resources/date_next.png</file>
+    <file>resources/date_previous.png</file>
+    <file>resources/disk.png</file>
+    <file>resources/folder_add.png</file>
+    <file>resources/folder_delete.png</file>
+    <file>resources/html.png</file>
+    <file>resources/page_white_acrobat.png</file>
+    <file>resources/page_white_stack.png</file>
+    <file>resources/printer.png</file>
+  </qresource>
+  <qresource prefix="html">
+    <file>resources/markdown_help.html</file>
+    <file>resources/keyboard_shortcuts.html</file>
+    <file>resources/about.html</file>
+  </qresource>
+  <qresource prefix="logo">
+    <file>resources/logo_320x320.png</file>
+  </qresource>
+</RCC>
