@@ -43,9 +43,10 @@ Dependencies
 Installation
 ============
 
-Currently Motome is in a pre-release state and there are no OS specific binaries and no automated installation.  The easiest way to get Motome is to make sure you have the dependencies installed and either clone the git repository or download the zip file from github and run:
+Currently Motome is in a pre-release state and there are no OS specific binaries and no automated installation and
+limited frozen binaries.  The easiest way to get Motome is to make sure you have the dependencies installed and run:
 
-    python setup.py install
+    pip install Motome
     
 If the `python/Scripts` folder is in you path then you should be able to start the application by typing
 
