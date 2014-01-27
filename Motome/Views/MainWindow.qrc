@@ -22,6 +22,7 @@
     <file>resources/about.html</file>
   </qresource>
   <qresource prefix="logo">
+    <file>resources/logo_mm_320x320.png</file>
     <file>resources/logo_320x320.png</file>
   </qresource>
 </RCC>

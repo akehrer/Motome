@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2994"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="mm_app_icon.svg">
+  <defs
+     id="defs2996">
+    <linearGradient
+       id="linearGradient3826">
+      <stop
+         style="stop-color:#26577f;stop-opacity:1;"
+         offset="0"
+         id="stop3828" />
+      <stop
+         id="stop3834"
+         offset="0.42857143"
+         style="stop-color:#26577f;stop-opacity:0.88800001;" />
+      <stop
+         style="stop-color:#26577f;stop-opacity:0.78431374;"
+         offset="1"
+         id="stop3830" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3826"
+       id="linearGradient3832"
+       x1="172.35715"
+       y1="462.36218"
+       x2="493.35715"
+       y2="462.36218"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="352.13834"
+     inkscape:cy="626.29272"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1536"
+     inkscape:window-height="842"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata2999">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:url(#linearGradient3832);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       id="rect3002"
+       width="320"
+       height="320"
+       x="172.85715"
+       y="302.36218"
+       inkscape:export-filename="C:\Users\Aaron Kehrer\Dropbox\Workspaces\Motome\Motome\Views\resources\logo_mm_320x320.png"
+       inkscape:export-xdpi="89.719627"
+       inkscape:export-ydpi="89.719627" />
+    <path
+       style="font-size:46.87632751px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ececec;fill-opacity:1;stroke:none;font-family:Sans"
+       d="m 353.04517,319.33733 -58.17878,130.70119 -1.34052,0 -0.13406,0 -56.10097,-127.81905 -36.46228,0 c -3.53469,2.1e-4 -6.04226,0.65601 -7.57397,2.01078 -1.53172,1.35518 -2.27889,3.19068 -2.27889,5.42912 0,2.23882 0.74717,4.00734 2.27889,5.36211 1.53171,1.35514 4.03928,2.078 7.57397,2.0778 l 9.38368,0 0,177.08335 -12.53392,0 c -3.53468,3e-5 -6.04227,0.65583 -7.57397,2.0108 -1.53168,1.35498 -2.34591,3.12347 -2.34591,5.3621 0,2.12082 0.81423,3.88119 2.34591,5.29506 1.5317,1.41389 4.03929,2.14485 7.57397,2.14485 l 54.76045,0 c 3.53461,0 6.10921,-0.73096 7.641,-2.14485 1.53162,-1.41387 2.27879,-3.17424 2.27889,-5.29506 -10e-5,-2.23863 -0.74727,-4.00712 -2.27889,-5.3621 -1.53179,-1.35497 -4.10639,-2.01077 -7.641,-2.0108 l -27.34671,0 0,-177.08335 2.81511,0 57.03932,129.89688 8.57938,0 8.24423,0 51.27507,-114.4138 0,139.88377 c -2.2e-4,11.732 -1.13967,19.22766 -3.3513,22.52082 -3.51909,5.35142 -9.61848,7.97612 -18.3652,7.97612 l -7.23884,0 0,5.69725 86.86602,0 0,-5.69725 -7.10479,0 c -8.0434,0 -13.90819,-2.11221 -17.62789,-6.43452 -2.81533,-3.19025 -4.22289,-11.19839 -4.22265,-24.06242 l 0,-136.80057 c -2.4e-4,-11.7318 1.07217,-19.22744 3.28428,-22.52082 3.61919,-5.35123 9.8191,-8.04296 18.56626,-8.04316 l 7.10479,0 0,-5.76425 -57.91068,0 z"
+       id="text3795"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\Aaron Kehrer\Dropbox\Workspaces\Motome\Motome\Views\resources\logo_mm_320x320.png"
+       inkscape:export-xdpi="89.719627"
+       inkscape:export-ydpi="89.719627" />
+    <path
+       style="font-size:46.87632751px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ececec;fill-opacity:1;stroke:#26577f;stroke-width:1.89266109;stroke-opacity:0.20634921;font-family:Sans"
+       d="m 421.0008,395.92901 -57.7219,129.67481 -1.32998,0 -0.13306,0 -55.66042,-126.81533 -36.17595,0 c -3.50693,2.2e-4 -5.99479,0.65088 -7.51447,1.99501 -1.5197,1.34454 -2.261,3.16562 -2.261,5.3865 0,2.22122 0.7413,3.97584 2.261,5.31998 1.51968,1.34451 4.00754,2.06169 7.51447,2.06151 l 9.31001,0 0,175.69274 -12.43549,0 c -3.50693,10e-6 -5.99481,0.65068 -7.51449,1.995 -1.51965,1.34433 -2.3275,3.09894 -2.3275,5.31998 0,2.10416 0.80785,3.85071 2.3275,5.25349 1.51968,1.40279 4.00756,2.128 7.51449,2.128 l 54.3304,0 c 3.50688,0 6.06125,-0.72521 7.581,-2.128 1.5196,-1.40278 2.26092,-3.14933 2.26099,-5.25349 -7e-5,-2.22104 -0.74139,-3.97565 -2.26099,-5.31998 -1.51975,-1.34432 -4.07412,-1.99499 -7.581,-1.995 l -27.13195,0 0,-175.69274 2.79299,0 56.59142,128.87682 8.512,0 8.1795,0 50.8724,-113.51534 0,138.78528 c -2.1e-4,11.63989 -1.13069,19.07668 -3.32499,22.34396 -3.49145,5.30941 -9.54294,7.9135 -18.22097,7.9135 l -7.18199,0 0,5.65251 86.18388,0 0,-5.65251 -7.04898,0 c -7.98024,0 -13.79899,-2.09563 -17.48949,-6.384 -2.79321,-3.16519 -4.18972,-11.11045 -4.18948,-23.87346 l 0,-135.72629 c -2.4e-4,-11.63968 1.06376,-19.07646 3.25851,-22.34398 3.59075,-5.30921 9.74198,-7.97978 18.42046,-7.97999 l 7.04898,0 0,-5.71898 -57.45593,0 z"
+       id="text3795-1"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\Aaron Kehrer\Dropbox\Workspaces\Motome\Motome\Views\resources\logo_mm_320x320.png"
+       inkscape:export-xdpi="89.719627"
+       inkscape:export-ydpi="89.719627" />
+  </g>
+</svg>
