@@ -134,8 +134,8 @@ class MainWindow(QtGui.QMainWindow):
         self.md = markdown.Markdown()
 
         # current view
-        self.current_note = None
-        self.current_row = 0
+        self._current_note = None
+        # self.current_row = 0
         self.old_data = None
         self.history = []
 
@@ -171,8 +171,8 @@ class MainWindow(QtGui.QMainWindow):
             self.load_db_data()
 
         # notes
-        self.all_notes = self.load_notemodels()
-        self.load_notes_thread = None
+        self._notes_dir_last_seen = 0.0
+        self._all_notes = self.load_notemodels()
         self.load_ui_notes_list(self.all_notes)
         try:
             self.update_ui_views()
@@ -214,6 +214,48 @@ class MainWindow(QtGui.QMainWindow):
         if self.first_run:
             logger.info('First run')
             self.do_first_run()
+
+    @property
+    def all_notes(self):
+        if os.path.getmtime(self.notes_dir) > self._notes_dir_last_seen:
+            self._all_notes = self.load_notemodels()
+            self._notes_dir_last_seen = os.path.getmtime(self.notes_dir)
+        return self._all_notes
+
+    @property
+    def current_note(self):
+        try:
+            i = self.ui.notesList.currentRow()
+            filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
+            self._current_note = self.db_notes[filename]
+            # self.set_current_row(self._current_note.notename)
+        except (KeyError, AttributeError):
+            self._current_note = None
+        return self._current_note
+
+    @property
+    def current_row(self):
+        i = self.ui.notesList.currentRow()
+        if i < 0:
+            return 0
+        else:
+            return i
+
+    @current_row.setter
+    def current_row(self, notename):
+        try:
+            list_item = self.ui.notesList.findItems(notename, QtCore.Qt.MatchExactly)[0]
+            row = self.ui.notesList.row(list_item)
+            if row != self.current_row:
+                self.ui.notesList.setCurrentRow(row)
+                self.update_ui_views()
+        except IndexError:
+            message_box = QtGui.QMessageBox()
+            message_box.setText("Cannot open link.")
+            message_box.setInformativeText('The {0} note is not in the current notes list.'.format(notename))
+            ok_btn = message_box.addButton(QtGui.QMessageBox.Ok)
+            message_box.setDefaultButton(ok_btn)
+            message_box.exec_()
 
     def process_keyseq(self,seq):
         if seq == 'ctrl_n' or seq == 'ctrl_f':
@@ -321,9 +363,11 @@ class MainWindow(QtGui.QMainWindow):
 
         # intranote link?
         if url_path+NOTE_EXTENSION in self.db_notes.keys():
-            filename = url_path + NOTE_EXTENSION
-            self.current_note = self.db_notes[filename]
-            self.update_ui_views()
+            # filename = url_path + NOTE_EXTENSION
+            # self.current_note = self.db_notes[filename]
+            # self.set_current_row(url_path)
+            self.current_row = url_path
+            # self.update_ui_views()
             return
 
         media_path = os.path.join(self.notes_dir, MEDIA_FOLDER, url_path.split('/')[-1])
@@ -385,8 +429,8 @@ class MainWindow(QtGui.QMainWindow):
         pinned_items = [i for i in items if i.pinned]
         unpinned_items = [i for i in items if not i.pinned]
 
-        if len(items) == 0:
-            self.current_note = None
+        # if len(items) == 0:
+        #     self.current_note = None
 
         self.ui.notesList.clear()
 
@@ -401,7 +445,7 @@ class MainWindow(QtGui.QMainWindow):
         if self.current_note is not None:
             self.set_current_row(self.current_note.notename)
         else:
-            self.current_row = 0
+            # self.current_row = 0
             self.update_ui_views()
 
         if self.current_row < 0:
@@ -463,23 +507,23 @@ class MainWindow(QtGui.QMainWindow):
         self.tagEditor.blockSignals(False)
 
     def click_update_ui_views(self, index=None):
-        if index is None:
-            i = self.ui.notesList.currentRow()
-        else:
-            i = index.row()
-
-        self.current_row = i
+        # if index is None:
+        #     i = self.ui.notesList.currentRow()
+        # else:
+        #     i = index.row()
+        #
+        # # self.current_row = i
 
         if self.save_timer.isActive():
             self.save_timer.stop()
             self.save_note()
 
-        filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
-        try:
-            self.current_note = self.db_notes[filename]  # self.notes_list[i]
-            self.set_current_row(self.current_note.notename)
-        except KeyError:
-            pass
+        # filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
+        # try:
+        #     self.current_note = self.db_notes[filename]  # self.notes_list[i]
+        #     self.set_current_row(self.current_note.notename)
+        # except KeyError:
+        #     pass
 
         if self.record_on_switch and not self.current_note.recorded:
             self.current_note.record(self.notes_dir)
@@ -493,7 +537,7 @@ class MainWindow(QtGui.QMainWindow):
             i = index.row()
 
         filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
-        note = self.db_notes[filename]  # self.notes_list[i]
+        note = self.db_notes[filename]
         if note.pinned:
             note.pinned = False
         else:
@@ -550,13 +594,13 @@ class MainWindow(QtGui.QMainWindow):
             self.notes_list_splitter_size = None
         elif current_size[0] == 0 and self.notes_list_splitter_size is None:
             self.notes_list_splitter_size = current_size
-            self.ui.splitter.setSizes([256,current_size[1]])
+            self.ui.splitter.setSizes([256, current_size[1]])
         elif self.notes_list_splitter_size is not None:
             self.notes_list_splitter_size = None
-            self.ui.splitter.setSizes([0,current_size[1]])
+            self.ui.splitter.setSizes([0, current_size[1]])
         elif self.notes_list_splitter_size is None:
             self.notes_list_splitter_size = self.ui.splitter.sizes()
-            self.ui.splitter.setSizes([0,current_size[1]])
+            self.ui.splitter.setSizes([0, current_size[1]])
         else:
             logger.warning('Toggle notes list view wierdness {0}'.format(self.notes_list_splitter_size))
 
@@ -590,7 +634,7 @@ class MainWindow(QtGui.QMainWindow):
         if len(new_content.strip()) == 0 and self.delete_empty_note(self.current_note):
             self.save_timer.stop()
             # self.search.remove(filepath)
-            self.all_notes = self.load_notemodels()
+            # self.all_notes = self.load_notemodels()
             # self.load_ui_notes_list(self.all_notes)
             self.search_files()
             self.update_ui_views()
@@ -622,7 +666,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.title_as_filename:
                 self.current_note.rename()
                 # update the notes list
-                self.all_notes = self.load_notemodels()
+                # self.all_notes = self.load_notemodels()
                 self.ui.notesList.blockSignals(True)
                 self.search_files()
                 self.ui.notesList.blockSignals(False)
@@ -652,9 +696,9 @@ class MainWindow(QtGui.QMainWindow):
         media_dir = os.path.join(export_dir, MEDIA_FOLDER)
         dirs_to_make = [export_dir, stylesheets_dir, media_dir]
         # make the needed directories
-        for dir in dirs_to_make:
+        for d in dirs_to_make:
             try:
-                os.makedirs(dir)
+                os.makedirs(d)
             except OSError:
                 pass
         # copy the needed files
@@ -724,9 +768,9 @@ class MainWindow(QtGui.QMainWindow):
 
         # update
         # self.search.add(filepath)
-        self.current_note = new_note
+        # self.current_note = new_note
         self.db_notes[new_note.filename] = new_note
-        self.all_notes = self.load_notemodels()
+        # self.all_notes = self.load_notemodels()
 
         self.ui.omniBar.blockSignals(True)
         self.ui.omniBar.setText('')
@@ -758,7 +802,7 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.historySlider.setValue(1)
         self.ui.historySlider.blockSignals(False)
 
-    def load_old_note(self,sliderpos):
+    def load_old_note(self, sliderpos):
         if sliderpos == self.ui.historySlider.maximum():
             self.update_ui_views()
             self.old_data = None
@@ -777,7 +821,7 @@ class MainWindow(QtGui.QMainWindow):
             # set the current tab to the settings tab
             dialog.ui.tabWidget.setCurrentIndex(0)
             # a tuple of widget types to find in the settings tab
-            to_find = (QtGui.QLineEdit,QtGui.QFontComboBox,QtGui.QComboBox,QtGui.QCheckBox)
+            to_find = (QtGui.QLineEdit, QtGui.QFontComboBox, QtGui.QComboBox, QtGui.QCheckBox)
             # find all the widgets in the settings tab and set the
             # conf dictionary
             for f in to_find:
@@ -831,7 +875,8 @@ class MainWindow(QtGui.QMainWindow):
             self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
             # set the db connection
             self.load_db_data()
-            self.all_notes = self.load_notemodels()
+            # self.all_notes = self.load_notemodels()
+            self._notes_dir_last_seen = 0.0
             # remove any empty file and history (if checked) and reload file list
             self.delete_empty_notes()
             # update the file list and views
@@ -903,7 +948,7 @@ class MainWindow(QtGui.QMainWindow):
                 c, m = NoteModel.parse_note_content(data)
                 if len(c.strip()) == 0:
                     self.delete_note(n)
-            self.all_notes = self.load_notemodels()
+            # self.all_notes = self.load_notemodels()
 
     def delete_empty_note(self, filepath):
         if self.delete_empty:
@@ -924,8 +969,8 @@ class MainWindow(QtGui.QMainWindow):
 
         if message_box.clickedButton() == delete_btn:
             self.delete_note(self.current_note)
-            self.all_notes = self.load_notemodels()
-            self.current_note = None
+            # self.all_notes = self.load_notemodels()
+            # self.current_note = None
             omni_text = self.ui.omniBar.text()
             if omni_text == '':
                 self.load_ui_notes_list(self.all_notes)
@@ -964,12 +1009,12 @@ class MainWindow(QtGui.QMainWindow):
             with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'wb') as data_file:
                 pickle.dump(self.db_notes, data_file, -1)
 
-    def set_current_row(self, notename):
-        try:
-            list_item = self.ui.notesList.findItems(notename, QtCore.Qt.MatchExactly)[0]
-            self.current_row = self.ui.notesList.row(list_item)
-        except IndexError:
-            self.current_row = 0
+    # def set_current_row(self, notename):
+    #     try:
+    #         list_item = self.ui.notesList.findItems(notename, QtCore.Qt.MatchExactly)[0]
+    #         self.current_row = self.ui.notesList.row(list_item)
+    #     except IndexError:
+    #         self.current_row = 0
 
     def show_custom_preview_menu(self, point):
         preview_rclk_menu = self.ui.notePreview.createStandardContextMenu()
