@@ -112,6 +112,13 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.horizontalLayout_3.insertWidget(1, self.noteEditor)
         self.noteEditor.textChanged.connect(self.start_save)
         self.noteEditor.anchorClicked.connect(self.load_anchor)
+        
+        # tag completer
+        self.tagEditor = AutoCompleteEdit([])
+        self.tagEditor.setObjectName("tagEditor")
+        self.tagEditor.setFrame(False)
+        self.ui.horizontalLayout_2.addWidget(self.tagEditor)
+        self.tagEditor.textEdited.connect(self.start_save)
 
         # catch link clicks in the Preview pane
         self.ui.notePreview.anchorClicked.connect(self.load_anchor)
@@ -160,12 +167,6 @@ class MainWindow(QtGui.QMainWindow):
 
         # DB
         self.db_notes = {}
-
-        # tag completer
-        self.tagEditor = AutoCompleteEdit([])
-        self.tagEditor.setObjectName("tagEditor")
-        self.ui.horizontalLayout_2.addWidget(self.tagEditor)
-        self.tagEditor.textEdited.connect(self.start_save)
 
         if not self.first_run:
             self.load_db_data()
@@ -217,15 +218,18 @@ class MainWindow(QtGui.QMainWindow):
 
     @property
     def all_notes(self):
-        if os.path.getmtime(self.notes_dir) > self._notes_dir_last_seen:
-            self._all_notes = self.load_notemodels()
-            self._notes_dir_last_seen = os.path.getmtime(self.notes_dir)
+        try:
+            if os.path.getmtime(self.notes_dir) > self._notes_dir_last_seen:
+                self._all_notes = self.load_notemodels()
+                self._notes_dir_last_seen = os.path.getmtime(self.notes_dir)
+        except OSError:
+            pass
         return self._all_notes
 
     @property
     def current_note(self):
         try:
-            i = self.ui.notesList.currentRow()
+            i = self.current_row  # self.ui.notesList.currentRow()
             filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
             self._current_note = self.db_notes[filename]
             # self.set_current_row(self._current_note.notename)
@@ -443,7 +447,7 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.notesList.addItem(u)
 
         if self.current_note is not None:
-            self.set_current_row(self.current_note.notename)
+            self.current_row = self.current_note.notename  # self.set_current_row(self.current_note.notename)
         else:
             # self.current_row = 0
             self.update_ui_views()
