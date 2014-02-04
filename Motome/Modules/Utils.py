@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 # Import standard library modules
 import difflib
+import inspect
 import os
 import re
 from datetime import datetime
@@ -39,6 +40,14 @@ URL_RE = r"""
     """ % {'urls': urls,
            'any': any,
            'punc': punc}
+
+
+def inspect_where():
+    return inspect.stack()[1][3]
+
+
+def inspect_caller():
+    return inspect.stack()[2][3]
 
 
 def parse_note_content(data):

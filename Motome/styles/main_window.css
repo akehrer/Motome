@@ -13,6 +13,10 @@ QSplitter {
     background-color: white;
 }
 
+QSplitter::handle {
+    background-color: white;
+}
+
 QStackedWidget {
     background-color: white;
 }
@@ -24,12 +28,15 @@ QLineEdit {
 }
 
 QLabel {
+    font-family:'CMU Bright', sans-serif;
     font-size: 17px;
+    color: rgb(100, 100, 100);
 }
 
 QListWidget {
     font-family: 'CMU Typewriter Text', monospace, fixed;
     font-size: 17px;
+    color: rgb(100, 100, 100);
     border: 2px solid WhiteSmoke;
 }
 
@@ -46,4 +53,15 @@ QScrollBar:horizontal {
 QScrollBar::handle  {
   background: Gainsboro;
   min-height: 20px;
+}
+
+QSlider::groove {
+    /* Can't change this if we want ticks to display */
+}
+
+QSlider::handle {
+    background-color: Gainsboro;
+    width: 17px;
+    margin: -2px 0;
+    border-radius: 3px;
 }

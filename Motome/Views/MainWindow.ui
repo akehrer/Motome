@@ -22,6 +22,9 @@
    <iconset resource="MainWindow.qrc">
     <normaloff>:/logo/resources/logo_320x320.png</normaloff>:/logo/resources/logo_320x320.png</iconset>
   </property>
+  <property name="animated">
+   <bool>true</bool>
+  </property>
   <property name="documentMode">
    <bool>false</bool>
   </property>
@@ -64,7 +67,7 @@
         <widget class="QLineEdit" name="omniBar">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
+           <horstretch>1</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
@@ -82,7 +85,7 @@
        <item>
         <widget class="QPushButton" name="btnSettings">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
@@ -95,7 +98,7 @@
          </property>
          <property name="icon">
           <iconset resource="MainWindow.qrc">
-           <normaloff>:/icons/resources/cog.png</normaloff>:/icons/resources/cog.png</iconset>
+           <normaloff>:/icons/resources/gear_32x32.png</normaloff>:/icons/resources/gear_32x32.png</iconset>
          </property>
          <property name="flat">
           <bool>true</bool>
@@ -442,22 +445,6 @@
     <hint type="destinationlabel">
      <x>114</x>
      <y>306</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>notesList</sender>
-   <signal>itemSelectionChanged()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>click_update_ui_views()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>172</x>
-     <y>373</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>64</x>
-     <y>245</y>
     </hint>
    </hints>
   </connection>

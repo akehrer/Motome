@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="icons">
+    <file>resources/pushpin_16.png</file>
+    <file>resources/gear_32x32.png</file>
     <file>resources/bullet_black.png</file>
     <file>resources/arrow_down.png</file>
     <file>resources/arrow_in.png</file>

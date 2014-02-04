@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Mon Jan 27 10:45:33 2014
+# Created: Tue Feb 04 17:05:32 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -18,6 +18,7 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/logo/resources/logo_320x320.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
+        MainWindow.setAnimated(True)
         MainWindow.setDocumentMode(False)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -39,7 +40,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.omniBar = QtGui.QLineEdit(self.frameOmniSettings)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.omniBar.sizePolicy().hasHeightForWidth())
         self.omniBar.setSizePolicy(sizePolicy)
@@ -48,14 +49,14 @@ class Ui_MainWindow(object):
         self.omniBar.setObjectName("omniBar")
         self.horizontalLayout.addWidget(self.omniBar)
         self.btnSettings = QtGui.QPushButton(self.frameOmniSettings)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.btnSettings.sizePolicy().hasHeightForWidth())
         self.btnSettings.setSizePolicy(sizePolicy)
         self.btnSettings.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/icons/resources/cog.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap(":/icons/resources/gear_32x32.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnSettings.setIcon(icon1)
         self.btnSettings.setFlat(True)
         self.btnSettings.setObjectName("btnSettings")
@@ -200,7 +201,6 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.btnPrevDate, QtCore.SIGNAL("clicked()"), MainWindow.click_older_date)
         QtCore.QObject.connect(self.btnNextDate, QtCore.SIGNAL("clicked()"), MainWindow.click_newer_date)
         QtCore.QObject.connect(self.notesList, QtCore.SIGNAL("clicked(QModelIndex)"), MainWindow.click_update_ui_views)
-        QtCore.QObject.connect(self.notesList, QtCore.SIGNAL("itemSelectionChanged()"), MainWindow.click_update_ui_views)
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("textChanged(QString)"), MainWindow.start_search)
         QtCore.QObject.connect(self.btnSettings, QtCore.SIGNAL("clicked()"), MainWindow.load_settings)
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("returnPressed()"), MainWindow.new_note)

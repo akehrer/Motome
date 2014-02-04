@@ -33,7 +33,8 @@ from Motome.Modules.SettingsDialog import SettingsDialog
 from Motome.Modules.AutoCompleterModel import AutoCompleteEdit
 from Motome.Modules.Search import SearchModel
 from Motome.Modules.Utils import build_preview_footer_html, build_preview_header_html, \
-    diff_to_html, human_date, grab_urls
+    diff_to_html, human_date
+from Motome.Modules.Utils import inspect_caller, inspect_where
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -219,9 +220,7 @@ class MainWindow(QtGui.QMainWindow):
     @property
     def all_notes(self):
         try:
-            if os.path.getmtime(self.notes_dir) > self._notes_dir_last_seen:
-                self._all_notes = self.load_notemodels()
-                self._notes_dir_last_seen = os.path.getmtime(self.notes_dir)
+            self._all_notes = self.load_notemodels()
         except OSError:
             pass
         return self._all_notes
@@ -251,8 +250,8 @@ class MainWindow(QtGui.QMainWindow):
             list_item = self.ui.notesList.findItems(notename, QtCore.Qt.MatchExactly)[0]
             row = self.ui.notesList.row(list_item)
             if row != self.current_row:
+                self.update_ui_views(reload_editor=False)
                 self.ui.notesList.setCurrentRow(row)
-                self.update_ui_views()
         except IndexError:
             message_box = QtGui.QMessageBox()
             message_box.setText("Cannot open link.")
@@ -439,18 +438,19 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.notesList.clear()
 
         for item in sorted(pinned_items, key=lambda x: x.notename):
-            n = QtGui.QListWidgetItem(QtGui.QIcon(":/icons/resources/bullet_black.png"), item.notename)
+            n = QtGui.QListWidgetItem(QtGui.QIcon(":/icons/resources/pushpin_16.png"), item.notename)
             self.ui.notesList.addItem(n)
 
         for item in unpinned_items:
             u = QtGui.QListWidgetItem(item.notename)
             self.ui.notesList.addItem(u)
 
-        if self.current_note is not None:
-            self.current_row = self.current_note.notename  # self.set_current_row(self.current_note.notename)
-        else:
-            # self.current_row = 0
-            self.update_ui_views()
+        # if self.current_note is not None:
+        #     self.current_row = self.current_note.notename  # self.set_current_row(self.current_note.notename)
+        #     self.update_ui_views(reload_editor=False)
+        # else:
+        #     # self.current_row = 0
+        #     self.update_ui_views()
 
         if self.current_row < 0:
             self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
@@ -570,6 +570,9 @@ class MainWindow(QtGui.QMainWindow):
         elif direction == 'up' and current_row == row_count-1:
             self.ui.notesList.setCurrentRow(0)
 
+        self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
+        self.update_ui_views()
+
     def update_ui_preview(self):
         content = self.noteEditor.toPlainText()
         html = self.generate_html(content)
@@ -679,6 +682,7 @@ class MainWindow(QtGui.QMainWindow):
             self.current_note.record(self.notes_dir)
 
         self.update_ui_views(None, False)
+        self.search_files()
 
     def generate_html(self, content):
         try:
@@ -885,6 +889,7 @@ class MainWindow(QtGui.QMainWindow):
             self.delete_empty_notes()
             # update the file list and views
             self.load_ui_notes_list(self.all_notes)
+            self.update_ui_views()
 
         elif self.first_run:
             shutil.rmtree(self.app_data_dir)
