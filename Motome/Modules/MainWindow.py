@@ -452,10 +452,7 @@ class MainWindow(QtGui.QMainWindow):
         #     # self.current_row = 0
         #     self.update_ui_views()
 
-        if self.current_row < 0:
-            self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
-        else:
-            self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
+        self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
 
     def update_ui_views(self, old_content=None, reload_editor=True):
         try:
@@ -674,15 +671,17 @@ class MainWindow(QtGui.QMainWindow):
                 self.current_note.rename()
                 # update the notes list
                 # self.all_notes = self.load_notemodels()
-                self.ui.notesList.blockSignals(True)
-                self.search_files()
-                self.ui.notesList.blockSignals(False)
+                # self.ui.notesList.blockSignals(True)
+                # self.search_files()
+                # self.ui.notesList.blockSignals(False)
 
         if record:
             self.current_note.record(self.notes_dir)
 
-        self.update_ui_views(None, False)
+        title = self.current_note.notename
         self.search_files()
+        self.current_row = title
+        self.update_ui_views(None, False)
 
     def generate_html(self, content):
         try:
@@ -787,6 +786,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.ui.notesList.blockSignals(True)
         self.load_ui_notes_list(self.all_notes)
+        self.current_row = new_note.notename
         self.update_ui_views()
         self.ui.notesList.blockSignals(False)
 
@@ -801,13 +801,9 @@ class MainWindow(QtGui.QMainWindow):
         Updates the history slider with history info from the current note
         """
         self.ui.historySlider.blockSignals(True)
-        try:
-            hlen = len(self.current_note.history)
-            self.ui.historySlider.setMaximum(hlen)
-            self.ui.historySlider.setValue(hlen)
-        except:
-            self.ui.historySlider.setMaximum(0)
-            self.ui.historySlider.setValue(1)
+        hlen = len(self.current_note.history)
+        self.ui.historySlider.setMaximum(hlen)
+        self.ui.historySlider.setValue(hlen)
         self.ui.historySlider.blockSignals(False)
 
     def load_old_note(self, sliderpos):
@@ -986,6 +982,7 @@ class MainWindow(QtGui.QMainWindow):
             else:
                 self.query = omni_text
                 self.search_files()
+            self.update_ui_views()
 
     def delete_note(self, note):
         if note.remove():

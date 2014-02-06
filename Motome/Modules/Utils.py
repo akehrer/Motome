@@ -83,7 +83,7 @@ def safe_filename(filename):
         pattern = re.compile('[\W_]+')
         root, ext = os.path.splitext(os.path.basename(filename))
         return pattern.sub('_', root) if ext is '' else ''.join([pattern.sub('_', root), ext])
-    except:
+    except OSError:
         return None
 
 

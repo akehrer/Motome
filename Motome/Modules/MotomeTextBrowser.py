@@ -259,14 +259,14 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
             # user sent an image file
             try:
                 shutil.copyfile(filepath, dst_path)
-            except:
+            except IOError:
                 # file probably already there
                 pass
             self.insertHtml('![{0}](<a href="{1}">{1}</a>)'.format(link_title, link_address))
         else:
             try:
                 shutil.copyfile(filepath, dst_path)
-            except Exception as e:
+            except IOError:
                 # file probably already there
                 pass
             self.insertHtml('[{0}](<a href="{1}">{1}</a>)'.format(link_title, link_address))
