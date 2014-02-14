@@ -4,14 +4,19 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 # Import standard library modules
+import cPickle
 import difflib
+import glob
 import inspect
 import os
 import re
 from datetime import datetime
 
-from Motome.config import END_OF_TEXT
+import yaml
+
+from Motome.config import END_OF_TEXT, YAML_BRACKET
 from Motome.Modules.NoteModel import NoteModel
+from Motome.Modules.External import diff_match_patch
 
 # RegEx to find urls
 # https://mail.python.org/pipermail/tutor/2002-September/017228.html
@@ -50,32 +55,20 @@ def inspect_caller():
     return inspect.stack()[2][3]
 
 
-def parse_note_content(data):
-        meta = {}
-        try:
-            idx = data.index(END_OF_TEXT)
-            content = data[:idx]
-            lines = data[idx:].splitlines()
-        except ValueError:
-            content = data
-            lines = []
+def pickle_find_NoteModel(module, name):
+    """ A special unpickler to restrict unpickeled data to only NoteModels
 
-        for line in lines:
-            try:
-                key,value = line.strip().split(':',1)
-                if key == 'tags':
-                    tags = re.findall(r'\w+',value)  # find all words
-                    meta['tags'] = u' '.join(tags)
-                else:
-                    meta[key] = unicode(value)
-            except ValueError:
-                pass
-        return content,meta
+    :see http://docs.python.org/2/library/pickle.html#subclassing-unpicklers
+    """
+    if module == 'Motome.Modules.NoteModel' and name == 'NoteModel':
+        return NoteModel
+    # Forbid everything else.
+    raise cPickle.UnpicklingError("module '%s.%s' is forbidden" %(module, name))
 
 
 def open_and_parse_note(filepath):
     data = NoteModel.enc_read(filepath)
-    return parse_note_content(data)
+    return NoteModel.parse_note_content(data)
 
 
 def safe_filename(filename):
@@ -186,3 +179,42 @@ def build_diff_footer_html():
 </body>
 </html>
     """
+
+
+def parse_note_content_old(data):
+        """
+        Given a file's data, split it into its note content and metadata.
+        :param data: file data
+        :return: content str, metadata dict
+        """
+        meta = {}
+        try:
+            idx = data.index(END_OF_TEXT)
+            content = data[:idx]
+            lines = data[idx:].splitlines()
+        except ValueError:
+            # idx not found
+            content = data
+            lines = []
+
+        for line in lines:
+            try:
+                key, value = line.strip().split(':', 1)
+                if key == 'tags':
+                    tags = sorted(set(re.findall(r'\w+', value)))  # all unique tags sorted alphabetically
+                    meta['tags'] = ' '.join(tags)
+                else:
+                    meta[key] = value
+            except ValueError:
+                pass
+        return content, meta
+
+
+def transition_versions(notes_dir):
+    notepaths = set(glob.glob(notes_dir + '/*' + '.txt'))
+
+    for notepath in notepaths:
+        data = NoteModel.enc_read(notepath)
+        c, m = parse_note_content_old(data)
+        new_data = c + YAML_BRACKET + '\n' + yaml.safe_dump(m, default_flow_style=False) + YAML_BRACKET
+        NoteModel.enc_write(notepath, new_data)

@@ -11,7 +11,9 @@ import re
 import shutil
 import zipfile
 
-from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE, HISTORY_FOLDER
+import yaml
+
+from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE, HISTORY_FOLDER, YAML_BRACKET
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -30,12 +32,15 @@ class NoteModel(object):
         self._history = []
         self._last_seen = -1
 
-    def __repr__(self):
+    def __str__(self):
         return '<Note: {0}, Last Modified: {1}>'.format(self.notename, self.timestamp)
 
     def __getstate__(self):
+        """ This is used when pickling to remove data we don't want to store
+        """
         state = self.__dict__.copy()
         state['_content'] = ''
+        state['_history'] = []
         return state
 
     @property
@@ -270,11 +275,13 @@ class NoteModel(object):
         if not 'title' in self.metadata.keys():
             self.metadata['title'] = self.notename
         if self.content[-1] == '\n':
-            filedata = self.content + END_OF_TEXT + '\n'
+            filedata = self.content
         else:
-            filedata = self.content + '\n' + END_OF_TEXT + '\n'
-        for key, value in self.metadata.items():
-                filedata = filedata + '{0}:{1}\n'.format(key, value)
+            filedata = self.content + '\n'
+        # for key, value in self.metadata.items():
+        #         filedata = filedata + '{0}:{1}\n'.format(key, value)
+        # use safe_dump to prevent dumping non-standard YAML tags
+        filedata += YAML_BRACKET + '\n' + yaml.safe_dump(self.metadata, default_flow_style=False) + YAML_BRACKET
         self.enc_write(filepath, filedata)
 
     @staticmethod
@@ -290,7 +297,7 @@ class NoteModel(object):
         return pattern.sub('_', root) if ext is '' else ''.join([pattern.sub('_', root), ext])
 
     @staticmethod
-    def parse_note_content(data):
+    def parse_note_content_old(data):
         """
         Given a file's data, split it into its note content and metadata.
         :param data: file data
@@ -316,6 +323,24 @@ class NoteModel(object):
                     meta[key] = value
             except ValueError:
                 pass
+        return content, meta
+
+    @staticmethod
+    def parse_note_content(data):
+        """
+        Given a file's data, split it into its note content and metadata.
+        :param data: file data
+        :return: content str, metadata dict
+        """
+        meta = dict()
+        try:
+            # find the metadata at the end of the document
+            s = data.split(YAML_BRACKET)
+            m = s[-2]
+            content = ''.join(s[:-2])
+            meta = yaml.safe_load(m.strip())  # use safe_load to prevent loading non-standard YAML tags
+        except IndexError:
+            content = data
         return content, meta
 
     @staticmethod

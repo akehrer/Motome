@@ -497,22 +497,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>historySlider</sender>
-   <signal>sliderMoved(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>update_slider_tooltip(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>435</x>
-     <y>749</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>306</x>
-     <y>730</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>notesList</sender>
    <signal>doubleClicked(QModelIndex)</signal>
    <receiver>MainWindow</receiver>

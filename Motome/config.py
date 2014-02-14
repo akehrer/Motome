@@ -1,7 +1,7 @@
 # Import the future
 from __future__ import unicode_literals
 
-VERSION = 'pre0.2.0a'
+VERSION = 'pre0.2.0b'
 
 # Import standard library modules
 import logging
@@ -57,6 +57,9 @@ UNSAFE_CHARS = '<>:"/\|?*#'
 # http://www.fileformat.info/info/unicode/char/0003/index.htm
 # This signifies where the note content ends and any metadata begins
 END_OF_TEXT = '\u0003'
+
+# the YAML bracket that splits the files metadata
+YAML_BRACKET = '---'
 
 # found search terms highlight color
 HIGHLIGHT_COLOR = QColor.fromRgb(255, 255, 153, a=255)

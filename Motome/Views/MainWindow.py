@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Tue Feb 04 17:05:32 2014
+# Created: Mon Feb 10 14:43:05 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -204,7 +204,6 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("textChanged(QString)"), MainWindow.start_search)
         QtCore.QObject.connect(self.btnSettings, QtCore.SIGNAL("clicked()"), MainWindow.load_settings)
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("returnPressed()"), MainWindow.new_note)
-        QtCore.QObject.connect(self.historySlider, QtCore.SIGNAL("sliderMoved(int)"), MainWindow.update_slider_tooltip)
         QtCore.QObject.connect(self.notesList, QtCore.SIGNAL("doubleClicked(QModelIndex)"), MainWindow.dblclick_pin_list_item)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.omniBar, self.notesList)

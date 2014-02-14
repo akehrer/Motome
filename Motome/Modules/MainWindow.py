@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 # Import standard library modules
 import glob
+import json
 import logging
 import os
 import shutil
@@ -33,7 +34,7 @@ from Motome.Modules.SettingsDialog import SettingsDialog
 from Motome.Modules.AutoCompleterModel import AutoCompleteEdit
 from Motome.Modules.Search import SearchModel
 from Motome.Modules.Utils import build_preview_footer_html, build_preview_header_html, \
-    diff_to_html, human_date
+    diff_to_html, human_date, pickle_find_NoteModel, transition_versions
 from Motome.Modules.Utils import inspect_caller, inspect_where
 
 # Set up the logger
@@ -61,7 +62,11 @@ class MainWindow(QtGui.QMainWindow):
         # Set up directories
         self.user_home_dir = os.path.expanduser('~')
         self.app_data_dir = os.path.join(self.user_home_dir, '.Motome')
-        self.notes_dir = ''
+        self._notes_dir = ''
+        self.notes_data_dir = ''
+
+        # DB
+        self.db_notes = {}
 
         # note file vars
         self.note_extension = NOTE_EXTENSION
@@ -73,11 +78,16 @@ class MainWindow(QtGui.QMainWindow):
         except OSError:
             self.first_run = False
 
+        # Configuration and defaults
         self.conf = {}
+        self.delete_empty = False
+        self.record_on_exit = False
+        self.record_on_switch = False
+        self.title_as_filename = True
+        self.first_line_title = True
 
         # Load configuration
         self.load_conf()
-        self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
 
         # Set some configuration variables
         if 'conf_checkbox_deleteempty' in self.conf.keys() and int(self.conf['conf_checkbox_deleteempty']) > 0:
@@ -103,30 +113,17 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.first_line_title = False
 
-        # insert the custom text editor
-        self.noteEditor = MotomeTextBrowser(self.ui.tabEditor, self.notes_dir)
-        self.noteEditor.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|
-                                                QtCore.Qt.TextBrowserInteraction|QtCore.Qt.TextEditable|
-                                                QtCore.Qt.TextEditorInteraction|QtCore.Qt.TextSelectableByKeyboard|
-                                                QtCore.Qt.TextSelectableByMouse)
-        self.noteEditor.setObjectName("noteEditor")
-        self.ui.horizontalLayout_3.insertWidget(1, self.noteEditor)
-        self.noteEditor.textChanged.connect(self.start_save)
-        self.noteEditor.anchorClicked.connect(self.load_anchor)
-        
-        # tag completer
-        self.tagEditor = AutoCompleteEdit([])
-        self.tagEditor.setObjectName("tagEditor")
-        self.tagEditor.setFrame(False)
-        self.ui.horizontalLayout_2.addWidget(self.tagEditor)
-        self.tagEditor.textEdited.connect(self.start_save)
+        # setup the ui
+        self.noteEditor = None
+        self.tagEditor = None
+        self.setup_mainwindow()
+        self.setup_keyboard_shortcuts()
+        self.setup_preview()
+        self.insert_ui_noteeditor()
+        self.insert_ui_tageditor()
+        self.insert_ui_tagcompleter()
 
-        # catch link clicks in the Preview pane
-        self.ui.notePreview.anchorClicked.connect(self.load_anchor)
-        self.ui.notePreview.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.ui.notePreview.customContextMenuRequested.connect(self.show_custom_preview_menu)
-
-        # Set the window location and size
+         # Set the window location and size
         if 'window_x'in self.conf.keys():
             rect = QtCore.QRect(int(self.conf['window_x']),
                                 int(self.conf['window_y']),
@@ -149,7 +146,6 @@ class MainWindow(QtGui.QMainWindow):
 
         # set the views
         self.set_ui_views()
-        self.ui.notePreview.setSearchPaths(self.notes_dir)
 
         # notes list splitter size for hiding and showing the notes list
         self.notes_list_splitter_size = None
@@ -165,9 +161,6 @@ class MainWindow(QtGui.QMainWindow):
         self.search_interval = 250 # msec
         self.search_timer = QtCore.QTimer()
         self.search_timer.timeout.connect(self.search_files)
-
-        # DB
-        self.db_notes = {}
 
         if not self.first_run:
             self.load_db_data()
@@ -186,36 +179,23 @@ class MainWindow(QtGui.QMainWindow):
                 logger.error('Error running __init__/update_ui_views, %s'%e)
                 self.first_run = True
 
-        # set-up the keyboard shortcuts
-        esc = QtCore.Qt.Key_Escape
-        delete = QtCore.Qt.Key_Delete
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+N'), self, lambda item=None: self.process_keyseq('ctrl_n'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+F'), self, lambda item=None: self.process_keyseq('ctrl_f'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+E'), self, lambda item=None: self.process_keyseq('ctrl_e'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+P'), self, lambda item=None: self.process_keyseq('ctrl_p'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+D'), self, lambda item=None: self.process_keyseq('ctrl_d'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+L'), self, lambda item=None: self.process_keyseq('ctrl_l'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+T'), self, lambda item=None: self.process_keyseq('ctrl_t'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+S'), self, lambda item=None: self.process_keyseq('ctrl_s'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+R'), self, lambda item=None: self.process_keyseq('ctrl_r'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+]'), self, lambda item=None: self.process_keyseq('ctrl_up'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+['), self, lambda item=None: self.process_keyseq('ctrl_down'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+<'), self, lambda item=None: self.process_keyseq('ctrl_<'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+>'), self, lambda item=None: self.process_keyseq('ctrl_>'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+L'), self, lambda item=None: self.process_keyseq('ctrl_shift_l'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+H'), self, lambda item=None: self.process_keyseq('ctrl_shift_h'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+O'), self, lambda item=None: self.process_keyseq('ctrl_shift_o'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+F'), self, lambda item=None: self.process_keyseq('ctrl_shift_f'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+U'), self, lambda item=None: self.process_keyseq('ctrl_shift_u'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+P'), self, lambda item=None: self.process_keyseq('ctrl_shift_p'))
-        QtGui.QShortcut(QtGui.QKeySequence(esc), self, lambda item=None: self.process_keyseq('esc'))
-
-        # remove notes in the note list using the delete key
-        QtGui.QShortcut(QtGui.QKeySequence(delete), self.ui.notesList, lambda item=None: self.delete_current_note())
-
         if self.first_run:
             logger.info('First run')
             self.do_first_run()
+
+    @property
+    def notes_dir(self):
+        return self._notes_dir
+
+    @notes_dir.setter
+    def notes_dir(self, value):
+        """ Things to do when the notes directory changes """
+        self._notes_dir = value
+        self.notes_data_dir = os.path.join(self._notes_dir, NOTE_DATA_DIR)
+        # set the db connection
+        self.load_db_data()
+        # remove any empty file and history (if checked) and reload file list
+        self.delete_empty_notes()
 
     @property
     def all_notes(self):
@@ -333,33 +313,109 @@ class MainWindow(QtGui.QMainWindow):
         self.conf['window_height'] = window_geo.height()
         self.save_conf()
 
-    def load_conf(self):
-        filepath = os.path.join(self.app_data_dir, 'conf')
+    def setup_mainwindow(self):
+        # load main window style
+        main_style_path = os.path.join(APP_DIR, 'styles', 'main_window.css')
+        main_style = NoteModel.enc_read(main_style_path)
+        self.setStyleSheet(main_style)
+
+    def setup_preview(self):
+        # catch link clicks in the Preview pane
+        self.ui.notePreview.setOpenExternalLinks(True)
+        self.ui.notePreview.anchorClicked.connect(self.load_anchor)
+        self.ui.notePreview.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.notePreview.customContextMenuRequested.connect(self.show_custom_preview_menu)
+        self.ui.notePreview.setSearchPaths(self.notes_dir)
+
+    def setup_keyboard_shortcuts(self):
+        # set-up the keyboard shortcuts
+        esc = QtCore.Qt.Key_Escape
+        delete = QtCore.Qt.Key_Delete
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+N'), self, lambda item=None: self.process_keyseq('ctrl_n'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+F'), self, lambda item=None: self.process_keyseq('ctrl_f'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+E'), self, lambda item=None: self.process_keyseq('ctrl_e'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+P'), self, lambda item=None: self.process_keyseq('ctrl_p'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+D'), self, lambda item=None: self.process_keyseq('ctrl_d'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+L'), self, lambda item=None: self.process_keyseq('ctrl_l'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+T'), self, lambda item=None: self.process_keyseq('ctrl_t'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+S'), self, lambda item=None: self.process_keyseq('ctrl_s'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+R'), self, lambda item=None: self.process_keyseq('ctrl_r'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+]'), self, lambda item=None: self.process_keyseq('ctrl_up'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+['), self, lambda item=None: self.process_keyseq('ctrl_down'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+<'), self, lambda item=None: self.process_keyseq('ctrl_<'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+>'), self, lambda item=None: self.process_keyseq('ctrl_>'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+L'), self, lambda item=None: self.process_keyseq('ctrl_shift_l'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+H'), self, lambda item=None: self.process_keyseq('ctrl_shift_h'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+O'), self, lambda item=None: self.process_keyseq('ctrl_shift_o'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+F'), self, lambda item=None: self.process_keyseq('ctrl_shift_f'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+U'), self, lambda item=None: self.process_keyseq('ctrl_shift_u'))
+        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+P'), self, lambda item=None: self.process_keyseq('ctrl_shift_p'))
+        QtGui.QShortcut(QtGui.QKeySequence(esc), self, lambda item=None: self.process_keyseq('esc'))
+
+        # remove notes in the note list using the delete key
+        QtGui.QShortcut(QtGui.QKeySequence(delete), self.ui.notesList, lambda item=None: self.delete_current_note())
+
+    def insert_ui_noteeditor(self):
+        # insert the custom text editor
+        self.noteEditor = MotomeTextBrowser(self.ui.tabEditor, self.notes_dir)
+        self.noteEditor.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|
+                                                QtCore.Qt.TextBrowserInteraction|QtCore.Qt.TextEditable|
+                                                QtCore.Qt.TextEditorInteraction|QtCore.Qt.TextSelectableByKeyboard|
+                                                QtCore.Qt.TextSelectableByMouse)
+        self.noteEditor.setObjectName("noteEditor")
+        self.ui.horizontalLayout_3.insertWidget(1, self.noteEditor)
+        self.noteEditor.textChanged.connect(self.start_save)
+        self.noteEditor.anchorClicked.connect(self.load_anchor)
+
+    def insert_ui_tageditor(self):
+        # tag completer
+        self.tagEditor = AutoCompleteEdit([])
+        self.tagEditor.setObjectName("tagEditor")
+        self.tagEditor.setFrame(False)
+        self.ui.horizontalLayout_2.addWidget(self.tagEditor)
+        self.tagEditor.textEdited.connect(self.start_save)
+
+    def insert_ui_tagcompleter(self):
+        # build the completer list
+        completer_list = set()
+        for note in self.db_notes.values():
+            if 'tags' in note.metadata.keys():
+                for t in note.metadata['tags'].split():
+                    completer_list.add(t)
+        # attach a completer to the tag editor
+        qlist = QtGui.QStringListModel(list(completer_list))
         try:
-            data = self._read_file(filepath)
-            for line in data.splitlines():
-                try:
-                    key, value = line.strip().split(':', 1)
-                    self.conf[key] = value
-                except ValueError:
-                    pass
+            self.tagEditor.setCompleterModel(qlist)
+        except AttributeError:
+            pass
+
+    def load_conf(self):
+        filepath = os.path.join(self.app_data_dir, 'conf.json')
+        try:
+            data = NoteModel.enc_read(filepath)
+            self.conf = json.loads(data)
             if not 'conf_notesLocation' in self.conf.keys():
                 # Show the settings dialog if no notes location has been configured
                 self.load_settings()
             else:
                 self.notes_dir = self.conf['conf_notesLocation']
+
+            # TRANSITION (0.1-0.2): Need to change ETXs to --- for the new YAML metadata end-matter
+            if '0.1' in self.conf['motome_version']:
+                transition_versions(self.notes_dir)
         except IOError as e:
             # No configuration file exists, create one
             self.save_conf()
 
     def save_conf(self):
-        filepath = os.path.join(self.app_data_dir, 'conf')
-        filedata = ''
+        filepath = os.path.join(self.app_data_dir, 'conf.json')
         self.conf['motome_version'] = VERSION
         self.conf['conf_update'] = time.time()
-        for key, value in self.conf.items():
-                filedata = filedata + '{0}:{1}\n'.format(key, value)
-        self._write_file(filepath, filedata)
+        try:
+            data = json.dumps(self.conf)
+            NoteModel.enc_write(filepath, data)
+        except IOError:
+            pass
 
     def load_anchor(self, url):
         url_path = url.path()
@@ -389,8 +445,11 @@ class MainWindow(QtGui.QMainWindow):
             message_box.exec_()
 
     def load_notemodels(self):
-        if self.tagEditor.completer.popup().isVisible():
-            return
+        try:
+            if self.tagEditor.completer.popup().isVisible():
+                return
+        except AttributeError:
+            pass
 
         if os.path.exists(self.notes_dir):
             notepaths = set(glob.glob(self.notes_dir + '/*' + NOTE_EXTENSION))
@@ -410,15 +469,7 @@ class MainWindow(QtGui.QMainWindow):
                     self.db_notes[note.filename] = note
 
             # build the completer list
-            completer_list = set()
-            for note in self.db_notes.values():
-                if 'tags' in note.metadata.keys():
-                    for t in note.metadata['tags'].split():
-                        completer_list.add(t)
-            # attach a completer to the tag editor
-            qlist = QtGui.QStringListModel(list(completer_list))
-            # self.tag_completer.setModel(qlist)
-            self.tagEditor.setCompleterModel(qlist)
+            self.insert_ui_tagcompleter()
 
             if len(self.db_notes.keys()) > 0:
                 # reverse sort the note list based on last modified time
@@ -826,8 +877,7 @@ class MainWindow(QtGui.QMainWindow):
             dialog.ui.tabWidget.setCurrentIndex(0)
             # a tuple of widget types to find in the settings tab
             to_find = (QtGui.QLineEdit, QtGui.QFontComboBox, QtGui.QComboBox, QtGui.QCheckBox)
-            # find all the widgets in the settings tab and set the
-            # conf dictionary
+            # find all the widgets in the settings tab and set the conf dictionary
             for f in to_find:
                 for c in dialog.ui.tabWidget.currentWidget().findChildren(f):
                     name = c.objectName()
@@ -953,7 +1003,6 @@ class MainWindow(QtGui.QMainWindow):
                 c, m = NoteModel.parse_note_content(data)
                 if len(c.strip()) == 0:
                     self.delete_note(n)
-            # self.all_notes = self.load_notemodels()
 
     def delete_empty_note(self, filepath):
         if self.delete_empty:
@@ -1002,9 +1051,14 @@ class MainWindow(QtGui.QMainWindow):
     def load_db_data(self):
         try:
             with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'rb') as data_file:
-                self.db_notes = pickle.load(data_file)
+                # Practice safer unpickling by making sure the UnPickler only loads NoteModel objects
+                unp = pickle.Unpickler(data_file)
+                unp.find_global = pickle_find_NoteModel
+                self.db_notes = unp.load()
         except IOError:
             self.load_notemodels()
+        except pickle.UnpicklingError as e:
+            logger.warning('[load_db_data] %r'%e)
 
     def save_db_data(self):
         try:
@@ -1014,13 +1068,6 @@ class MainWindow(QtGui.QMainWindow):
             os.makedirs(self.notes_data_dir)
             with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'wb') as data_file:
                 pickle.dump(self.db_notes, data_file, -1)
-
-    # def set_current_row(self, notename):
-    #     try:
-    #         list_item = self.ui.notesList.findItems(notename, QtCore.Qt.MatchExactly)[0]
-    #         self.current_row = self.ui.notesList.row(list_item)
-    #     except IndexError:
-    #         self.current_row = 0
 
     def show_custom_preview_menu(self, point):
         preview_rclk_menu = self.ui.notePreview.createStandardContextMenu()
