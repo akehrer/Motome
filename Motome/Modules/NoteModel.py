@@ -13,7 +13,7 @@ import zipfile
 
 import yaml
 
-from Motome.config import END_OF_TEXT, ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE, HISTORY_FOLDER, YAML_BRACKET
+from Motome.config import ZIP_EXTENSION, NOTE_EXTENSION, ENCODING, STATUS_TEMPLATE, HISTORY_FOLDER, YAML_BRACKET
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 class NoteModel(object):
     """
-    The main note model contains the note information and name conversions for a given note.
+    The main note model contains note information and name conversions for a given note.
+    It also handles reading and writing data to the note file.
     """
     def __init__(self, filepath=None):
         self.filepath = filepath
@@ -32,7 +33,7 @@ class NoteModel(object):
         self._history = []
         self._last_seen = -1
 
-    def __str__(self):
+    def __repr__(self):
         return '<Note: {0}, Last Modified: {1}>'.format(self.notename, self.timestamp)
 
     def __getstate__(self):
@@ -63,6 +64,10 @@ class NoteModel(object):
 
     @metadata.setter
     def metadata(self, value):
+        """ The note's metadata setter, expects a dict, automatically saves the new data to the file
+
+        :param value: dict of the new metadata
+        """
         self._metadata = value
         self._save_to_file()
 
@@ -125,7 +130,9 @@ class NoteModel(object):
 
     @notename.setter
     def notename(self, value):
-        """ Renaming the note so make sure all the files get renamed too
+        """ Handles renaming the note so makes sure all the files get renamed too
+
+        :param value: string of the new name
         """
         basepath, ext = os.path.splitext(self.filepath)
         newname = value + ext
@@ -159,10 +166,6 @@ class NoteModel(object):
         return self.safename.replace('_', ' ')
 
     @property
-    def shortname(self):
-        return self.safename[:4] + self.safename[-4:]
-
-    @property
     def hashname(self):
         try:
             return hashlib.sha1(self.filepath.encode('UTF-8')).hexdigest()
@@ -176,7 +179,19 @@ class NoteModel(object):
         except OSError:
             return -1
 
+    @property
+    def title(self):
+        if 'title' in self.metadata.keys():
+            return self.metadata['title']
+        else:
+            return self.unsafename
+
     def load_old_note(self, index):
+        """ Load a note from the history
+
+        :param index: the index value in the history list
+        :returns: a tuple containing the unparsed note content, a date string ('YYYYMMDDHHMMSS')
+        """
         try:
             zip_filepath = self.historypath
             with zipfile.ZipFile(zip_filepath, 'r') as myzip:
@@ -189,13 +204,10 @@ class NoteModel(object):
             old_date = None
         return old_content, old_date
 
-    def record(self, notes_dir):
+    def record(self):
+        """ Write the old file data to the zip archive
         """
-        Write the old file data to the zip archive
-
-        :param notes_dir:
-        """
-        history_dir = os.path.join(notes_dir, HISTORY_FOLDER)
+        history_dir = os.path.join(self.notedirectory, HISTORY_FOLDER)
         now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         old_filename = now + NOTE_EXTENSION
         old_filepath = os.path.join(history_dir, old_filename)
@@ -217,12 +229,18 @@ class NoteModel(object):
         os.remove(old_filepath)
 
     def rename(self):
+        """ Renames the note using the metadata['title'] value
+        """
         if self._metadata['title'] == self.notename:
             return
         else:
             self.notename = self._metadata['title']
 
     def remove(self):
+        """ Deletes all the note's associated files and clears the object's properties
+
+        :return: boolean of removal success
+        """
         ret = False
         paths = [self.filepath,
                  self.historypath]
@@ -243,6 +261,10 @@ class NoteModel(object):
         return ret
 
     def get_status(self):
+        """ Create an html document of basic note status information
+
+        :return: an html document of note status data
+        """
         dt = datetime.datetime.fromtimestamp(self.timestamp)
         html = STATUS_TEMPLATE.format(notename=self.notename,
                                       timestamp=dt.strftime('%c'),
@@ -250,6 +272,10 @@ class NoteModel(object):
         return html
 
     def _latest_record_date(self):
+        """ Get a string of the last history record's datetime
+
+        :return: A string representation of the date and time
+        """
         try:
             dt = self.history[-1].date_time
             latest_dt = datetime.datetime(*dt)
@@ -258,6 +284,8 @@ class NoteModel(object):
             return 'Never'
 
     def _update_from_file(self):
+        """ Update the object's internal values from the file
+        """
         try:
             self._content, self._metadata = self.parse_note_content(self.enc_read(self.filepath))
             self._last_seen = self.timestamp
@@ -267,8 +295,7 @@ class NoteModel(object):
             self._last_seen = -1
 
     def _save_to_file(self, filepath=None):
-        """
-        Save the content and metadata to the note file
+        """ Save the content and metadata to the note file
         """
         if filepath is None:
             filepath = self.filepath
@@ -278,8 +305,6 @@ class NoteModel(object):
             filedata = self.content
         else:
             filedata = self.content + '\n'
-        # for key, value in self.metadata.items():
-        #         filedata = filedata + '{0}:{1}\n'.format(key, value)
         # use safe_dump to prevent dumping non-standard YAML tags
         filedata += YAML_BRACKET + '\n' + yaml.safe_dump(self.metadata, default_flow_style=False) + YAML_BRACKET
         self.enc_write(filepath, filedata)
@@ -289,7 +314,7 @@ class NoteModel(object):
         """ Convert the filename into something more url safe
 
         :param filename:
-        :return: safer filename or None on failure
+        :return: safer filename string or None on failure
         """
         # TODO: Look at a slugify module instead
         pattern = re.compile('[\W_]+')  # find all words
@@ -297,38 +322,9 @@ class NoteModel(object):
         return pattern.sub('_', root) if ext is '' else ''.join([pattern.sub('_', root), ext])
 
     @staticmethod
-    def parse_note_content_old(data):
-        """
-        Given a file's data, split it into its note content and metadata.
-        :param data: file data
-        :return: content str, metadata dict
-        """
-        meta = {}
-        try:
-            idx = data.index(END_OF_TEXT)
-            content = data[:idx]
-            lines = data[idx:].splitlines()
-        except ValueError:
-            # idx not found
-            content = data
-            lines = []
-
-        for line in lines:
-            try:
-                key, value = line.strip().split(':', 1)
-                if key == 'tags':
-                    tags = sorted(set(re.findall(r'\w+', value)))  # all unique tags sorted alphabetically
-                    meta['tags'] = ' '.join(tags)
-                else:
-                    meta[key] = value
-            except ValueError:
-                pass
-        return content, meta
-
-    @staticmethod
     def parse_note_content(data):
-        """
-        Given a file's data, split it into its note content and metadata.
+        """ Given a file's raw data, split it into its note content and metadata.
+
         :param data: file data
         :return: content str, metadata dict
         """
@@ -345,6 +341,11 @@ class NoteModel(object):
 
     @staticmethod
     def enc_write(filepath, filedata):
+        """ Encode and write data to a file (unicode inside, bytes outside)
+
+        :param filepath: the path to the output file
+        :param filedata: the data to write
+        """
         # encode things
         ufilepath = filepath.encode(ENCODING)
         ufiledata = filedata.encode(ENCODING)
@@ -353,6 +354,11 @@ class NoteModel(object):
 
     @staticmethod
     def enc_read(filepath):
+        """ Read and decode data from a file (bytes outside, unicode inside)
+
+        :param filepath: the path to the input file
+        :return: decoded file data
+        """
         ufilepath = filepath.encode(ENCODING)
         with open(ufilepath, mode='rb') as f:
             data = f.read()

@@ -28,7 +28,7 @@ from Motome.config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, \
     APP_DIR, WINDOW_TITLE, UNSAFE_CHARS, VERSION, NOTE_DATA_DIR, HTML_FOLDER, HTML_EXTENSION
 
 # Import additional modules
-from Motome.Modules.MotomeTextBrowser import MotomeTextBrowser
+from Motome.Modules.MotomeTextBrowser import MotomeTextBrowser, MotomeTextBrowser2
 from Motome.Modules.NoteModel import NoteModel
 from Motome.Modules.SettingsDialog import SettingsDialog
 from Motome.Modules.AutoCompleterModel import AutoCompleteEdit
@@ -80,7 +80,6 @@ class MainWindow(QtGui.QMainWindow):
 
         # Configuration and defaults
         self.conf = {}
-        self.delete_empty = False
         self.record_on_exit = False
         self.record_on_switch = False
         self.title_as_filename = True
@@ -90,11 +89,6 @@ class MainWindow(QtGui.QMainWindow):
         self.load_conf()
 
         # Set some configuration variables
-        if 'conf_checkbox_deleteempty' in self.conf.keys() and int(self.conf['conf_checkbox_deleteempty']) > 0:
-            self.delete_empty = True
-        else:
-            self.delete_empty = False
-
         if 'conf_checkbox_recordonexit' in self.conf.keys() and int(self.conf['conf_checkbox_recordonexit']) > 0:
             self.record_on_exit = True
         else:
@@ -140,7 +134,6 @@ class MainWindow(QtGui.QMainWindow):
 
         # current view
         self._current_note = None
-        # self.current_row = 0
         self.old_data = None
         self.history = []
 
@@ -153,7 +146,7 @@ class MainWindow(QtGui.QMainWindow):
         # save file timer
         self.save_interval = 1000 # msec
         self.save_timer = QtCore.QTimer()
-        self.save_timer.timeout.connect(self.save_note)
+        self.save_timer.timeout.connect(self.save_note_meta)
 
         # search
         self.search = SearchModel()
@@ -169,19 +162,14 @@ class MainWindow(QtGui.QMainWindow):
         self._notes_dir_last_seen = 0.0
         self._all_notes = self.load_notemodels()
         self.load_ui_notes_list(self.all_notes)
-        try:
-            self.update_ui_views()
-        except AttributeError as e:
-            # note directory missing?
-            if not os.path.isdir(self.notes_dir):
-                self.first_run = True
-            else:
-                logger.error('Error running __init__/update_ui_views, %s'%e)
-                self.first_run = True
+        self.update_ui_views()
 
         if self.first_run:
             logger.info('First run')
             self.do_first_run()
+
+        # set the focus to the window frame
+        self.setFocus(QtCore.Qt.ActiveWindowFocusReason)
 
     @property
     def notes_dir(self):
@@ -194,8 +182,6 @@ class MainWindow(QtGui.QMainWindow):
         self.notes_data_dir = os.path.join(self._notes_dir, NOTE_DATA_DIR)
         # set the db connection
         self.load_db_data()
-        # remove any empty file and history (if checked) and reload file list
-        self.delete_empty_notes()
 
     @property
     def all_notes(self):
@@ -208,10 +194,9 @@ class MainWindow(QtGui.QMainWindow):
     @property
     def current_note(self):
         try:
-            i = self.current_row  # self.ui.notesList.currentRow()
+            i = self.current_row
             filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
             self._current_note = self.db_notes[filename]
-            # self.set_current_row(self._current_note.notename)
         except (KeyError, AttributeError):
             self._current_note = None
         return self._current_note
@@ -230,8 +215,8 @@ class MainWindow(QtGui.QMainWindow):
             list_item = self.ui.notesList.findItems(notename, QtCore.Qt.MatchExactly)[0]
             row = self.ui.notesList.row(list_item)
             if row != self.current_row:
-                self.update_ui_views(reload_editor=False)
                 self.ui.notesList.setCurrentRow(row)
+                self.update_ui_views()
         except IndexError:
             message_box = QtGui.QMessageBox()
             message_box.setText("Cannot open link.")
@@ -240,64 +225,12 @@ class MainWindow(QtGui.QMainWindow):
             message_box.setDefaultButton(ok_btn)
             message_box.exec_()
 
-    def process_keyseq(self,seq):
-        if seq == 'ctrl_n' or seq == 'ctrl_f':
-            self.ui.omniBar.setFocus()
-        elif seq == 'ctrl_e':
-            self.ui.toolBox.setCurrentIndex(0)
-            self.noteEditor.setFocus()
-        elif seq == 'ctrl_p':
-            self.ui.toolBox.setCurrentIndex(1)
-        elif seq == 'ctrl_d':
-            self.ui.toolBox.setCurrentIndex(2)
-        elif seq == 'ctrl_l':
-            self.ui.notesList.setFocus()
-        elif seq == 'ctrl_m':
-            self.click_merge_notes()
-        elif seq == 'ctrl_t':
-            self.ui.toolBox.setCurrentIndex(0)
-            self.tagEditor.setFocus()
-        elif seq == 'ctrl_s':
-            if 'conf_checkbox_deleteempty' in self.conf.keys() and int(self.conf['conf_checkbox_deleteempty']) > 0:
-                self.save_note(record=True)
-            else:
-                self.save_note(record=False)
-        elif seq == 'ctrl_r':
-            self.save_note(record=True)
-        elif seq == 'ctrl_up':
-            self.keyseq_update_ui_views('down')
-        elif seq == 'ctrl_down':
-            self.keyseq_update_ui_views('up')
-        elif seq == 'ctrl_<':
-            self.click_older_date()
-        elif seq == 'ctrl_>':
-            self.click_newer_date()
-        elif seq == 'ctrl_shift_l':
-            self.toggle_notes_list_view()
-        elif seq == 'ctrl_shift_h':
-            self.toggle_history_bar_view()
-        elif seq == 'ctrl_shift_o':
-            self.toggle_omnibar_view()
-        elif seq == 'ctrl_shift_f':
-            self.toggle_notes_list_view()
-            self.toggle_omnibar_view()
-            self.toggle_history_bar_view()
-        elif seq == 'ctrl_shift_u':
-            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            if self.noteEditor.hasFocus():
-                self.noteEditor.insertPlainText('{0}\n'.format(now))
-            else:
-                self.ui.omniBar.setText(now)
-        elif seq == 'ctrl_shift_p':
-            self.dblclick_pin_list_item(self.ui.notesList.currentIndex())
-        elif seq == 'esc':
-            self.ui.omniBar.setText('')
-        else:
-            logger.info('No code for {0}'.format(seq))
-
     def stop(self):
+        if self.noteEditor.save_timer.isActive():
+            self.noteEditor.save_note()
+
         if self.save_timer.isActive():
-            self.save_note()
+            self.save_note_meta()
 
         if self.record_on_exit:
             for note in self.db_notes.values():
@@ -357,15 +290,16 @@ class MainWindow(QtGui.QMainWindow):
 
     def insert_ui_noteeditor(self):
         # insert the custom text editor
-        self.noteEditor = MotomeTextBrowser(self.ui.tabEditor, self.notes_dir)
+        self.noteEditor = MotomeTextBrowser2(self.ui.tabEditor, None)
         self.noteEditor.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|
                                                 QtCore.Qt.TextBrowserInteraction|QtCore.Qt.TextEditable|
                                                 QtCore.Qt.TextEditorInteraction|QtCore.Qt.TextSelectableByKeyboard|
                                                 QtCore.Qt.TextSelectableByMouse)
         self.noteEditor.setObjectName("noteEditor")
         self.ui.horizontalLayout_3.insertWidget(1, self.noteEditor)
-        self.noteEditor.textChanged.connect(self.start_save)
+        # self.noteEditor.textChanged.connect(self.start_save)
         self.noteEditor.anchorClicked.connect(self.load_anchor)
+        self.noteEditor.noteSaved.connect(self.save_note_meta)
 
     def insert_ui_tageditor(self):
         # tag completer
@@ -373,7 +307,7 @@ class MainWindow(QtGui.QMainWindow):
         self.tagEditor.setObjectName("tagEditor")
         self.tagEditor.setFrame(False)
         self.ui.horizontalLayout_2.addWidget(self.tagEditor)
-        self.tagEditor.textEdited.connect(self.start_save)
+        self.tagEditor.textEdited.connect(self.start_meta_save)
 
     def insert_ui_tagcompleter(self):
         # build the completer list
@@ -422,11 +356,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # intranote link?
         if url_path+NOTE_EXTENSION in self.db_notes.keys():
-            # filename = url_path + NOTE_EXTENSION
-            # self.current_note = self.db_notes[filename]
-            # self.set_current_row(url_path)
             self.current_row = url_path
-            # self.update_ui_views()
             return
 
         media_path = os.path.join(self.notes_dir, MEDIA_FOLDER, url_path.split('/')[-1])
@@ -483,9 +413,6 @@ class MainWindow(QtGui.QMainWindow):
         pinned_items = [i for i in items if i.pinned]
         unpinned_items = [i for i in items if not i.pinned]
 
-        # if len(items) == 0:
-        #     self.current_note = None
-
         self.ui.notesList.clear()
 
         for item in sorted(pinned_items, key=lambda x: x.notename):
@@ -496,89 +423,72 @@ class MainWindow(QtGui.QMainWindow):
             u = QtGui.QListWidgetItem(item.notename)
             self.ui.notesList.addItem(u)
 
-        # if self.current_note is not None:
-        #     self.current_row = self.current_note.notename  # self.set_current_row(self.current_note.notename)
-        #     self.update_ui_views(reload_editor=False)
-        # else:
-        #     # self.current_row = 0
-        #     self.update_ui_views()
-
         self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
 
-    def update_ui_views(self, old_content=None, reload_editor=True):
-        try:
-            self.noteEditor.blockSignals(True)
-            self.tagEditor.blockSignals(True)
-        except AttributeError:
-            pass
+    def update_ui_views(self):
+        # update the note editor
+        self.noteEditor.blockSignals(True)
+        self.noteEditor.notemodel = self.current_note
+        self.load_history_data()
+        self.noteEditor.blockSignals(False)
 
-        if self.current_note is None:
-            self.noteEditor.set_note_text('')
-            self.tagEditor.setText('')
-            self.setWindowTitle(' '.join([WINDOW_TITLE]))
-            self.noteEditor.blockSignals(False)
-            self.tagEditor.blockSignals(False)
-            return
-
-        if old_content is None:
-            content = self.current_note.content
-            new_content = content
-            tab_date = ''
-            self.load_history_data()
-        else:
-            new_content = self.current_note.content
-            content, __ = NoteModel.parse_note_content(old_content[0])
-            dt_str = old_content[1]
-            dt = self._history_timestring_to_datetime(dt_str)
-            tab_date = '[' + human_date(dt) + ']'
-
-        if 'tags' in self.current_note.metadata.keys():
-            self.tagEditor.setText(self.current_note.metadata['tags'])
-        else:
-            self.tagEditor.setText('')
-
-        if 'title' in self.current_note.metadata.keys():
-            title = self.current_note.metadata['title']
-        else:
-            title = self.current_note.unsafename
-
-        # update the window title
-        self.setWindowTitle(' '.join([WINDOW_TITLE, '-', title, tab_date]))
-
-        if reload_editor:
-            self.noteEditor.set_note_text(content)
-
-        self.update_ui_preview()
-        fromdesc = ' '.join([title, tab_date])
-        self.update_ui_diff(content, new_content, fromdesc=fromdesc, todesc=title)
-
+        # highlight any search terms
         if self.query is not '':
             self.noteEditor.highlight_search(self.query.split(' '))
 
-        self.noteEditor.blockSignals(False)
+        # update the tag editor
+        self.tagEditor.blockSignals(True)
+        try:
+            self.tagEditor.setText(self.current_note.metadata['tags'])
+        except (TypeError, KeyError, AttributeError):
+            # no metadata or no tag metadata
+            self.tagEditor.setText('')
         self.tagEditor.blockSignals(False)
 
+        # update the preview and diff panes
+        self.update_ui_preview()
+        self.update_ui_diff()
+
+        # update the window title
+        try:
+            title = self.current_note.title
+        except AttributeError:
+            # current_note is None
+            title = ''
+        self.setWindowTitle(' '.join([WINDOW_TITLE, '-', title]))
+
+    def update_ui_views_history(self):
+        if self.old_data is None:
+            self.update_ui_views()
+        else:
+            old_content, old_meta = NoteModel.parse_note_content(self.old_data[0])
+            # update the note editor
+            self.noteEditor.blockSignals(True)
+            self.noteEditor.set_note_text(old_content)
+            self.noteEditor.blockSignals(False)
+
+            # update the tag editor
+            self.tagEditor.blockSignals(True)
+            try:
+                self.tagEditor.setText(old_meta['tags'])
+            except (TypeError, KeyError):
+                # no metadata or no tag metadata
+                self.tagEditor.setText('')
+            self.tagEditor.blockSignals(False)
+
+            # update the preview and diff panes
+            self.update_ui_preview()
+            self.update_ui_diff()
+
+            # update the window title
+            dt_str = self.old_data[1]
+            dt = self._history_timestring_to_datetime(dt_str)
+            tab_date = '[' + human_date(dt) + ']'
+            self.setWindowTitle(' '.join([WINDOW_TITLE, '-', self.current_note.title, tab_date]))
+
     def click_update_ui_views(self, index=None):
-        # if index is None:
-        #     i = self.ui.notesList.currentRow()
-        # else:
-        #     i = index.row()
-        #
-        # # self.current_row = i
-
-        if self.save_timer.isActive():
-            self.save_timer.stop()
-            self.save_note()
-
-        # filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
-        # try:
-        #     self.current_note = self.db_notes[filename]  # self.notes_list[i]
-        #     self.set_current_row(self.current_note.notename)
-        # except KeyError:
-        #     pass
-
         if self.record_on_switch and not self.current_note.recorded:
-            self.current_note.record(self.notes_dir)
+            self.noteEditor.record_note()
 
         self.update_ui_views()
 
@@ -597,16 +507,69 @@ class MainWindow(QtGui.QMainWindow):
 
         self.search_files()
 
+    def process_keyseq(self,seq):
+        if seq == 'ctrl_n' or seq == 'ctrl_f':
+            self.ui.omniBar.setFocus()
+        elif seq == 'ctrl_e':
+            self.ui.toolBox.setCurrentIndex(0)
+            self.noteEditor.setFocus()
+        elif seq == 'ctrl_p':
+            self.update_ui_preview()
+            self.ui.toolBox.setCurrentIndex(1)
+        elif seq == 'ctrl_d':
+            self.update_ui_diff()
+            self.ui.toolBox.setCurrentIndex(2)
+        elif seq == 'ctrl_l':
+            self.ui.notesList.setFocus()
+        elif seq == 'ctrl_m':
+            self.click_merge_notes()
+        elif seq == 'ctrl_t':
+            self.ui.toolBox.setCurrentIndex(0)
+            self.tagEditor.setFocus()
+        elif seq == 'ctrl_s':
+            self.noteEditor.save_note()
+            if self.delete_empty and len(self.current_note.content.strip()) == 0:
+                self.delete_current_note()
+        elif seq == 'ctrl_r':
+            self.noteEditor.record_note()
+            self.load_history_data()
+        elif seq == 'ctrl_up':
+            self.keyseq_update_ui_views('down')
+        elif seq == 'ctrl_down':
+            self.keyseq_update_ui_views('up')
+        elif seq == 'ctrl_<':
+            self.click_older_date()
+        elif seq == 'ctrl_>':
+            self.click_newer_date()
+        elif seq == 'ctrl_shift_l':
+            self.toggle_notes_list_view()
+        elif seq == 'ctrl_shift_h':
+            self.toggle_history_bar_view()
+        elif seq == 'ctrl_shift_o':
+            self.toggle_omnibar_view()
+        elif seq == 'ctrl_shift_f':
+            self.toggle_notes_list_view()
+            self.toggle_omnibar_view()
+            self.toggle_history_bar_view()
+        elif seq == 'ctrl_shift_u':
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            if self.noteEditor.hasFocus():
+                self.noteEditor.insertPlainText('{0}\n'.format(now))
+            else:
+                self.ui.omniBar.setText(now)
+        elif seq == 'ctrl_shift_p':
+            self.dblclick_pin_list_item(self.ui.notesList.currentIndex())
+        elif seq == 'esc':
+            self.ui.omniBar.setText('')
+        else:
+            logger.info('No code for {0}'.format(seq))
+
     def keyseq_update_ui_views(self, direction):
         """
         Moves through the notes list, looping at each end
 
         :param direction: which direction to move 'up' or 'down'
         """
-        if self.save_timer.isActive():
-            self.save_timer.stop()
-            self.save_note()
-
         current_row = self.ui.notesList.currentRow()
         row_count = self.ui.notesList.count()
         if direction == 'down' and current_row > 0:
@@ -628,11 +591,21 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.notePreview.setHtml(html)
         self.ui.notePreview.reload()
 
-    def update_ui_diff(self, content, new_content, fromdesc, todesc):
-        if content != new_content:
-            diff_html = diff_to_html(content, new_content, fromdesc, todesc)
+    def update_ui_diff(self):
+        if self.old_data is not None:
+            new_content = self.current_note.content
+            content, __ = NoteModel.parse_note_content(self.old_data[0])
+            dt_str = self.old_data[1]
+            dt = self._history_timestring_to_datetime(dt_str)
+            tab_date = '[' + human_date(dt) + ']'
+            fromdesc = ' '.join([self.current_note.title, tab_date])
+            diff_html = diff_to_html(content, new_content, fromdesc, self.current_note.title)
         else:
-            diff_html = self.current_note.get_status()
+            try:
+                diff_html = self.current_note.get_status()
+            except AttributeError:
+                # current_note is None
+                diff_html = ''
         self.ui.noteDiff.setHtml(diff_html)
         self.ui.noteDiff.reload()
 
@@ -671,74 +644,42 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.ui.frameHistory.hide()
 
-    def start_save(self):
+    def start_meta_save(self):
         if self.save_timer.isActive():
             self.save_timer.stop()
         self.save_timer.start(self.save_interval)
 
-    def save_note(self, record=False):
-        if self.current_note is None:
-            return
-        
-        if self.tagEditor.completer.popup().isVisible():
-            return
+    def save_note_meta(self):
+        if self.noteEditor.save_timer.isActive():
+            self.noteEditor.save_note()
 
-        new_content = self.noteEditor.toPlainText()
-        # if the new content is an empty note and delete empty notes is enabled
-        # delete the note and it's history
-        if len(new_content.strip()) == 0 and self.delete_empty_note(self.current_note):
+        if self.save_timer.isActive():
             self.save_timer.stop()
-            # self.search.remove(filepath)
-            # self.all_notes = self.load_notemodels()
-            # self.load_ui_notes_list(self.all_notes)
-            self.search_files()
-            self.update_ui_views()
-            return
-        else:
-            self.save_timer.stop()
-            if self.old_data:
-                # if we've edited a history record then record the last saved note data
-                # to the history before saving any new data
-                self.current_note.record(self.notes_dir)
-                self.old_data = None
-            # update the content (will save automatically)
-            self.current_note.content = new_content
 
-            metadata = self.current_note.metadata
-            if self.first_line_title:
-                t = self._clean_filename(new_content.split('\n', 1)[0], '').strip()
-                if t != '':
-                    metadata['title'] = t
+        metadata = self.current_note.metadata
+        if self.first_line_title:
+            nt = self.noteEditor.notemodel.content.split('\n', 1)[0]
+            t = self._clean_filename(nt, '').strip()
+            if t != '':
+                metadata['title'] = t
 
-            metadata['tags'] = self.tagEditor.text()
+        metadata['tags'] = self.tagEditor.text()
 
-            if 'conf_author' in self.conf.keys():
-                metadata['author'] = self.conf['conf_author']
+        if 'conf_author' in self.conf.keys():
+            metadata['author'] = self.conf['conf_author']
 
-            # update the metadata (will save automatically)
-            self.current_note.metadata = metadata
+        # update the metadata (will save automatically)
+        self.current_note.metadata = metadata
 
-            if self.title_as_filename:
-                self.current_note.rename()
-                # update the notes list
-                # self.all_notes = self.load_notemodels()
-                # self.ui.notesList.blockSignals(True)
-                # self.search_files()
-                # self.ui.notesList.blockSignals(False)
-
-        if record:
-            self.current_note.record(self.notes_dir)
-
-        title = self.current_note.notename
-        self.search_files()
-        self.current_row = title
-        self.update_ui_views(None, False)
+        # check for history position and move to latest if needed
+        if self.old_data is not None:
+            self.ui.historySlider.setValue(self.ui.historySlider.maximum())
 
     def generate_html(self, content):
         try:
             header = build_preview_header_html(self.current_note.metadata['title'])
-        except KeyError:
-            # no title in metadata
+        except (AttributeError, KeyError):
+            # no title in metadata or no metadata
             header = build_preview_header_html('')
         body = self.md.convert(content)  # TODO: getting re MemoryErrors for large files
         footer = build_preview_footer_html()
@@ -825,10 +766,7 @@ class MainWindow(QtGui.QMainWindow):
         new_note.content = content
 
         # update
-        # self.search.add(filepath)
-        # self.current_note = new_note
         self.db_notes[new_note.filename] = new_note
-        # self.all_notes = self.load_notemodels()
 
         self.ui.omniBar.blockSignals(True)
         self.ui.omniBar.setText('')
@@ -852,7 +790,10 @@ class MainWindow(QtGui.QMainWindow):
         Updates the history slider with history info from the current note
         """
         self.ui.historySlider.blockSignals(True)
-        hlen = len(self.current_note.history)
+        try:
+            hlen = len(self.current_note.history)
+        except AttributeError:
+            hlen = 0
         self.ui.historySlider.setMaximum(hlen)
         self.ui.historySlider.setValue(hlen)
         self.ui.historySlider.blockSignals(False)
@@ -863,9 +804,8 @@ class MainWindow(QtGui.QMainWindow):
             self.old_data = None
         else:
             self.setCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
-            old_content, old_date = self.current_note.load_old_note(sliderpos)
-            self.old_data = old_content
-            self.update_ui_views(old_content=(old_content, old_date))
+            self.old_data = self.current_note.load_old_note(sliderpos)
+            self.update_ui_views_history()
             self.unsetCursor()
 
     def load_settings(self):
@@ -895,11 +835,11 @@ class MainWindow(QtGui.QMainWindow):
                             self.conf[name] = 0
                         else:
                             self.conf[name] = 1
-                    elif name == 'conf_checkbox_deleteempty':
-                        if c.checkState() == QtCore.Qt.CheckState.Unchecked:
-                            self.conf[name] = 0
-                        else:
-                            self.conf[name] = 1
+                    # elif name == 'conf_checkbox_deleteempty':
+                    #     if c.checkState() == QtCore.Qt.CheckState.Unchecked:
+                    #         self.conf[name] = 0
+                    #     else:
+                    #         self.conf[name] = 1
                     elif name == 'conf_checkbox_recordonexit':
                         if c.checkState() == QtCore.Qt.CheckState.Unchecked:
                             self.conf[name] = 0
@@ -931,8 +871,6 @@ class MainWindow(QtGui.QMainWindow):
             self.load_db_data()
             # self.all_notes = self.load_notemodels()
             self._notes_dir_last_seen = 0.0
-            # remove any empty file and history (if checked) and reload file list
-            self.delete_empty_notes()
             # update the file list and views
             self.load_ui_notes_list(self.all_notes)
             self.update_ui_views()
@@ -996,20 +934,6 @@ class MainWindow(QtGui.QMainWindow):
             # at the 'now' position
             pass
 
-    def delete_empty_notes(self):
-        if self.delete_empty:
-            for n in self.all_notes:
-                data = self._read_file(n.filepath)
-                c, m = NoteModel.parse_note_content(data)
-                if len(c.strip()) == 0:
-                    self.delete_note(n)
-
-    def delete_empty_note(self, filepath):
-        if self.delete_empty:
-            return self.delete_note(filepath)
-        else:
-            return False
-
     def delete_current_note(self):
         message_box = QtGui.QMessageBox()
         message_box.setText('Delete {0}?'.format(self.current_note.notename))
@@ -1023,8 +947,6 @@ class MainWindow(QtGui.QMainWindow):
 
         if message_box.clickedButton() == delete_btn:
             self.delete_note(self.current_note)
-            # self.all_notes = self.load_notemodels()
-            # self.current_note = None
             omni_text = self.ui.omniBar.text()
             if omni_text == '':
                 self.load_ui_notes_list(self.all_notes)

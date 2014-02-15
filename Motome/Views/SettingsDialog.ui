@@ -107,19 +107,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="conf_checkbox_deleteempty">
-         <property name="toolTip">
-          <string>Should notes that contain no content be deleted, including their history?</string>
-         </property>
-         <property name="text">
-          <string>Delete empty notes</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="conf_checkbox_firstlinetitle">
          <property name="text">
           <string>Use the first  line of the note as the title</string>

@@ -38,12 +38,6 @@ class SettingsDialog(QtGui.QDialog):
         else:
             self.ui.conf_checkbox_history.setChecked(True)
 
-        if 'conf_checkbox_deleteempty' in self.conf.keys():
-            if int(self.conf['conf_checkbox_deleteempty']) == 0:
-                self.ui.conf_checkbox_deleteempty.setChecked(False)
-        else:
-            self.ui.conf_checkbox_deleteempty.setChecked(True)
-
         if 'conf_checkbox_recordonexit' in self.conf.keys():
             if int(self.conf['conf_checkbox_recordonexit']) == 0:
                 self.ui.conf_checkbox_recordonexit.setChecked(False)

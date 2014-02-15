@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\SettingsDialog.ui'
 #
-# Created: Mon Feb 10 14:43:06 2014
+# Created: Sat Feb 15 12:16:02 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -54,10 +54,6 @@ class Ui_SettingsDialog(object):
         self.conf_checkbox_history.setTristate(False)
         self.conf_checkbox_history.setObjectName("conf_checkbox_history")
         self.verticalLayout.addWidget(self.conf_checkbox_history)
-        self.conf_checkbox_deleteempty = QtGui.QCheckBox(self.tab)
-        self.conf_checkbox_deleteempty.setChecked(True)
-        self.conf_checkbox_deleteempty.setObjectName("conf_checkbox_deleteempty")
-        self.verticalLayout.addWidget(self.conf_checkbox_deleteempty)
         self.conf_checkbox_firstlinetitle = QtGui.QCheckBox(self.tab)
         self.conf_checkbox_firstlinetitle.setChecked(True)
         self.conf_checkbox_firstlinetitle.setObjectName("conf_checkbox_firstlinetitle")
@@ -148,8 +144,6 @@ class Ui_SettingsDialog(object):
         self.conf_author.setToolTip(QtGui.QApplication.translate("SettingsDialog", "Chijiiwa Motome <cmotome@example.com>", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_author.setPlaceholderText(QtGui.QApplication.translate("SettingsDialog", "Optional - Please enter your name", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_history.setText(QtGui.QApplication.translate("SettingsDialog", "Show History Bar", None, QtGui.QApplication.UnicodeUTF8))
-        self.conf_checkbox_deleteempty.setToolTip(QtGui.QApplication.translate("SettingsDialog", "Should notes that contain no content be deleted, including their history?", None, QtGui.QApplication.UnicodeUTF8))
-        self.conf_checkbox_deleteempty.setText(QtGui.QApplication.translate("SettingsDialog", "Delete empty notes", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_firstlinetitle.setText(QtGui.QApplication.translate("SettingsDialog", "Use the first  line of the note as the title", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_titleasfilename.setText(QtGui.QApplication.translate("SettingsDialog", "Set the note title as the file name", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_ctrlsrecord.setToolTip(QtGui.QApplication.translate("SettingsDialog", "Should the current note state be recored to the note history when you press Ctrl/Cmd-S", None, QtGui.QApplication.UnicodeUTF8))
