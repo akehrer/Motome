@@ -114,9 +114,9 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0">
         <property name="spacing">
-         <number>1</number>
+         <number>7</number>
         </property>
         <property name="leftMargin">
          <number>11</number>
@@ -145,6 +145,22 @@
            <bool>false</bool>
           </property>
           <property name="uniformItemSizes">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="historyLabel">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::RichText</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
            <bool>true</bool>
           </property>
          </widget>
@@ -512,6 +528,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>historyLabel</sender>
+   <signal>linkActivated(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>toggle_history_bar_view()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>28</x>
+     <y>716</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>3</x>
+     <y>654</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>click_update_ui_views(QModelIndex)</slot>
@@ -531,5 +563,6 @@
   <slot>update_slider_tooltip(int)</slot>
   <slot>start_search(QString)</slot>
   <slot>dblclick_pin_list_item(QModelIndex)</slot>
+  <slot>toggle_history_bar_view()</slot>
  </slots>
 </ui>

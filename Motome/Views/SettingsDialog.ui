@@ -94,32 +94,6 @@
         </spacer>
        </item>
        <item>
-        <widget class="QCheckBox" name="conf_checkbox_history">
-         <property name="text">
-          <string>Show History Bar</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <property name="tristate">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="conf_checkbox_deleteempty">
-         <property name="toolTip">
-          <string>Should notes that contain no content be deleted, including their history?</string>
-         </property>
-         <property name="text">
-          <string>Delete empty notes</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="conf_checkbox_firstlinetitle">
          <property name="text">
           <string>Use the first  line of the note as the title</string>
@@ -151,19 +125,6 @@
           </size>
          </property>
         </spacer>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="conf_checkbox_ctrlsrecord">
-         <property name="toolTip">
-          <string>Should the current note state be recored to the note history when you press Ctrl/Cmd-S</string>
-         </property>
-         <property name="text">
-          <string>Record current note to history with Ctrl/Cmd-S</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="conf_checkbox_recordonswitch">

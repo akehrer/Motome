@@ -36,8 +36,6 @@ NOTE_DATA_DIR = '.motome'
 NOTE_EXTENSION = '.txt'
 ZIP_EXTENSION = '.zip'
 HTML_EXTENSION = '.html'
-INDEX_EXTENSION = '.index'
-LOCK_EXTENSION = '.lock'
 
 # file encoding
 ENCODING = 'utf-8'
@@ -61,7 +59,11 @@ END_OF_TEXT = '\u0003'
 # the YAML bracket that splits the files metadata
 YAML_BRACKET = '---'
 
-# found search terms highlight color
+# colors
+MOTOME_BLUE = QColor.fromRgb(38, 87, 127, a=255)
+MOTOME_LTBLUE = QColor.fromRgb(145, 177, 203, a=255)
+MOTOME_GRYBLUE = QColor.fromRgb(89, 122, 148, a=255)
+MOTOME_BRTBLUE = QColor.fromRgb(61, 139, 203, a=255)
 HIGHLIGHT_COLOR = QColor.fromRgb(255, 255, 153, a=255)
 
 # diff status template, to show when at current note record
