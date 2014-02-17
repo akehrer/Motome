@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Sat Feb 15 12:16:00 2014
+# Created: Mon Feb 17 11:56:40 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -68,7 +68,7 @@ class Ui_MainWindow(object):
         self.layoutWidget = QtGui.QWidget(self.splitter)
         self.layoutWidget.setObjectName("layoutWidget")
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.layoutWidget)
-        self.verticalLayout_3.setSpacing(1)
+        self.verticalLayout_3.setSpacing(7)
         self.verticalLayout_3.setContentsMargins(11, -1, -1, -1)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.notesList = QtGui.QListWidget(self.layoutWidget)
@@ -84,6 +84,14 @@ class Ui_MainWindow(object):
         self.notesList.setUniformItemSizes(True)
         self.notesList.setObjectName("notesList")
         self.verticalLayout_3.addWidget(self.notesList)
+        self.historyLabel = QtGui.QLabel(self.layoutWidget)
+        self.historyLabel.setText("")
+        self.historyLabel.setTextFormat(QtCore.Qt.RichText)
+        self.historyLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.historyLabel.setWordWrap(True)
+        self.historyLabel.setObjectName("historyLabel")
+        self.verticalLayout_3.addWidget(self.historyLabel)
+        self.verticalLayout_3.setStretch(0, 1)
         self.toolBox = QtGui.QStackedWidget(self.splitter)
         self.toolBox.setEnabled(True)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
@@ -205,6 +213,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.btnSettings, QtCore.SIGNAL("clicked()"), MainWindow.load_settings)
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("returnPressed()"), MainWindow.new_note)
         QtCore.QObject.connect(self.notesList, QtCore.SIGNAL("doubleClicked(QModelIndex)"), MainWindow.dblclick_pin_list_item)
+        QtCore.QObject.connect(self.historyLabel, QtCore.SIGNAL("linkActivated(QString)"), MainWindow.toggle_history_bar_view)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.omniBar, self.notesList)
         MainWindow.setTabOrder(self.notesList, self.toolBox)

@@ -32,11 +32,11 @@ class SettingsDialog(QtGui.QDialog):
         except KeyError:
             pass
 
-        if 'conf_checkbox_history' in self.conf.keys():
-            if int(self.conf['conf_checkbox_history']) == 0:
-                self.ui.conf_checkbox_history.setChecked(False)
-        else:
-            self.ui.conf_checkbox_history.setChecked(True)
+        # if 'conf_checkbox_history' in self.conf.keys():
+        #     if int(self.conf['conf_checkbox_history']) == 0:
+        #         self.ui.conf_checkbox_history.setChecked(False)
+        # else:
+        #     self.ui.conf_checkbox_history.setChecked(True)
 
         if 'conf_checkbox_recordonexit' in self.conf.keys():
             if int(self.conf['conf_checkbox_recordonexit']) == 0:

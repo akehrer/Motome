@@ -12,6 +12,7 @@ import shutil
 import sys
 import time
 import cPickle as pickle
+import yaml
 from datetime import datetime
 
 # Import extra modules
@@ -25,7 +26,7 @@ from Motome.Views.MainWindow import Ui_MainWindow
 
 # Import configuration values
 from Motome.config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, \
-    APP_DIR, WINDOW_TITLE, UNSAFE_CHARS, VERSION, NOTE_DATA_DIR, HTML_FOLDER, HTML_EXTENSION
+    APP_DIR, WINDOW_TITLE, UNSAFE_CHARS, VERSION, NOTE_DATA_DIR, HTML_FOLDER, HTML_EXTENSION, MOTOME_BLUE
 
 # Import additional modules
 from Motome.Modules.MotomeTextBrowser import MotomeTextBrowser, MotomeTextBrowser2
@@ -34,8 +35,9 @@ from Motome.Modules.SettingsDialog import SettingsDialog
 from Motome.Modules.AutoCompleterModel import AutoCompleteEdit
 from Motome.Modules.Search import SearchModel
 from Motome.Modules.Utils import build_preview_footer_html, build_preview_header_html, \
-    diff_to_html, human_date, pickle_find_NoteModel, transition_versions
-from Motome.Modules.Utils import inspect_caller, inspect_where
+    diff_to_html, human_date, pickle_find_NoteModel
+
+# from Motome.Modules.Utils import inspect_caller, inspect_where
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -162,11 +164,13 @@ class MainWindow(QtGui.QMainWindow):
         self._notes_dir_last_seen = 0.0
         self._all_notes = self.load_notemodels()
         self.load_ui_notes_list(self.all_notes)
-        self.update_ui_views()
 
         if self.first_run:
             logger.info('First run')
             self.do_first_run()
+
+        # update the views
+        self.update_ui_views()
 
         # set the focus to the window frame
         self.setFocus(QtCore.Qt.ActiveWindowFocusReason)
@@ -323,31 +327,31 @@ class MainWindow(QtGui.QMainWindow):
         except AttributeError:
             pass
 
+    def set_ui_views(self):
+        self.remove_history_bar()
+
     def load_conf(self):
-        filepath = os.path.join(self.app_data_dir, 'conf.json')
+        filepath = os.path.join(self.app_data_dir, 'conf.yml')
         try:
             data = NoteModel.enc_read(filepath)
-            self.conf = json.loads(data)
+            self.conf = yaml.safe_load(data)
             if not 'conf_notesLocation' in self.conf.keys():
                 # Show the settings dialog if no notes location has been configured
                 self.load_settings()
             else:
                 self.notes_dir = self.conf['conf_notesLocation']
-
-            # TRANSITION (0.1-0.2): Need to change ETXs to --- for the new YAML metadata end-matter
-            if '0.1' in self.conf['motome_version']:
-                transition_versions(self.notes_dir)
         except IOError as e:
             # No configuration file exists, create one
             self.save_conf()
 
     def save_conf(self):
-        filepath = os.path.join(self.app_data_dir, 'conf.json')
+        filepath = os.path.join(self.app_data_dir, 'conf.yml')
         self.conf['motome_version'] = VERSION
         self.conf['conf_update'] = time.time()
         try:
-            data = json.dumps(self.conf)
-            NoteModel.enc_write(filepath, data)
+            data = yaml.safe_dump(self.conf, default_flow_style=False)
+            out = '# Motome configuration values\n---\n' + data + '...'
+            NoteModel.enc_write(filepath, out)
         except IOError:
             pass
 
@@ -448,6 +452,7 @@ class MainWindow(QtGui.QMainWindow):
         # update the preview and diff panes
         self.update_ui_preview()
         self.update_ui_diff()
+        self.update_ui_historyLabel()
 
         # update the window title
         try:
@@ -528,8 +533,6 @@ class MainWindow(QtGui.QMainWindow):
             self.tagEditor.setFocus()
         elif seq == 'ctrl_s':
             self.noteEditor.save_note()
-            if self.delete_empty and len(self.current_note.content.strip()) == 0:
-                self.delete_current_note()
         elif seq == 'ctrl_r':
             self.noteEditor.record_note()
             self.load_history_data()
@@ -609,6 +612,15 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.noteDiff.setHtml(diff_html)
         self.ui.noteDiff.reload()
 
+    def update_ui_historyLabel(self):
+        color = 'rgb({0}, {1}, {2}, {3})'.format(*MOTOME_BLUE.getRgb())
+        l = len(self.current_note.history)
+        self.ui.historyLabel.setText('<a href="#" style="color: {color}">{title} has {num} {version}</a>'.format(
+            color=color,
+            title=self.current_note.title,
+            num=l,
+            version='versions' if l != 1 else 'version'))
+
     def remove_history_bar(self):
         self.ui.frameHistory.hide()
 
@@ -640,9 +652,9 @@ class MainWindow(QtGui.QMainWindow):
 
     def toggle_history_bar_view(self):
         if self.ui.frameHistory.isHidden():
-            self.ui.frameHistory.show()
+            self.insert_history_bar()
         else:
-            self.ui.frameHistory.hide()
+            self.remove_history_bar()
 
     def start_meta_save(self):
         if self.save_timer.isActive():
@@ -830,11 +842,11 @@ class MainWindow(QtGui.QMainWindow):
                             self.conf[name] = 0
                         else:
                             self.conf[name] = 1
-                    elif name == 'conf_checkbox_history':
-                        if c.checkState() == QtCore.Qt.CheckState.Unchecked:
-                            self.conf[name] = 0
-                        else:
-                            self.conf[name] = 1
+                    # elif name == 'conf_checkbox_history':
+                    #     if c.checkState() == QtCore.Qt.CheckState.Unchecked:
+                    #         self.conf[name] = 0
+                    #     else:
+                    #         self.conf[name] = 1
                     # elif name == 'conf_checkbox_deleteempty':
                     #     if c.checkState() == QtCore.Qt.CheckState.Unchecked:
                     #         self.conf[name] = 0
@@ -869,7 +881,6 @@ class MainWindow(QtGui.QMainWindow):
             self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
             # set the db connection
             self.load_db_data()
-            # self.all_notes = self.load_notemodels()
             self._notes_dir_last_seen = 0.0
             # update the file list and views
             self.load_ui_notes_list(self.all_notes)
@@ -913,16 +924,6 @@ class MainWindow(QtGui.QMainWindow):
         if sliderpos != self.ui.historySlider.maximum():
             self.ui.historySlider.setValue(sliderpos + 1)
             self.load_old_note(sliderpos + 1)
-
-    def set_ui_views(self):
-        try:
-            if int(self.conf['conf_checkbox_history']) == 0:
-                self.remove_history_bar()
-            elif int(self.conf['conf_checkbox_history']) > 0:
-                self.insert_history_bar()
-        except KeyError:
-            logger.debug('[set_ui_views] No conf file')
-            pass
 
     def update_slider_tooltip(self, index):
         try:
