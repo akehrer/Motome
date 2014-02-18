@@ -5,7 +5,6 @@ QMainWindow {
 QTextBrowser {
     font-family: 'CMU Typewriter Text', monospace, fixed;
     font-size: 17px;
-    background-color: WhiteSmoke;
     border: 2px solid WhiteSmoke;
 }
 

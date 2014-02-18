@@ -8,5 +8,12 @@ table.diff {border:medium;}
 .diff_sub {background-color:#ffaaaa}
 
 /* CriticMarkdown colors */
-ins {color: #aaffaa}
-del {color: #ffaaaa}
+ins {
+    color: #138D24;
+    background-color: #96FF96;
+}
+del {
+    text-decoration: line-through;
+    color: #BB181E;
+    background-color: #FECBCB;
+}

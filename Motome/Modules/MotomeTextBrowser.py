@@ -299,18 +299,21 @@ class MotomeTextBrowser2(QtGui.QTextBrowser):
 
         self.textChanged.connect(self.start_save)
 
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+B'), self, lambda item=None: self.process_keyseq('ctrl_b'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+I'), self, lambda item=None: self.process_keyseq('ctrl_i'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+1'), self, lambda item=None: self.process_keyseq('ctrl_1'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+2'), self, lambda item=None: self.process_keyseq('ctrl_2'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+3'), self, lambda item=None: self.process_keyseq('ctrl_3'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+4'), self, lambda item=None: self.process_keyseq('ctrl_4'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+5'), self, lambda item=None: self.process_keyseq('ctrl_5'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+6'), self, lambda item=None: self.process_keyseq('ctrl_6'))
+        self.keyboard_shortcuts = {}
+        self.setup_keyboard_shortcuts()
 
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+K'), self, lambda item=None: self.process_insertseq('ctrl_k'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+K'), self,
-                        lambda item=None: self.process_insertseq('ctrl_shift_k'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+B'), self, lambda item=None: self.process_keyseq('ctrl_b'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+I'), self, lambda item=None: self.process_keyseq('ctrl_i'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+1'), self, lambda item=None: self.process_keyseq('ctrl_1'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+2'), self, lambda item=None: self.process_keyseq('ctrl_2'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+3'), self, lambda item=None: self.process_keyseq('ctrl_3'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+4'), self, lambda item=None: self.process_keyseq('ctrl_4'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+5'), self, lambda item=None: self.process_keyseq('ctrl_5'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+6'), self, lambda item=None: self.process_keyseq('ctrl_6'))
+        #
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+K'), self, lambda item=None: self.process_insertseq('ctrl_k'))
+        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+K'), self,
+        #                 lambda item=None: self.process_insertseq('ctrl_shift_k'))
 
     @property
     def notemodel(self):
@@ -326,6 +329,31 @@ class MotomeTextBrowser2(QtGui.QTextBrowser):
         else:
             self.setEnabled(True)
         self.set_note_text()
+
+    def setup_keyboard_shortcuts(self):
+        self.keyboard_shortcuts = {'Bold':      {'seq': QtGui.QKeySequence('Ctrl+B'),
+                                                 'func': lambda item=None: self.process_keyseq('ctrl_b')},
+                                   'Italic':    {'seq': QtGui.QKeySequence('Ctrl+I'),
+                                                 'func': lambda item=None: self.process_keyseq('ctrl_i')},
+                                   'H1':        {'seq': QtGui.QKeySequence('Ctrl+1'),
+                                                 'func': lambda item=None: self.process_keyseq('ctrl_1')},
+                                   'H2':        {'seq': QtGui.QKeySequence('Ctrl+2'),
+                                                 'func': lambda item=None: self.process_keyseq('ctrl_2')},
+                                   'H3':        {'seq': QtGui.QKeySequence('Ctrl+3'),
+                                                 'func': lambda item=None: self.process_keyseq('ctrl_3')},
+                                   'H4':        {'seq': QtGui.QKeySequence('Ctrl+4'),
+                                                 'func': lambda item=None: self.process_keyseq('ctrl_4')},
+                                   'H5':        {'seq': QtGui.QKeySequence('Ctrl+5'),
+                                                 'func': lambda item=None: self.process_keyseq('ctrl_5')},
+                                   'H6':        {'seq': QtGui.QKeySequence('Ctrl+6'),
+                                                 'func': lambda item=None: self.process_keyseq('ctrl_6')},
+                                   'InsLink':   {'seq': QtGui.QKeySequence('Ctrl+K'),
+                                                 'func': lambda item=None: self.process_insertseq('ctrl_k')},
+                                   'InsFile':   {'seq': QtGui.QKeySequence('Ctrl+Shift+K'),
+                                                 'func': lambda item=None: self.process_insertseq('ctrl_shift_k')}
+                                   }
+        for s in self.keyboard_shortcuts.values():
+            QtGui.QShortcut(s['seq'], self, s['func'])
 
     def process_keyseq(self, seq):
         cursor = self.textCursor()

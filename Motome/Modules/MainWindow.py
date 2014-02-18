@@ -44,7 +44,6 @@ logger = logging.getLogger(__name__)
 
 
 class MainWindow(QtGui.QMainWindow):
-
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
@@ -109,18 +108,22 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.first_line_title = False
 
+        # keyboard shortcuts
+        self.keyboard_shortcuts = {}
+        self.setup_keyboard_shortcuts()
+
         # setup the ui
         self.noteEditor = None
         self.tagEditor = None
         self.setup_mainwindow()
-        self.setup_keyboard_shortcuts()
         self.setup_preview()
+        self.setup_diff()
         self.insert_ui_noteeditor()
         self.insert_ui_tageditor()
         self.insert_ui_tagcompleter()
 
-         # Set the window location and size
-        if 'window_x'in self.conf.keys():
+        # Set the window location and size
+        if 'window_x' in self.conf.keys():
             rect = QtCore.QRect(int(self.conf['window_x']),
                                 int(self.conf['window_y']),
                                 int(self.conf['window_width']),
@@ -146,14 +149,14 @@ class MainWindow(QtGui.QMainWindow):
         self.notes_list_splitter_size = None
 
         # save file timer
-        self.save_interval = 1000 # msec
+        self.save_interval = 1000  # msec
         self.save_timer = QtCore.QTimer()
         self.save_timer.timeout.connect(self.save_note_meta)
 
         # search
         self.search = SearchModel()
         self.query = ''
-        self.search_interval = 250 # msec
+        self.search_interval = 250  # msec
         self.search_timer = QtCore.QTimer()
         self.search_timer.timeout.connect(self.search_files)
 
@@ -264,46 +267,77 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.notePreview.customContextMenuRequested.connect(self.show_custom_preview_menu)
         self.ui.notePreview.setSearchPaths(self.notes_dir)
 
+    def setup_diff(self):
+        self.ui.noteDiff.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.noteDiff.customContextMenuRequested.connect(self.show_custom_diff_menu)
+
     def setup_keyboard_shortcuts(self):
-        # set-up the keyboard shortcuts
+        """ Setup the keyboard shortcuts and load the keyboard_shortcuts dict for use elsewhere
+
+        """
         esc = QtCore.Qt.Key_Escape
         delete = QtCore.Qt.Key_Delete
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+N'), self, lambda item=None: self.process_keyseq('ctrl_n'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+F'), self, lambda item=None: self.process_keyseq('ctrl_f'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+E'), self, lambda item=None: self.process_keyseq('ctrl_e'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+P'), self, lambda item=None: self.process_keyseq('ctrl_p'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+D'), self, lambda item=None: self.process_keyseq('ctrl_d'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+L'), self, lambda item=None: self.process_keyseq('ctrl_l'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+T'), self, lambda item=None: self.process_keyseq('ctrl_t'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+S'), self, lambda item=None: self.process_keyseq('ctrl_s'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+R'), self, lambda item=None: self.process_keyseq('ctrl_r'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+]'), self, lambda item=None: self.process_keyseq('ctrl_up'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+['), self, lambda item=None: self.process_keyseq('ctrl_down'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+<'), self, lambda item=None: self.process_keyseq('ctrl_<'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+>'), self, lambda item=None: self.process_keyseq('ctrl_>'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+L'), self, lambda item=None: self.process_keyseq('ctrl_shift_l'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+H'), self, lambda item=None: self.process_keyseq('ctrl_shift_h'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+O'), self, lambda item=None: self.process_keyseq('ctrl_shift_o'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+F'), self, lambda item=None: self.process_keyseq('ctrl_shift_f'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+U'), self, lambda item=None: self.process_keyseq('ctrl_shift_u'))
-        QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+P'), self, lambda item=None: self.process_keyseq('ctrl_shift_p'))
-        QtGui.QShortcut(QtGui.QKeySequence(esc), self, lambda item=None: self.process_keyseq('esc'))
+        self.keyboard_shortcuts = {'New': {'seq': QtGui.QKeySequence('Ctrl+N'),
+                                           'func': lambda item=None: self.process_keyseq('ctrl_n')},
+                                   'Find': {'seq': QtGui.QKeySequence('Ctrl+F'),
+                                            'func': lambda item=None: self.process_keyseq('ctrl_f')},
+                                   'ShowEdit': {'seq': QtGui.QKeySequence('Ctrl+E'),
+                                                'func': lambda item=None: self.process_keyseq('ctrl_e')},
+                                   'ShowPre': {'seq': QtGui.QKeySequence('Ctrl+W'),
+                                               'func': lambda item=None: self.process_keyseq('ctrl_w')},
+                                   'ShowDiff': {'seq': QtGui.QKeySequence('Ctrl+D'),
+                                                'func': lambda item=None: self.process_keyseq('ctrl_d')},
+                                   'NoteList': {'seq': QtGui.QKeySequence('Ctrl+L'),
+                                                'func': lambda item=None: self.process_keyseq('ctrl_l')},
+                                   'TagEdit': {'seq': QtGui.QKeySequence('Ctrl+T'),
+                                               'func': lambda item=None: self.process_keyseq('ctrl_t')},
+                                   'Save': {'seq': QtGui.QKeySequence('Ctrl+S'),
+                                            'func': lambda item=None: self.process_keyseq('ctrl_s')},
+                                   'Record': {'seq': QtGui.QKeySequence('Ctrl+R'),
+                                              'func': lambda item=None: self.process_keyseq('ctrl_r')},
+                                   'UpNote': {'seq': QtGui.QKeySequence('Ctrl+]'),
+                                              'func': lambda item=None: self.process_keyseq('ctrl_up')},
+                                   'DownNote': {'seq': QtGui.QKeySequence('Ctrl+['),
+                                                'func': lambda item=None: self.process_keyseq('ctrl_down')},
+                                   'BackHist': {'seq': QtGui.QKeySequence('Ctrl+<'),
+                                                'func': lambda item=None: self.process_keyseq('ctrl_<')},
+                                   'FwdHist': {'seq': QtGui.QKeySequence('Ctrl+>'),
+                                               'func': lambda item=None: self.process_keyseq('ctrl_>')},
+                                   'TglList': {'seq': QtGui.QKeySequence('Ctrl+Shift+L'),
+                                               'func': lambda item=None: self.process_keyseq('ctrl_shift_l')},
+                                   'TglHist': {'seq': QtGui.QKeySequence('Ctrl+Shift+H'),
+                                               'func': lambda item=None: self.process_keyseq('ctrl_shift_h')},
+                                   'TglOmni': {'seq': QtGui.QKeySequence('Ctrl+Shift+O'),
+                                               'func': lambda item=None: self.process_keyseq('ctrl_shift_o')},
+                                   'TglFull': {'seq': QtGui.QKeySequence('Ctrl+Shift+F'),
+                                               'func': lambda item=None: self.process_keyseq('ctrl_shift_f')},
+                                   'InsDate': {'seq': QtGui.QKeySequence('Ctrl+Shift+U'),
+                                               'func': lambda item=None: self.process_keyseq('ctrl_shift_u')},
+                                   'PinNote': {'seq': QtGui.QKeySequence('Ctrl+Shift+P'),
+                                               'func': lambda item=None: self.process_keyseq('ctrl_shift_p')},
+                                   'ClearOmni': {'seq': QtGui.QKeySequence(esc),
+                                                 'func': lambda item=None: self.process_keyseq('esc')},
+                                   'DelNote': {'seq': QtGui.QKeySequence(delete),
+                                               'func': lambda item=None: self.delete_current_note()}
+                                    }
 
-        # remove notes in the note list using the delete key
-        QtGui.QShortcut(QtGui.QKeySequence(delete), self.ui.notesList, lambda item=None: self.delete_current_note())
+        for s in self.keyboard_shortcuts.values():
+            QtGui.QShortcut(s['seq'], self, s['func'])
 
     def insert_ui_noteeditor(self):
         # insert the custom text editor
         self.noteEditor = MotomeTextBrowser2(self.ui.tabEditor, None)
-        self.noteEditor.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|
-                                                QtCore.Qt.TextBrowserInteraction|QtCore.Qt.TextEditable|
-                                                QtCore.Qt.TextEditorInteraction|QtCore.Qt.TextSelectableByKeyboard|
+        self.noteEditor.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard | QtCore.Qt.LinksAccessibleByMouse |
+                                                QtCore.Qt.TextBrowserInteraction | QtCore.Qt.TextEditable |
+                                                QtCore.Qt.TextEditorInteraction | QtCore.Qt.TextSelectableByKeyboard |
                                                 QtCore.Qt.TextSelectableByMouse)
         self.noteEditor.setObjectName("noteEditor")
         self.ui.horizontalLayout_3.insertWidget(1, self.noteEditor)
-        # self.noteEditor.textChanged.connect(self.start_save)
         self.noteEditor.anchorClicked.connect(self.load_anchor)
         self.noteEditor.noteSaved.connect(self.save_note_meta)
+        # Custom right-click menu
+        self.noteEditor.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.noteEditor.customContextMenuRequested.connect(self.show_custom_editor_menu)
 
     def insert_ui_tageditor(self):
         # tag completer
@@ -359,7 +393,7 @@ class MainWindow(QtGui.QMainWindow):
         url_path = url.path()
 
         # intranote link?
-        if url_path+NOTE_EXTENSION in self.db_notes.keys():
+        if url_path + NOTE_EXTENSION in self.db_notes.keys():
             self.current_row = url_path
             return
 
@@ -393,7 +427,7 @@ class MainWindow(QtGui.QMainWindow):
 
             #remove keys missing notes
             for filename in keys_missing_notes:
-                del(self.db_notes[filename])
+                del (self.db_notes[filename])
 
             # add notes missing keys
             for filepath in notepaths:
@@ -450,6 +484,7 @@ class MainWindow(QtGui.QMainWindow):
         self.tagEditor.blockSignals(False)
 
         # update the preview and diff panes
+        self.old_data = None
         self.update_ui_preview()
         self.update_ui_diff()
         self.update_ui_historyLabel()
@@ -512,13 +547,13 @@ class MainWindow(QtGui.QMainWindow):
 
         self.search_files()
 
-    def process_keyseq(self,seq):
+    def process_keyseq(self, seq):
         if seq == 'ctrl_n' or seq == 'ctrl_f':
             self.ui.omniBar.setFocus()
         elif seq == 'ctrl_e':
             self.ui.toolBox.setCurrentIndex(0)
             self.noteEditor.setFocus()
-        elif seq == 'ctrl_p':
+        elif seq == 'ctrl_w':
             self.update_ui_preview()
             self.ui.toolBox.setCurrentIndex(1)
         elif seq == 'ctrl_d':
@@ -576,12 +611,12 @@ class MainWindow(QtGui.QMainWindow):
         current_row = self.ui.notesList.currentRow()
         row_count = self.ui.notesList.count()
         if direction == 'down' and current_row > 0:
-            self.ui.notesList.setCurrentRow(current_row-1)
+            self.ui.notesList.setCurrentRow(current_row - 1)
         elif direction == 'down' and current_row == 0:
-            self.ui.notesList.setCurrentRow(row_count-1)
-        elif direction == 'up' and current_row < row_count-1:
-            self.ui.notesList.setCurrentRow(current_row+1)
-        elif direction == 'up' and current_row == row_count-1:
+            self.ui.notesList.setCurrentRow(row_count - 1)
+        elif direction == 'up' and current_row < row_count - 1:
+            self.ui.notesList.setCurrentRow(current_row + 1)
+        elif direction == 'up' and current_row == row_count - 1:
             self.ui.notesList.setCurrentRow(0)
 
         self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
@@ -927,7 +962,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def update_slider_tooltip(self, index):
         try:
-            timestring = self.current_note.history[index].filename[:-(len(ZIP_EXTENSION)+1)]
+            timestring = self.current_note.history[index].filename[:-(len(ZIP_EXTENSION) + 1)]
             dt = self._history_timestring_to_datetime(timestring)
             tooltip = human_date(dt)
             self.ui.historySlider.setToolTip(tooltip)
@@ -970,6 +1005,7 @@ class MainWindow(QtGui.QMainWindow):
         # Show them the settings dialog
         self.load_settings()
         self.load_db_data()
+        self.first_run = False
 
     def load_db_data(self):
         try:
@@ -981,7 +1017,7 @@ class MainWindow(QtGui.QMainWindow):
         except IOError:
             self.load_notemodels()
         except pickle.UnpicklingError as e:
-            logger.warning('[load_db_data] %r'%e)
+            logger.warning('[load_db_data] %r' % e)
 
     def save_db_data(self):
         try:
@@ -995,10 +1031,62 @@ class MainWindow(QtGui.QMainWindow):
     def show_custom_preview_menu(self, point):
         preview_rclk_menu = self.ui.notePreview.createStandardContextMenu()
         preview_rclk_menu.addSeparator()
-        preview_rclk_menu.addAction(QtGui.QIcon(":/icons/resources/html.png"), 'Export HTML')
-        preview_rclk_menu.triggered.connect(self.export_html)
+
+        export_html_act = preview_rclk_menu.addAction(QtGui.QIcon(":/icons/resources/html.png"), 'Export HTML')
+        export_html_act.triggered.connect(self.export_html)
+
+        preview_rclk_menu.addSeparator()
+
+        act_edit = preview_rclk_menu.addAction('Show Editor')
+        act_edit.setShortcut(self.keyboard_shortcuts['ShowEdit']['seq'])
+        act_edit.triggered.connect(self.keyboard_shortcuts['ShowEdit']['func'])
+
+        act_diff = preview_rclk_menu.addAction('Show Diff')
+        act_diff.setShortcut(self.keyboard_shortcuts['ShowDiff']['seq'])
+        act_diff.triggered.connect(self.keyboard_shortcuts['ShowDiff']['func'])
+
         preview_rclk_menu.exec_(self.ui.notePreview.mapToGlobal(point))
         del preview_rclk_menu
+
+    def show_custom_editor_menu(self, point):
+        editor_rclk_menu = self.noteEditor.createStandardContextMenu()
+        editor_rclk_menu.addSeparator()
+
+        act_inslink = editor_rclk_menu.addAction('Insert Hyperlink')
+        act_inslink.setShortcut(self.noteEditor.keyboard_shortcuts['InsLink']['seq'])
+        act_inslink.triggered.connect(self.noteEditor.keyboard_shortcuts['InsLink']['func'])
+
+        act_insfile = editor_rclk_menu.addAction('Insert File')
+        act_insfile.setShortcut(self.noteEditor.keyboard_shortcuts['InsFile']['seq'])
+        act_insfile.triggered.connect(self.noteEditor.keyboard_shortcuts['InsFile']['func'])
+
+        editor_rclk_menu.addSeparator()
+
+        act_preview = editor_rclk_menu.addAction('Show Preview')
+        act_preview.setShortcut(self.keyboard_shortcuts['ShowPre']['seq'])
+        act_preview.triggered.connect(self.keyboard_shortcuts['ShowPre']['func'])
+
+        act_diff = editor_rclk_menu.addAction('Show Diff')
+        act_diff.setShortcut(self.keyboard_shortcuts['ShowDiff']['seq'])
+        act_diff.triggered.connect(self.keyboard_shortcuts['ShowDiff']['func'])
+
+        editor_rclk_menu.exec_(self.noteEditor.mapToGlobal(point))
+        del editor_rclk_menu
+
+    def show_custom_diff_menu(self, point):
+        diff_rclk_menu = self.noteEditor.createStandardContextMenu()
+        diff_rclk_menu.addSeparator()
+        
+        act_edit = diff_rclk_menu.addAction('Show Editor')
+        act_edit.setShortcut(self.keyboard_shortcuts['ShowEdit']['seq'])
+        act_edit.triggered.connect(self.keyboard_shortcuts['ShowEdit']['func'])
+
+        act_preview = diff_rclk_menu.addAction('Show Preview')
+        act_preview.setShortcut(self.keyboard_shortcuts['ShowPre']['seq'])
+        act_preview.triggered.connect(self.keyboard_shortcuts['ShowPre']['func'])
+
+        diff_rclk_menu.exec_(self.noteEditor.mapToGlobal(point))
+        del diff_rclk_menu
 
     def _clean_filename(self, unclean, replace='_'):
         clean = unclean
@@ -1008,11 +1096,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def _history_timestring_to_datetime(self, timestring):
         return datetime(int(timestring[0:4]),
-                          int(timestring[4:6]),
-                          int(timestring[6:8]),
-                          int(timestring[8:10]),
-                          int(timestring[10:12]),
-                          int(timestring[12:]))
+                        int(timestring[4:6]),
+                        int(timestring[6:8]),
+                        int(timestring[8:10]),
+                        int(timestring[10:12]),
+                        int(timestring[12:]))
 
     def _write_file(self, filepath, filedata):
         NoteModel.enc_write(filepath, filedata)

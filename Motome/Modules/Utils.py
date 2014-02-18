@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 # Import standard library modules
+import cgi
 import cPickle
 import difflib
 import glob
@@ -16,7 +17,7 @@ import yaml
 
 from Motome.config import END_OF_TEXT, YAML_BRACKET
 from Motome.Modules.NoteModel import NoteModel
-from Motome.Modules.External import diff_match_patch
+from Motome.Modules.External import diff_match_patch as dmp
 
 # RegEx to find urls
 # https://mail.python.org/pipermail/tutor/2002-September/017228.html
@@ -113,15 +114,19 @@ def diff_to_html(text1, text2, fromdesc='', todesc='Current'):
     """
     Returns an HTML sequence of the difference between two strings
     """
-    # hdiff = dmp()
-    # diffs = hdiff.diff_main(text1,text2)
-    # hdiff.diff_cleanupSemantic(diffs)
-    # return hdiff.diff_prettyHtml(diffs)
-    hdiff = difflib.HtmlDiff(wrapcolumn=80)
-    diff_table = hdiff.make_table(text1.splitlines(True), text2.splitlines(True),
-                           fromdesc=fromdesc, todesc=todesc, context=True)
-    return build_diff_header_html() + diff_table + build_diff_footer_html()
+    gdiff = dmp.diff_match_patch()
+    diffs = gdiff.diff_main(text1, text2)
+    gdiff.diff_cleanupSemantic(diffs)
+    html = ''
+    for diff in diffs:
+        if diff[0] == 0:
+            html += cgi.escape(diff[1]).replace('\n', '<br />')
+        elif diff[0] == 1:
+            html += '<ins>' + cgi.escape(diff[1]).replace('\n', '<br />') + '</ins>'
+        elif diff[0] == -1:
+            html += '<del>' + cgi.escape(diff[1]).replace('\n', '<br />') + '</del>'
 
+    return build_diff_header_html() + html + build_diff_footer_html()
 
 def grab_urls(text):
     """ Given a text string, returns all the urls we can find in it.
@@ -159,23 +164,9 @@ def build_diff_header_html():
 <body>
     """
 
+
 def build_diff_footer_html():
     return """
-<table class="diff" summary="Legends">
-    <tr> <th colspan="2"> Legends </th> </tr>
-    <tr> <td> <table border="" summary="Colors">
-                  <tr><th> Colors </th> </tr>
-                  <tr><td class="diff_add">&nbsp;Added&nbsp;</td></tr>
-                  <tr><td class="diff_chg">Changed</td> </tr>
-                  <tr><td class="diff_sub">Deleted</td> </tr>
-              </table></td>
-         <td> <table border="" summary="Links">
-                  <tr><th colspan="2"> Links </th> </tr>
-                  <tr><td>(f)irst change</td> </tr>
-                  <tr><td>(n)ext change</td> </tr>
-                  <tr><td>(t)op</td> </tr>
-              </table></td> </tr>
-</table>
 </body>
 </html>
     """

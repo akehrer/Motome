@@ -272,7 +272,7 @@
             <enum>QFrame::NoFrame</enum>
            </property>
            <property name="lineWrapMode">
-            <enum>QTextEdit::NoWrap</enum>
+            <enum>QTextEdit::WidgetWidth</enum>
            </property>
           </widget>
          </item>
