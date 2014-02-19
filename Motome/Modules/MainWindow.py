@@ -37,7 +37,7 @@ from Motome.Modules.Search import SearchModel
 from Motome.Modules.Utils import build_preview_footer_html, build_preview_header_html, \
     diff_to_html, human_date, pickle_find_NoteModel
 
-# from Motome.Modules.Utils import inspect_caller, inspect_where
+from Motome.Modules.Utils import transition_versions
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -725,7 +725,7 @@ class MainWindow(QtGui.QMainWindow):
     def generate_html(self, content):
         try:
             header = build_preview_header_html(self.current_note.metadata['title'])
-        except (AttributeError, KeyError):
+        except (AttributeError, KeyError, TypeError):
             # no title in metadata or no metadata
             header = build_preview_header_html('')
         body = self.md.convert(content)  # TODO: getting re MemoryErrors for large files
@@ -1004,6 +1004,7 @@ class MainWindow(QtGui.QMainWindow):
         """ Do stuff the first time the app runs """
         # Show them the settings dialog
         self.load_settings()
+        transition_versions(self.notes_dir)
         self.load_db_data()
         self.first_run = False
 

@@ -207,5 +207,9 @@ def transition_versions(notes_dir):
     for notepath in notepaths:
         data = NoteModel.enc_read(notepath)
         c, m = parse_note_content_old(data)
-        new_data = c + YAML_BRACKET + '\n' + yaml.safe_dump(m, default_flow_style=False) + YAML_BRACKET
+        if len(m.keys()) == 0:
+            new_data = c
+        else:
+            new_data = c + YAML_BRACKET + '\n' + yaml.safe_dump(m, default_flow_style=False) + YAML_BRACKET
+
         NoteModel.enc_write(notepath, new_data)
