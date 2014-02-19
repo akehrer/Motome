@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import cgi
 import cPickle
 import difflib
+import logging
 import glob
 import inspect
 import os
@@ -18,6 +19,9 @@ import yaml
 from Motome.config import END_OF_TEXT, YAML_BRACKET
 from Motome.Modules.NoteModel import NoteModel
 from Motome.Modules.External import diff_match_patch as dmp
+
+# Set up the logger
+logger = logging.getLogger(__name__)
 
 # RegEx to find urls
 # https://mail.python.org/pipermail/tutor/2002-September/017228.html
@@ -205,11 +209,14 @@ def transition_versions(notes_dir):
     notepaths = set(glob.glob(notes_dir + '/*' + '.txt'))
 
     for notepath in notepaths:
-        data = NoteModel.enc_read(notepath)
-        c, m = parse_note_content_old(data)
-        if len(m.keys()) == 0:
-            new_data = c
-        else:
-            new_data = c + YAML_BRACKET + '\n' + yaml.safe_dump(m, default_flow_style=False) + YAML_BRACKET
+        try:
+            data = NoteModel.enc_read(notepath)
+            c, m = parse_note_content_old(data)
+            if len(m.keys()) == 0:
+                new_data = c
+            else:
+                new_data = c + YAML_BRACKET + '\n' + yaml.safe_dump(m, default_flow_style=False) + YAML_BRACKET
 
-        NoteModel.enc_write(notepath, new_data)
+            NoteModel.enc_write(notepath, new_data)
+        except Exception as e:
+            logging.error('[transition_versions] %r' % e)

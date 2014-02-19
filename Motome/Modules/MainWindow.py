@@ -5,7 +5,6 @@ from __future__ import absolute_import
 
 # Import standard library modules
 import glob
-import json
 import logging
 import os
 import shutil
@@ -350,13 +349,13 @@ class MainWindow(QtGui.QMainWindow):
     def insert_ui_tagcompleter(self):
         # build the completer list
         completer_list = set()
-        for note in self.db_notes.values():
-            if 'tags' in note.metadata.keys():
-                for t in note.metadata['tags'].split():
-                    completer_list.add(t)
-        # attach a completer to the tag editor
-        qlist = QtGui.QStringListModel(list(completer_list))
         try:
+            for note in self.db_notes.values():
+                if 'tags' in note.metadata.keys():
+                    for t in note.metadata['tags'].split():
+                        completer_list.add(t)
+            # attach a completer to the tag editor
+            qlist = QtGui.QStringListModel(list(completer_list))
             self.tagEditor.setCompleterModel(qlist)
         except AttributeError:
             pass
@@ -368,7 +367,11 @@ class MainWindow(QtGui.QMainWindow):
         filepath = os.path.join(self.app_data_dir, 'conf.yml')
         try:
             data = NoteModel.enc_read(filepath)
-            self.conf = yaml.safe_load(data)
+            try:
+                self.conf = yaml.safe_load(data)
+            except yaml.YAMLError:
+                self.conf = {}
+
             if not 'conf_notesLocation' in self.conf.keys():
                 # Show the settings dialog if no notes location has been configured
                 self.load_settings()
@@ -819,6 +822,8 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.omniBar.setText('')
         self.query = ''
         self.ui.omniBar.blockSignals(False)
+
+        self.noteEditor.notemodel = new_note
 
         self.ui.notesList.blockSignals(True)
         self.load_ui_notes_list(self.all_notes)

@@ -89,7 +89,7 @@ class NoteModel(object):
                 return True
             else:
                 return False
-        except KeyError:
+        except (KeyError, TypeError):
             return False
 
     @pinned.setter
@@ -336,6 +336,8 @@ class NoteModel(object):
             content = ''.join(s[:-2])
             meta = yaml.safe_load(m.strip())  # use safe_load to prevent loading non-standard YAML tags
         except IndexError:
+            content = data
+        except yaml.YAMLError:
             content = data
         return content, meta
 
