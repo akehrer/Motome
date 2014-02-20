@@ -464,7 +464,11 @@ class MainWindow(QtGui.QMainWindow):
             u = QtGui.QListWidgetItem(item.notename)
             self.ui.notesList.addItem(u)
 
-        self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
+        # self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
+        try:
+            self.current_row = self.noteEditor.notemodel.notename
+        except AttributeError:
+            self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
 
     def update_ui_views(self):
         # update the note editor
@@ -653,9 +657,8 @@ class MainWindow(QtGui.QMainWindow):
     def update_ui_historyLabel(self):
         color = 'rgb({0}, {1}, {2}, {3})'.format(*MOTOME_BLUE.getRgb())
         l = len(self.current_note.history)
-        self.ui.historyLabel.setText('<a href="#" style="color: {color}">{title} has {num} {version}</a>'.format(
+        self.ui.historyLabel.setText('<a href="#" style="color: {color}">{num} {version}</a>'.format(
             color=color,
-            title=self.current_note.title,
             num=l,
             version='versions' if l != 1 else 'version'))
 
