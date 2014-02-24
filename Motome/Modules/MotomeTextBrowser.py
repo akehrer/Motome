@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 # Import standard library modules
 import cgi
+import datetime
 import logging
 import mimetypes
 import os
@@ -302,18 +303,9 @@ class MotomeTextBrowser2(QtGui.QTextBrowser):
         self.keyboard_shortcuts = {}
         self.setup_keyboard_shortcuts()
 
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+B'), self, lambda item=None: self.process_keyseq('ctrl_b'))
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+I'), self, lambda item=None: self.process_keyseq('ctrl_i'))
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+1'), self, lambda item=None: self.process_keyseq('ctrl_1'))
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+2'), self, lambda item=None: self.process_keyseq('ctrl_2'))
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+3'), self, lambda item=None: self.process_keyseq('ctrl_3'))
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+4'), self, lambda item=None: self.process_keyseq('ctrl_4'))
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+5'), self, lambda item=None: self.process_keyseq('ctrl_5'))
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+6'), self, lambda item=None: self.process_keyseq('ctrl_6'))
-        #
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+K'), self, lambda item=None: self.process_insertseq('ctrl_k'))
-        # QtGui.QShortcut(QtGui.QKeySequence('Ctrl+Shift+K'), self,
-        #                 lambda item=None: self.process_insertseq('ctrl_shift_k'))
+    @property
+    def notes_dir(self):
+        return self._notemodel.notedirectory
 
     @property
     def notemodel(self):
@@ -448,6 +440,31 @@ class MotomeTextBrowser2(QtGui.QTextBrowser):
         except AttributeError:
             self.setHtml('')
 
+    def canInsertFromMimeData(self, source):
+        """
+
+        http://stackoverflow.com/questions/15592581/pasting-qmimedata-to-another-windows-qtextedit
+        :param source:
+        :return:
+        """
+        if source.hasImage():
+            return True
+        elif source.hasUrls():
+            return True
+        else:
+            return super(MotomeTextBrowser2, self).canInsertFromMimeData(source)
+
+    def insertFromMimeData(self, source):
+        if source.hasImage():
+            image = source.imageData()
+            now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            imagepath = os.path.join(self.notes_dir, MEDIA_FOLDER, now + '.png')
+            image.save(imagepath)
+            self._insert_filelink(imagepath)
+        elif source.hasUrls():
+            urls = source.urls()
+            self._insert_list_of_files(urls)
+        super(MotomeTextBrowser2, self).insertFromMimeData(source)
 
     def dragEnterEvent(self, e):
         """
@@ -461,16 +478,7 @@ class MotomeTextBrowser2(QtGui.QTextBrowser):
         """
         # dropped files are file:// urls
         if e.mimeData().hasUrls():
-            for filepath in e.mimeData().urls():
-                # mimedata path includes a leading slash that confuses copyfile on windows
-                # http://stackoverflow.com/questions/2144748/is-it-safe-to-use-sys-platform-win32-check-on-64-bit-python
-                if 'win32' in PLATFORM:
-                    fpath = filepath.path()[1:]
-                else:
-                    # not windows
-                    fpath = filepath.path()
-
-                self._insert_filelink(fpath)
+            self._insert_list_of_files(e.mimeData().urls())
 
     def dragMoveEvent(self, e):
         """
@@ -521,6 +529,19 @@ class MotomeTextBrowser2(QtGui.QTextBrowser):
     def get_note_links(self):
         url_re_compile = re.compile(r'\[([^\[]+)\]\(([^\)]+)\)', re.VERBOSE | re.MULTILINE)
         return url_re_compile.findall(self.toPlainText())
+
+    def _insert_list_of_files(self, file_list):
+        for filepath in file_list:
+            if filepath.isLocalFile():
+                if 'win32' in PLATFORM:
+                # mimedata path includes a leading slash that confuses copyfile on windows
+                # http://stackoverflow.com/questions/2144748/is-it-safe-to-use-sys-platform-win32-check-on-64-bit-python
+                    fpath = filepath.path()[1:]
+                else:
+                    # not windows
+                    fpath = filepath.path()
+
+                self._insert_filelink(fpath)
 
     def _insert_hyperlink(self, title=None):
         cursor = self.textCursor()
@@ -588,14 +609,14 @@ class MotomeTextBrowser2(QtGui.QTextBrowser):
             # user sent an image file
             try:
                 shutil.copyfile(filepath, dst_path)
-            except IOError:
+            except (IOError, shutil.Error):
                 # file probably already there
                 pass
             self.insertHtml('![{0}](<a href="{1}">{1}</a>)'.format(link_title, link_address))
         else:
             try:
                 shutil.copyfile(filepath, dst_path)
-            except IOError:
+            except (IOError, shutil.Error):
                 # file probably already there
                 pass
             self.insertHtml('[{0}](<a href="{1}">{1}</a>)'.format(link_title, link_address))
