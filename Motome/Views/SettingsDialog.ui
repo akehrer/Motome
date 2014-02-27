@@ -127,9 +127,19 @@
         </spacer>
        </item>
        <item>
+        <widget class="QCheckBox" name="conf_checkbox_recordonsave">
+         <property name="text">
+          <string>Record note data to version history with Ctrl/Cmd-S</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="conf_checkbox_recordonswitch">
          <property name="text">
-          <string>Record changed note data to history when switching notes</string>
+          <string>Record changed note data to version history when switching notes</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -139,7 +149,7 @@
        <item>
         <widget class="QCheckBox" name="conf_checkbox_recordonexit">
          <property name="text">
-          <string>Record changed note data to history on exit</string>
+          <string>Record changed note data to version history on exit</string>
          </property>
          <property name="checked">
           <bool>true</bool>

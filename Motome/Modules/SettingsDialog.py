@@ -38,6 +38,12 @@ class SettingsDialog(QtGui.QDialog):
         # else:
         #     self.ui.conf_checkbox_history.setChecked(True)
 
+        if 'conf_checkbox_recordonsave' in self.conf.keys():
+            if int(self.conf['conf_checkbox_recordonsave']) == 0:
+                self.ui.conf_checkbox_recordonexit.setChecked(False)
+        else:
+            self.ui.conf_checkbox_recordonexit.setChecked(True)
+
         if 'conf_checkbox_recordonexit' in self.conf.keys():
             if int(self.conf['conf_checkbox_recordonexit']) == 0:
                 self.ui.conf_checkbox_recordonexit.setChecked(False)
@@ -68,5 +74,5 @@ class SettingsDialog(QtGui.QDialog):
         else:
             dirpath = None
 
-        savedir = QtGui.QFileDialog.getExistingDirectory (self, 'Notes Directory', dirpath)
+        savedir = QtGui.QFileDialog.getExistingDirectory(self, 'Notes Directory', dirpath)
         self.ui.conf_notesLocation.setText(savedir)

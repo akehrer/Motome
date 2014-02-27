@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\SettingsDialog.ui'
 #
-# Created: Thu Feb 20 11:51:09 2014
+# Created: Wed Feb 26 15:10:45 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -59,6 +59,10 @@ class Ui_SettingsDialog(object):
         self.verticalLayout.addWidget(self.conf_checkbox_titleasfilename)
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem1)
+        self.conf_checkbox_recordonsave = QtGui.QCheckBox(self.tab)
+        self.conf_checkbox_recordonsave.setChecked(True)
+        self.conf_checkbox_recordonsave.setObjectName("conf_checkbox_recordonsave")
+        self.verticalLayout.addWidget(self.conf_checkbox_recordonsave)
         self.conf_checkbox_recordonswitch = QtGui.QCheckBox(self.tab)
         self.conf_checkbox_recordonswitch.setChecked(True)
         self.conf_checkbox_recordonswitch.setObjectName("conf_checkbox_recordonswitch")
@@ -136,8 +140,9 @@ class Ui_SettingsDialog(object):
         self.conf_author.setPlaceholderText(QtGui.QApplication.translate("SettingsDialog", "Optional - Please enter your name", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_firstlinetitle.setText(QtGui.QApplication.translate("SettingsDialog", "Use the first  line of the note as the title", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_titleasfilename.setText(QtGui.QApplication.translate("SettingsDialog", "Set the note title as the file name", None, QtGui.QApplication.UnicodeUTF8))
-        self.conf_checkbox_recordonswitch.setText(QtGui.QApplication.translate("SettingsDialog", "Record changed note data to history when switching notes", None, QtGui.QApplication.UnicodeUTF8))
-        self.conf_checkbox_recordonexit.setText(QtGui.QApplication.translate("SettingsDialog", "Record changed note data to history on exit", None, QtGui.QApplication.UnicodeUTF8))
+        self.conf_checkbox_recordonsave.setText(QtGui.QApplication.translate("SettingsDialog", "Record note data to version history with Ctrl/Cmd-S", None, QtGui.QApplication.UnicodeUTF8))
+        self.conf_checkbox_recordonswitch.setText(QtGui.QApplication.translate("SettingsDialog", "Record changed note data to version history when switching notes", None, QtGui.QApplication.UnicodeUTF8))
+        self.conf_checkbox_recordonexit.setText(QtGui.QApplication.translate("SettingsDialog", "Record changed note data to version history on exit", None, QtGui.QApplication.UnicodeUTF8))
         self.about_version_label.setText(QtGui.QApplication.translate("SettingsDialog", "v0.0.0", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("SettingsDialog", "Settings", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("SettingsDialog", "<html><head/><body><p><a href=\"http://daringfireball.net/projects/markdown/syntax\"><span style=\" text-decoration: underline; color:#0000ff;\">See official syntax for details</span></a></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))

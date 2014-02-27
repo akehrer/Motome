@@ -27,6 +27,7 @@ class NoteModel(object):
     def __init__(self, filepath=None):
         self.filepath = filepath
         self.wordset = ''
+        self.is_saved = True
 
         self._content = ''
         self._metadata = {}
@@ -42,6 +43,7 @@ class NoteModel(object):
         state = self.__dict__.copy()
         state['_content'] = ''
         state['_history'] = []
+        state['is_saved'] = True
         return state
 
     @property
@@ -54,7 +56,8 @@ class NoteModel(object):
     def content(self, value):
         if value != self._content:
             self._content = value
-            self._save_to_file()
+            self.is_saved = False
+            # self._save_to_file()
 
     @property
     def metadata(self):
@@ -64,12 +67,13 @@ class NoteModel(object):
 
     @metadata.setter
     def metadata(self, value):
-        """ The note's metadata setter, expects a dict, automatically saves the new data to the file
+        """ The note's metadata setter, expects a dict
 
         :param value: dict of the new metadata
         """
         self._metadata = value
-        self._save_to_file()
+        self.is_saved = False
+        # self._save_to_file()
 
     @property
     def history(self):
@@ -98,7 +102,8 @@ class NoteModel(object):
             self._metadata['pinned'] = 1
         else:
             self._metadata['pinned'] = 0
-        self._save_to_file()
+        self.is_saved = False
+        # self.save_to_file()
 
     @property
     def recorded(self):
@@ -186,6 +191,15 @@ class NoteModel(object):
         else:
             return self.unsafename
 
+    @property
+    def urls(self):
+        """ Get all the urls from the content
+
+        :return: a list of (title, url) tuples found in the content
+        """
+        url_re_compile = re.compile(r'\[([^\[]+)\]\(([^\)]+)\)', re.VERBOSE | re.MULTILINE)
+        return url_re_compile.findall(self.content)
+
     def load_old_note(self, index):
         """ Load a note from the history
 
@@ -220,8 +234,8 @@ class NoteModel(object):
                 logger.warning(e)
                 return
 
-        self._save_to_file()
-        self._save_to_file(filepath=old_filepath)
+        self.save_to_file()
+        self.save_to_file(filepath=old_filepath)
 
         zip_filepath = self.historypath  # self.filepath + ZIP_EXTENSION
         with zipfile.ZipFile(zip_filepath, 'a') as myzip:
@@ -294,7 +308,7 @@ class NoteModel(object):
             # file not there or couldn't access it, things may be different
             self._last_seen = -1
 
-    def _save_to_file(self, filepath=None):
+    def save_to_file(self, filepath=None):
         """ Save the content and metadata to the note file
         """
         if filepath is None:
@@ -308,6 +322,7 @@ class NoteModel(object):
         # use safe_dump to prevent dumping non-standard YAML tags
         filedata += YAML_BRACKET + '\n' + yaml.safe_dump(self.metadata, default_flow_style=False) + YAML_BRACKET
         self.enc_write(filepath, filedata)
+        self.is_saved = True
 
     @staticmethod
     def safe_filename(filename):

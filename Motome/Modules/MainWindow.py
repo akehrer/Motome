@@ -28,7 +28,7 @@ from Motome.config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, \
     APP_DIR, WINDOW_TITLE, UNSAFE_CHARS, VERSION, NOTE_DATA_DIR, HTML_FOLDER, HTML_EXTENSION, MOTOME_BLUE
 
 # Import additional modules
-from Motome.Modules.MotomeTextBrowser import MotomeTextBrowser, MotomeTextBrowser2
+from Motome.Modules.MotomeTextBrowser import MotomeTextBrowser
 from Motome.Modules.NoteModel import NoteModel
 from Motome.Modules.SettingsDialog import SettingsDialog
 from Motome.Modules.AutoCompleterModel import AutoCompleteEdit
@@ -66,7 +66,7 @@ class MainWindow(QtGui.QMainWindow):
         self.notes_data_dir = ''
 
         # DB
-        self.db_notes = {}
+        self.db_notes_dict = {}
 
         # note file vars
         self.note_extension = NOTE_EXTENSION
@@ -89,6 +89,10 @@ class MainWindow(QtGui.QMainWindow):
         self.load_conf()
 
         # Set some configuration variables
+        if 'conf_checkbox_recordonsave' in self.conf.keys() and int(self.conf['conf_checkbox_recordonsave']) > 0:
+            self.record_on_save = True
+        else:
+            self.record_on_save = False
         if 'conf_checkbox_recordonexit' in self.conf.keys() and int(self.conf['conf_checkbox_recordonexit']) > 0:
             self.record_on_exit = True
         else:
@@ -147,10 +151,16 @@ class MainWindow(QtGui.QMainWindow):
         # notes list splitter size for hiding and showing the notes list
         self.notes_list_splitter_size = None
 
-        # save file timer
-        self.save_interval = 1000  # msec
+        # save metadata timer
+        self.save_meta_interval = 1000  # msec
+        self.save_meta_timer = QtCore.QTimer()
+        self.save_meta_timer.timeout.connect(self.save_note_meta)
+
+        # save unsaved timer
+        self.save_interval = 5 * 60 * 1000  # msec
         self.save_timer = QtCore.QTimer()
-        self.save_timer.timeout.connect(self.save_note_meta)
+        self.save_timer.timeout.connect(self.save_the_unsaved)
+        self.save_timer.start()
 
         # search
         self.search = SearchModel()
@@ -202,8 +212,10 @@ class MainWindow(QtGui.QMainWindow):
         try:
             i = self.current_row
             filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
-            self._current_note = self.db_notes[filename]
-        except (KeyError, AttributeError):
+            self._current_note = self.db_notes_dict[filename]
+        except KeyError:
+            self._current_note = self.db_notes_dict[self.noteEditor.notemodel.filename]
+        except AttributeError:
             self._current_note = None
         return self._current_note
 
@@ -217,6 +229,14 @@ class MainWindow(QtGui.QMainWindow):
 
     @current_row.setter
     def current_row(self, notename):
+        if self.noteEditor.save_timer.isActive():
+            self.noteEditor.save_note()
+
+        if self.save_meta_timer.isActive():
+            self.save_note_meta()
+
+        self.save_the_unsaved()
+
         try:
             list_item = self.ui.notesList.findItems(notename, QtCore.Qt.MatchExactly)[0]
             row = self.ui.notesList.row(list_item)
@@ -224,22 +244,27 @@ class MainWindow(QtGui.QMainWindow):
                 self.ui.notesList.setCurrentRow(row)
                 self.update_ui_views()
         except IndexError:
-            message_box = QtGui.QMessageBox()
-            message_box.setText("Cannot open link.")
-            message_box.setInformativeText('The {0} note is not in the current notes list.'.format(notename))
-            ok_btn = message_box.addButton(QtGui.QMessageBox.Ok)
-            message_box.setDefaultButton(ok_btn)
-            message_box.exec_()
+            self.ui.notesList.setCurrentRow(0)
+            self.update_ui_views()
+            # message_box = QtGui.QMessageBox()
+            # message_box.setText("Cannot open link.")
+            # message_box.setInformativeText('The {0} note is not in the current notes list.'.format(notename))
+            # ok_btn = message_box.addButton(QtGui.QMessageBox.Ok)
+            # message_box.setDefaultButton(ok_btn)
+            # message_box.exec_()
 
     def stop(self):
         if self.noteEditor.save_timer.isActive():
             self.noteEditor.save_note()
 
-        if self.save_timer.isActive():
+        if self.save_meta_timer.isActive():
             self.save_note_meta()
 
+        self.save_the_unsaved()
+        self.save_timer.stop()
+
         if self.record_on_exit:
-            for note in self.db_notes.values():
+            for note in self.db_notes_dict.values():
                 if not note.recorded:
                     note.record(self.notes_dir)
 
@@ -325,7 +350,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def insert_ui_noteeditor(self):
         # insert the custom text editor
-        self.noteEditor = MotomeTextBrowser2(self.ui.tabEditor, None)
+        self.noteEditor = MotomeTextBrowser(self.ui.tabEditor, None)
         self.noteEditor.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard | QtCore.Qt.LinksAccessibleByMouse |
                                                 QtCore.Qt.TextBrowserInteraction | QtCore.Qt.TextEditable |
                                                 QtCore.Qt.TextEditorInteraction | QtCore.Qt.TextSelectableByKeyboard |
@@ -350,7 +375,7 @@ class MainWindow(QtGui.QMainWindow):
         # build the completer list
         completer_list = set()
         try:
-            for note in self.db_notes.values():
+            for note in self.db_notes_dict.values():
                 if 'tags' in note.metadata.keys():
                     for t in note.metadata['tags'].split():
                         completer_list.add(t)
@@ -396,7 +421,7 @@ class MainWindow(QtGui.QMainWindow):
         url_path = url.path()
 
         # intranote link?
-        if url_path + NOTE_EXTENSION in self.db_notes.keys():
+        if url_path + NOTE_EXTENSION in self.db_notes_dict.keys():
             self.current_row = url_path
             return
 
@@ -425,26 +450,26 @@ class MainWindow(QtGui.QMainWindow):
         if os.path.exists(self.notes_dir):
             notepaths = set(glob.glob(self.notes_dir + '/*' + NOTE_EXTENSION))
             notenames = map(os.path.basename, notepaths)
-            note_keys = set(self.db_notes.keys())
+            note_keys = set(self.db_notes_dict.keys())
             keys_missing_notes = note_keys - set(notenames)
 
             #remove keys missing notes
             for filename in keys_missing_notes:
-                del (self.db_notes[filename])
+                del (self.db_notes_dict[filename])
 
             # add notes missing keys
             for filepath in notepaths:
                 filename = os.path.basename(filepath)
-                if filename not in self.db_notes.keys():
+                if filename not in self.db_notes_dict.keys():
                     note = NoteModel(filepath)
-                    self.db_notes[note.filename] = note
+                    self.db_notes_dict[note.filename] = note
 
             # build the completer list
             self.insert_ui_tagcompleter()
 
-            if len(self.db_notes.keys()) > 0:
+            if len(self.db_notes_dict.keys()) > 0:
                 # reverse sort the note list based on last modified time
-                return sorted(self.db_notes.values(), key=lambda x: x.timestamp, reverse=True)
+                return sorted(self.db_notes_dict.values(), key=lambda x: x.timestamp, reverse=True)
             else:
                 return []
         else:
@@ -464,7 +489,6 @@ class MainWindow(QtGui.QMainWindow):
             u = QtGui.QListWidgetItem(item.notename)
             self.ui.notesList.addItem(u)
 
-        # self.ui.notesList.setCurrentRow(self.current_row, QtGui.QItemSelectionModel.Select)
         try:
             self.current_row = self.noteEditor.notemodel.notename
         except AttributeError:
@@ -546,7 +570,7 @@ class MainWindow(QtGui.QMainWindow):
             i = index.row()
 
         filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
-        note = self.db_notes[filename]
+        note = self.db_notes_dict[filename]
         if note.pinned:
             note.pinned = False
         else:
@@ -575,6 +599,10 @@ class MainWindow(QtGui.QMainWindow):
             self.tagEditor.setFocus()
         elif seq == 'ctrl_s':
             self.noteEditor.save_note()
+            self.save_the_unsaved()
+            if self.record_on_save:
+                self.noteEditor.record_note()
+                self.load_history_data()
         elif seq == 'ctrl_r':
             self.noteEditor.record_note()
             self.load_history_data()
@@ -656,7 +684,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def update_ui_historyLabel(self):
         color = 'rgb({0}, {1}, {2}, {3})'.format(*MOTOME_BLUE.getRgb())
-        l = len(self.current_note.history)
+        try:
+            l = len(self.current_note.history)
+        except AttributeError:
+            l = 0
+
         self.ui.historyLabel.setText('<a href="#" style="color: {color}">{num} {version}</a>'.format(
             color=color,
             num=l,
@@ -698,16 +730,16 @@ class MainWindow(QtGui.QMainWindow):
             self.remove_history_bar()
 
     def start_meta_save(self):
-        if self.save_timer.isActive():
-            self.save_timer.stop()
-        self.save_timer.start(self.save_interval)
+        if self.save_meta_timer.isActive():
+            self.save_meta_timer.stop()
+        self.save_meta_timer.start(self.save_meta_interval)
 
     def save_note_meta(self):
         if self.noteEditor.save_timer.isActive():
             self.noteEditor.save_note()
 
-        if self.save_timer.isActive():
-            self.save_timer.stop()
+        if self.save_meta_timer.isActive():
+            self.save_meta_timer.stop()
 
         metadata = self.current_note.metadata
         if self.first_line_title:
@@ -727,6 +759,12 @@ class MainWindow(QtGui.QMainWindow):
         # check for history position and move to latest if needed
         if self.old_data is not None:
             self.ui.historySlider.setValue(self.ui.historySlider.maximum())
+
+    def save_the_unsaved(self):
+        # print('Repent!')
+        heathens = (nm for nm in self.db_notes_dict.values() if not nm.is_saved)
+        for unsaved in heathens:
+            unsaved.save_to_file()
 
     def generate_html(self, content):
         try:
@@ -789,7 +827,7 @@ class MainWindow(QtGui.QMainWindow):
             founds = self.all_notes
         else:
             self.search.query = self.query.lower()
-            founds = [note for note in self.db_notes.values() if self.search.search_notemodel(note)]
+            founds = [note for note in self.db_notes_dict.values() if self.search.search_notemodel(note)]
         self.load_ui_notes_list(founds)
 
     def new_note(self):
@@ -819,7 +857,8 @@ class MainWindow(QtGui.QMainWindow):
         new_note.content = content
 
         # update
-        self.db_notes[new_note.filename] = new_note
+        self.db_notes_dict[new_note.filename] = new_note
+        self.save_the_unsaved()
 
         self.ui.omniBar.blockSignals(True)
         self.ui.omniBar.setText('')
@@ -880,21 +919,11 @@ class MainWindow(QtGui.QMainWindow):
                         self.conf[name] = c.text()
                     elif name == 'conf_author':
                         self.conf[name] = c.text()
-                    elif name == 'conf_checkbox_preview':
+                    elif name == 'conf_checkbox_recordonsave':
                         if c.checkState() == QtCore.Qt.CheckState.Unchecked:
                             self.conf[name] = 0
                         else:
                             self.conf[name] = 1
-                    # elif name == 'conf_checkbox_history':
-                    #     if c.checkState() == QtCore.Qt.CheckState.Unchecked:
-                    #         self.conf[name] = 0
-                    #     else:
-                    #         self.conf[name] = 1
-                    # elif name == 'conf_checkbox_deleteempty':
-                    #     if c.checkState() == QtCore.Qt.CheckState.Unchecked:
-                    #         self.conf[name] = 0
-                    #     else:
-                    #         self.conf[name] = 1
                     elif name == 'conf_checkbox_recordonexit':
                         if c.checkState() == QtCore.Qt.CheckState.Unchecked:
                             self.conf[name] = 0
@@ -1001,7 +1030,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def delete_note(self, note):
         if note.remove():
-            del self.db_notes[note.filename]
+            self.noteEditor.notemodel = None
+            del self.db_notes_dict[note.filename]
         else:
             message_box = QtGui.QMessageBox()
             message_box.setText('Delete Error!'.format(self.current_note.notename))
@@ -1022,7 +1052,7 @@ class MainWindow(QtGui.QMainWindow):
                 # Practice safer unpickling by making sure the UnPickler only loads NoteModel objects
                 unp = pickle.Unpickler(data_file)
                 unp.find_global = pickle_find_NoteModel
-                self.db_notes = unp.load()
+                self.db_notes_dict = unp.load()
         except IOError:
             self.load_notemodels()
         except pickle.UnpicklingError as e:
@@ -1031,11 +1061,11 @@ class MainWindow(QtGui.QMainWindow):
     def save_db_data(self):
         try:
             with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'wb') as data_file:
-                pickle.dump(self.db_notes, data_file, -1)
+                pickle.dump(self.db_notes_dict, data_file, -1)
         except IOError:
             os.makedirs(self.notes_data_dir)
             with open(os.path.join(self.notes_data_dir, 'Motome_data.fs'), 'wb') as data_file:
-                pickle.dump(self.db_notes, data_file, -1)
+                pickle.dump(self.db_notes_dict, data_file, -1)
 
     def show_custom_preview_menu(self, point):
         preview_rclk_menu = self.ui.notePreview.createStandardContextMenu()
