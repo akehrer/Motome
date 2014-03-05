@@ -21,6 +21,7 @@ import markdown
 from PySide import QtCore, QtGui
 
 # Import application window view
+from Motome.Controllers.SettingsDialog import SettingsDialog
 from Motome.Views.MainWindow import Ui_MainWindow
 
 # Import configuration values
@@ -28,15 +29,14 @@ from Motome.config import NOTE_EXTENSION, ZIP_EXTENSION, MEDIA_FOLDER, \
     APP_DIR, WINDOW_TITLE, UNSAFE_CHARS, VERSION, NOTE_DATA_DIR, HTML_FOLDER, HTML_EXTENSION, MOTOME_BLUE
 
 # Import additional modules
-from Motome.Modules.MotomeTextBrowser import MotomeTextBrowser
-from Motome.Modules.NoteModel import NoteModel
-from Motome.Modules.SettingsDialog import SettingsDialog
-from Motome.Modules.AutoCompleterModel import AutoCompleteEdit
-from Motome.Modules.Search import SearchModel
-from Motome.Modules.Utils import build_preview_footer_html, build_preview_header_html, \
+from Motome.Models.NoteModel import NoteModel
+from Motome.Models.MotomeTextBrowser import MotomeTextBrowser
+from Motome.Models.AutoCompleterModel import AutoCompleteEdit
+from Motome.Models.Search import SearchModel
+from Motome.Models.Utils import build_preview_footer_html, build_preview_header_html, \
     diff_to_html, human_date, pickle_find_NoteModel
 
-from Motome.Modules.Utils import transition_versions
+from Motome.Models.Utils import transition_versions
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -201,23 +201,28 @@ class MainWindow(QtGui.QMainWindow):
 
     @property
     def all_notes(self):
-        try:
-            self._all_notes = self.load_notemodels()
-        except OSError:
-            pass
+        if len(self.db_notes_dict.keys()) > 0:
+                # reverse sort the note list based on last modified time
+                self._all_notes = sorted(self.db_notes_dict.values(), key=lambda x: x.timestamp, reverse=True)
+        else:
+            self._all_notes = []
+        # try:
+        #     self._all_notes = self.load_notemodels()
+        # except OSError:
+        #     pass
         return self._all_notes
 
-    @property
-    def current_note(self):
-        try:
-            i = self.current_row
-            filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
-            self._current_note = self.db_notes_dict[filename]
-        except KeyError:
-            self._current_note = self.db_notes_dict[self.noteEditor.notemodel.filename]
-        except AttributeError:
-            self._current_note = None
-        return self._current_note
+    # @property
+    # def current_note(self):
+    #     try:
+    #         i = self.current_row
+    #         filename = self.ui.notesList.item(i).text() + NOTE_EXTENSION
+    #         self._current_note = self.db_notes_dict[filename]
+    #     except KeyError:
+    #         self._current_note = self.db_notes_dict[self.noteEditor.notemodel.filename]
+    #     except AttributeError:
+    #         self._current_note = None
+    #     return self._current_note
 
     @property
     def current_row(self):
@@ -234,8 +239,6 @@ class MainWindow(QtGui.QMainWindow):
 
         if self.save_meta_timer.isActive():
             self.save_note_meta()
-
-        self.save_the_unsaved()
 
         try:
             list_item = self.ui.notesList.findItems(notename, QtCore.Qt.MatchExactly)[0]
@@ -358,7 +361,7 @@ class MainWindow(QtGui.QMainWindow):
         self.noteEditor.setObjectName("noteEditor")
         self.ui.horizontalLayout_3.insertWidget(1, self.noteEditor)
         self.noteEditor.anchorClicked.connect(self.load_anchor)
-        self.noteEditor.noteSaved.connect(self.save_note_meta)
+        self.noteEditor.noteSaved.connect(self.save_note_content)
         # Custom right-click menu
         self.noteEditor.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.noteEditor.customContextMenuRequested.connect(self.show_custom_editor_menu)
@@ -729,6 +732,12 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.remove_history_bar()
 
+    def save_note_content(self):
+        if self.noteEditor.save_timer.isActive():
+            self.noteEditor.save_timer.stop()
+
+        self.current_note.content = self.noteEditor.toPlainText()
+
     def start_meta_save(self):
         if self.save_meta_timer.isActive():
             self.save_meta_timer.stop()
@@ -742,19 +751,37 @@ class MainWindow(QtGui.QMainWindow):
             self.save_meta_timer.stop()
 
         metadata = self.current_note.metadata
+
+        rename = False
         if self.first_line_title:
-            nt = self.noteEditor.notemodel.content.split('\n', 1)[0]
+            nt = self.current_note.content.split('\n', 1)[0]
             t = self._clean_filename(nt, '').strip()
+            print(t)
+            print(metadata['title'])
             if t != '':
-                metadata['title'] = t
+                if 'title' in metadata.keys() and metadata['title'] != t:
+                    metadata['title'] = t
+                    rename = True
 
         metadata['tags'] = self.tagEditor.text()
 
         if 'conf_author' in self.conf.keys():
             metadata['author'] = self.conf['conf_author']
 
-        # update the metadata (will save automatically)
+        # update the metadata
         self.current_note.metadata = metadata
+
+        # rename?
+        if rename:
+            self.current_note.rename()
+            # cn = self.current_note
+            # old_filename = cn.filename
+            # cn.rename()
+            # del(self.db_notes_dict[old_filename])
+            # self.db_notes_dict[cn.filename] = cn
+            # print(self.noteEditor.notemodel)
+            # print(self.db_notes_dict)
+            self.search_files()
 
         # check for history position and move to latest if needed
         if self.old_data is not None:
@@ -1037,6 +1064,7 @@ class MainWindow(QtGui.QMainWindow):
             message_box.setText('Delete Error!'.format(self.current_note.notename))
             message_box.setInformativeText('There was a problem deleting all the note files. Please check the {0} '
                                            'directory for any remaining data.'.format(self.notes_dir))
+            message_box.exec_()
 
     def do_first_run(self):
         """ Do stuff the first time the app runs """

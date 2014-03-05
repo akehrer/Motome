@@ -46,6 +46,11 @@ class NoteModel(object):
         state['is_saved'] = True
         return state
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return self.filepath == other.filepath
+
     @property
     def content(self):
         if self.timestamp > self._last_seen or self._content == '':
@@ -249,6 +254,7 @@ class NoteModel(object):
             return
         else:
             self.notename = self._metadata['title']
+        return self
 
     def remove(self):
         """ Deletes all the note's associated files and clears the object's properties

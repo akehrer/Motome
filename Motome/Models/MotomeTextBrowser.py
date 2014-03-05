@@ -18,7 +18,7 @@ from PySide import QtCore, QtGui
 # Import configuration values
 from Motome.config import HIGHLIGHT_COLOR, MEDIA_FOLDER, PLATFORM
 
-from Motome.Modules.Utils import safe_filename, grab_urls
+from Motome.Models.Utils import safe_filename, grab_urls
 
 # Set up the logger
 logger = logging.getLogger(__name__)

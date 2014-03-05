@@ -17,8 +17,8 @@ from datetime import datetime
 import yaml
 
 from Motome.config import END_OF_TEXT, YAML_BRACKET
-from Motome.Modules.NoteModel import NoteModel
-from Motome.Modules.External import diff_match_patch as dmp
+from Motome.Models.NoteModel import NoteModel
+from Motome.Models.External import diff_match_patch as dmp
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ def pickle_find_NoteModel(module, name):
 
     :see http://docs.python.org/2/library/pickle.html#subclassing-unpicklers
     """
-    if module == 'Motome.Modules.NoteModel' and name == 'NoteModel':
+    if module == 'Motome.Models.NoteModel' and name == 'NoteModel':
         return NoteModel
     # Forbid everything else.
     raise cPickle.UnpicklingError("module '%s.%s' is forbidden" %(module, name))
