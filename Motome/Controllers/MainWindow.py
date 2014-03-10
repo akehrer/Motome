@@ -8,6 +8,7 @@ import glob
 import logging
 import os
 import shutil
+import sys
 import time
 import cPickle as pickle
 import yaml
@@ -326,14 +327,13 @@ class MainWindow(QtGui.QMainWindow):
                 self.conf = {}
 
             if not 'conf_notesLocation' in self.conf.keys():
-                # Show the settings dialog if no notes location has been configured
-                self.load_settings()
+                self.first_run = True
             else:
                 self.notes_dir = self.conf['conf_notesLocation']
                 self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
-        except IOError as e:
-            # No configuration file exists, create one
-            self.save_conf()
+        except IOError:
+            # no conf file
+            self.first_run = True
 
     def save_conf(self):
         filepath = os.path.join(self.app_data_dir, 'conf.yml')
@@ -461,6 +461,10 @@ class MainWindow(QtGui.QMainWindow):
             self.noteEditor.blockSignals(True)
             self.noteEditor.setHtml('')
             self.noteEditor.blockSignals(False)
+        else:
+            # user hit cancel
+            if not 'conf_notesLocation' in self.conf.keys() or self.conf['conf_notesLocation'] == '':
+                sys.exit(1)
 
     def process_keyseq(self, seq):
         if seq == 'ctrl_n' or seq == 'ctrl_f':
