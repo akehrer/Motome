@@ -190,6 +190,10 @@ class NoteModel(object):
             return -1
 
     @property
+    def first_line(self):
+        return self.content.split('\n', 1)[0]
+
+    @property
     def title(self):
         if 'title' in self.metadata.keys():
             return self.metadata['title']
@@ -385,4 +389,7 @@ class NoteModel(object):
         ufilepath = filepath.encode(ENCODING)
         with open(ufilepath, mode='rb') as f:
             data = f.read()
-        return data.decode(ENCODING)
+        try:
+            return data.decode(ENCODING)
+        except UnicodeDecodeError as e:
+            logger.error('{0} with {1}'.format(e, filepath))

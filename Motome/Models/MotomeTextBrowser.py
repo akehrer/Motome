@@ -28,8 +28,10 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
     """Custom QTextBrowser for the Motome application"""
     noteSaved = QtCore.Signal()
 
-    def __init__(self, parent, notemodel):
+    def __init__(self, parent):
         super(MotomeTextBrowser, self).__init__(parent)
+
+        self.parent = parent
 
         self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
         self.setAcceptDrops(True)
@@ -41,8 +43,6 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         self.setUndoRedoEnabled(True)
         self.setTabChangesFocus(True)
         self.setFrameShape(QtGui.QFrame.NoFrame)
-
-        self._notemodel = notemodel
 
         # save file timer
         self.save_interval = 1000  # msec
@@ -56,23 +56,11 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
 
     @property
     def notes_dir(self):
-        return self._notemodel.notedirectory
+        return self.parent.current_note.notedirectory
 
     @property
     def notemodel(self):
-        return self._notemodel
-
-    @notemodel.setter
-    def notemodel(self, value):
-        if self.save_timer.isActive():
-            self.save_note()
-
-        self._notemodel = value
-        if value is None:
-            self.setEnabled(False)
-        else:
-            self.setEnabled(True)
-        self.set_note_text()
+        return self.parent.current_note
 
     def setup_keyboard_shortcuts(self):
         self.keyboard_shortcuts = {'Bold':      {'seq': QtGui.QKeySequence('Ctrl+B'),
@@ -175,10 +163,10 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
             return True
         return QtGui.QTextBrowser.event(self, event)
 
-    def set_note_text(self, alternate=None):
+    def set_note_text(self, content=None):
         try:
-            if alternate is not None:
-                text = cgi.escape(alternate)
+            if content is not None:
+                text = cgi.escape(content)
             else:
                 text = cgi.escape(self.notemodel.content)
             text = text.replace('  ', '&nbsp;&nbsp;')
@@ -261,11 +249,6 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         self.notemodel.content = content
         self.noteSaved.emit()
 
-    def record_note(self):
-        if self.save_timer.isActive():
-            self.save_note()
-        self.notemodel.record()
-
     def highlight_search(self, query):
         """
         Highlight all the search terms
@@ -273,7 +256,6 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         """
         current_cursor = self.textCursor()
         extra_selections = []
-        extra = None
         for term in query:
             self.moveCursor(QtGui.QTextCursor.Start)
             while self.find(term):

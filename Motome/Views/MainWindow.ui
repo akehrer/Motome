@@ -114,41 +114,13 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0">
+       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0">
         <property name="spacing">
          <number>7</number>
         </property>
         <property name="leftMargin">
          <number>11</number>
         </property>
-        <item>
-         <widget class="QListWidget" name="notesList">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>1</horstretch>
-            <verstretch>4</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::EditKeyPressed</set>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>false</bool>
-          </property>
-          <property name="uniformItemSizes">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QLabel" name="historyLabel">
           <property name="text">
@@ -387,7 +359,6 @@
  </widget>
  <tabstops>
   <tabstop>omniBar</tabstop>
-  <tabstop>notesList</tabstop>
   <tabstop>toolBox</tabstop>
   <tabstop>btnPrevDate</tabstop>
   <tabstop>btnNextDate</tabstop>
@@ -449,22 +420,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>notesList</sender>
-   <signal>clicked(QModelIndex)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>click_update_ui_views(QModelIndex)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>220</x>
-     <y>400</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>114</x>
-     <y>306</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>omniBar</sender>
    <signal>textChanged(QString)</signal>
    <receiver>MainWindow</receiver>
@@ -509,22 +464,6 @@
     <hint type="destinationlabel">
      <x>37</x>
      <y>38</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>notesList</sender>
-   <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>dblclick_pin_list_item(QModelIndex)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>74</x>
-     <y>128</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>76</x>
-     <y>48</y>
     </hint>
    </hints>
   </connection>

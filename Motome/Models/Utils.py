@@ -16,7 +16,7 @@ from datetime import datetime
 
 import yaml
 
-from Motome.config import END_OF_TEXT, YAML_BRACKET
+from Motome.config import END_OF_TEXT, YAML_BRACKET, UNSAFE_CHARS
 from Motome.Models.NoteModel import NoteModel
 from Motome.Models.External import diff_match_patch as dmp
 
@@ -83,6 +83,22 @@ def safe_filename(filename):
         return pattern.sub('_', root) if ext is '' else ''.join([pattern.sub('_', root), ext])
     except OSError:
         return None
+
+
+def clean_filename(unclean, replace='_'):
+        clean = unclean
+        for c in UNSAFE_CHARS:
+            clean = clean.replace(c, replace)
+        return clean
+
+
+def history_timestring_to_datetime(timestring):
+        return datetime(int(timestring[0:4]),
+                        int(timestring[4:6]),
+                        int(timestring[6:8]),
+                        int(timestring[8:10]),
+                        int(timestring[10:12]),
+                        int(timestring[12:]))
 
 
 def human_date(dt):

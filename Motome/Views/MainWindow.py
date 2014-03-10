@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Wed Feb 26 15:10:43 2014
+# Created: Sun Mar 09 14:46:51 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -71,19 +71,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setSpacing(7)
         self.verticalLayout_3.setContentsMargins(11, -1, -1, -1)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.notesList = QtGui.QListWidget(self.layoutWidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(4)
-        sizePolicy.setHeightForWidth(self.notesList.sizePolicy().hasHeightForWidth())
-        self.notesList.setSizePolicy(sizePolicy)
-        self.notesList.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.notesList.setFrameShape(QtGui.QFrame.NoFrame)
-        self.notesList.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.EditKeyPressed)
-        self.notesList.setAlternatingRowColors(False)
-        self.notesList.setUniformItemSizes(True)
-        self.notesList.setObjectName("notesList")
-        self.verticalLayout_3.addWidget(self.notesList)
         self.historyLabel = QtGui.QLabel(self.layoutWidget)
         self.historyLabel.setText("")
         self.historyLabel.setTextFormat(QtCore.Qt.RichText)
@@ -91,7 +78,6 @@ class Ui_MainWindow(object):
         self.historyLabel.setWordWrap(True)
         self.historyLabel.setObjectName("historyLabel")
         self.verticalLayout_3.addWidget(self.historyLabel)
-        self.verticalLayout_3.setStretch(0, 1)
         self.toolBox = QtGui.QStackedWidget(self.splitter)
         self.toolBox.setEnabled(True)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
@@ -208,15 +194,12 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.historySlider, QtCore.SIGNAL("valueChanged(int)"), MainWindow.load_old_note)
         QtCore.QObject.connect(self.btnPrevDate, QtCore.SIGNAL("clicked()"), MainWindow.click_older_date)
         QtCore.QObject.connect(self.btnNextDate, QtCore.SIGNAL("clicked()"), MainWindow.click_newer_date)
-        QtCore.QObject.connect(self.notesList, QtCore.SIGNAL("clicked(QModelIndex)"), MainWindow.click_update_ui_views)
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("textChanged(QString)"), MainWindow.start_search)
         QtCore.QObject.connect(self.btnSettings, QtCore.SIGNAL("clicked()"), MainWindow.load_settings)
         QtCore.QObject.connect(self.omniBar, QtCore.SIGNAL("returnPressed()"), MainWindow.new_note)
-        QtCore.QObject.connect(self.notesList, QtCore.SIGNAL("doubleClicked(QModelIndex)"), MainWindow.dblclick_pin_list_item)
         QtCore.QObject.connect(self.historyLabel, QtCore.SIGNAL("linkActivated(QString)"), MainWindow.toggle_history_bar_view)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        MainWindow.setTabOrder(self.omniBar, self.notesList)
-        MainWindow.setTabOrder(self.notesList, self.toolBox)
+        MainWindow.setTabOrder(self.omniBar, self.toolBox)
         MainWindow.setTabOrder(self.toolBox, self.btnPrevDate)
         MainWindow.setTabOrder(self.btnPrevDate, self.btnNextDate)
         MainWindow.setTabOrder(self.btnNextDate, self.historySlider)
