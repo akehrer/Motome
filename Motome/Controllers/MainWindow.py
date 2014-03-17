@@ -37,8 +37,6 @@ from Motome.Models.Search import SearchModel
 from Motome.Models.Utils import build_preview_footer_html, build_preview_header_html, \
     diff_to_html, human_date, pickle_find_NoteModel, history_timestring_to_datetime, clean_filename
 
-from Motome.Models.Utils import transition_versions, inspect_caller
-
 # Set up the logger
 logger = logging.getLogger(__name__)
 
@@ -175,7 +173,6 @@ class MainWindow(QtGui.QMainWindow):
         """ Do stuff the first time the app runs """
         # Show them the settings dialog
         self.load_settings()
-        transition_versions(self.notes_dir)
         self.load_session_data()
         self.first_run = False
 

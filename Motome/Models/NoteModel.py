@@ -195,9 +195,9 @@ class NoteModel(object):
 
     @property
     def title(self):
-        if 'title' in self.metadata.keys():
+        try:
             return self.metadata['title']
-        else:
+        except (TypeError, KeyError):
             return self.unsafename
 
     @property

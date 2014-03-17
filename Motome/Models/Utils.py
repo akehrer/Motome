@@ -222,6 +222,11 @@ def parse_note_content_old(data):
 
 
 def transition_versions(notes_dir):
+    """ Change notes from the old metadata style to the new (0.1.0 - 0.2.0)
+
+    :param notes_dir:
+    :return:
+    """
     notepaths = set(glob.glob(notes_dir + '/*' + '.txt'))
 
     for notepath in notepaths:
