@@ -320,7 +320,7 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
     def _insert_filelink(self, filepath):
         # create the media storage directory
         try:
-            html_dir = os.path.join(self.notemodel.notedirectory, MEDIA_FOLDER)
+            html_dir = os.path.join(self.notes_dir, MEDIA_FOLDER)
             os.makedirs(html_dir)
         except OSError:
             # already there

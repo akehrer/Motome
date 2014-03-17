@@ -46,6 +46,7 @@ class NoteListWidget(QtGui.QListWidget):
         self.dir_watcher.addPath(value)
         self.clear()
         self.update_list()
+        self.setCurrentRow(0)
 
     @property
     def all_items(self):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\SettingsDialog.ui'
 #
-# Created: Sun Mar 09 14:46:53 2014
+# Created: Fri Mar 14 15:48:31 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!

@@ -37,7 +37,7 @@ from Motome.Models.Search import SearchModel
 from Motome.Models.Utils import build_preview_footer_html, build_preview_header_html, \
     diff_to_html, human_date, pickle_find_NoteModel, history_timestring_to_datetime, clean_filename
 
-from Motome.Models.Utils import transition_versions
+from Motome.Models.Utils import transition_versions, inspect_caller
 
 # Set up the logger
 logger = logging.getLogger(__name__)
@@ -95,10 +95,10 @@ class MainWindow(QtGui.QMainWindow):
         self.save_meta_timer.timeout.connect(self.save_note_meta)
 
         # save unsaved timer
-        self.save_interval = 3 * 60 * 1000  # msec
+        self.save_interval = 5 * 1000  # msec
         self.save_timer = QtCore.QTimer()
         self.save_timer.timeout.connect(self.save_the_unsaved)
-        self.save_timer.start()
+        self.save_timer.start(self.save_interval)
 
         # search
         self.search = SearchModel()
@@ -114,7 +114,9 @@ class MainWindow(QtGui.QMainWindow):
 
         # setup GUI elements
         self.keyboard_shortcuts = {}
+        self.setting_button_icons = {}
         self.setup_keyboard_shortcuts()
+        self.setup_settings_button_icons()
         self.setup_mainwindow()
         self.setup_preview()
         self.setup_diff()
@@ -222,6 +224,8 @@ class MainWindow(QtGui.QMainWindow):
                                             'func': lambda item=None: self.process_keyseq('ctrl_s')},
                                    'Record': {'seq': QtGui.QKeySequence('Ctrl+R'),
                                               'func': lambda item=None: self.process_keyseq('ctrl_r')},
+                                   'Print': {'seq': QtGui.QKeySequence('Ctrl+P'),
+                                             'func': lambda item=None: self.process_keyseq('ctrl_p')},
                                    'UpNote': {'seq': QtGui.QKeySequence('Ctrl+]'),
                                               'func': lambda item=None: self.process_keyseq('ctrl_up')},
                                    'DownNote': {'seq': QtGui.QKeySequence('Ctrl+['),
@@ -250,6 +254,13 @@ class MainWindow(QtGui.QMainWindow):
 
         for s in self.keyboard_shortcuts.values():
             QtGui.QShortcut(s['seq'], self, s['func'])
+
+    def setup_settings_button_icons(self):
+        self.setting_button_icons = {'default': QtGui.QIcon(":/icons/resources/gear_32x32.png"),
+                                     'unsaved': QtGui.QIcon(":/icons/resources/gear_fullcenter_32x32.png"),
+                                     'warning': QtGui.QIcon(":/icons/resources/gear_warning_32x32.png"),
+                                     'error':   QtGui.QIcon(":/icons/resources/gear_error_32x32.png")
+        }
 
     def insert_ui_noteslist(self):
         self.notesList = NoteListWidget(self.session_notes_dict)
@@ -461,6 +472,10 @@ class MainWindow(QtGui.QMainWindow):
             self.noteEditor.blockSignals(True)
             self.noteEditor.setHtml('')
             self.noteEditor.blockSignals(False)
+            # clear the tag editor
+            self.tagEditor.blockSignals(True)
+            self.tagEditor.setText('')
+            self.tagEditor.blockSignals(False)
         else:
             # user hit cancel
             if not 'conf_notesLocation' in self.conf.keys() or self.conf['conf_notesLocation'] == '':
@@ -492,6 +507,8 @@ class MainWindow(QtGui.QMainWindow):
         elif seq == 'ctrl_r':
             self.record_current_note()
             self.load_history_data()
+        elif seq == 'ctrl_p':
+            self.print_current_pane()
         elif seq == 'ctrl_up':
             self.keyseq_update_ui_views('down')
         elif seq == 'ctrl_down':
@@ -549,6 +566,7 @@ class MainWindow(QtGui.QMainWindow):
         # update the note editor
         self.noteEditor.blockSignals(True)
         self.noteEditor.set_note_text()
+        self.noteEditor.setDocumentTitle(self.current_note.title)  # for things like print to pdf
         self.noteEditor.blockSignals(False)
 
         # highlight any search terms
@@ -615,6 +633,7 @@ class MainWindow(QtGui.QMainWindow):
         html = self.generate_html(content)
         self.ui.notePreview.setSearchPaths([self.notes_dir])
         self.ui.notePreview.setHtml(html)
+        self.ui.notePreview.setDocumentTitle(self.current_note.title)  # for things like print to pdf
         self.ui.notePreview.reload()
 
     def update_ui_diff(self):
@@ -625,7 +644,7 @@ class MainWindow(QtGui.QMainWindow):
             dt = history_timestring_to_datetime(dt_str)
             tab_date = '[' + human_date(dt) + ']'
             fromdesc = ' '.join([self.current_note.title, tab_date])
-            diff_html = diff_to_html(content, new_content, fromdesc, self.current_note.title)
+            diff_html = diff_to_html(content, new_content, fromdesc, self.current_note.title)  # for things like print to pdf
         else:
             try:
                 diff_html = self.current_note.get_status()
@@ -633,6 +652,7 @@ class MainWindow(QtGui.QMainWindow):
                 # current_note is None
                 diff_html = ''
         self.ui.noteDiff.setHtml(diff_html)
+        self.ui.noteDiff.setDocumentTitle(self.current_note.title)
         self.ui.noteDiff.reload()
 
     def update_ui_historyLabel(self):
@@ -723,10 +743,16 @@ class MainWindow(QtGui.QMainWindow):
         if rename:
             self.notesList.rename_current_item()
 
+        # update settings button icon
+        self.ui.btnSettings.setIcon(self.setting_button_icons['unsaved'])
+
     def save_the_unsaved(self):
         heathens = (nw.notemodel for nw in self.notesList.all_items if not nw.notemodel.is_saved)
         for unsaved in heathens:
             unsaved.save_to_file()
+
+        # update settings button icon
+        self.ui.btnSettings.setIcon(self.setting_button_icons['default'])
 
     def record_current_note(self):
         if not self.current_note.recorded:
@@ -738,6 +764,20 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.current_note.pinned = True
         self.notesList.update_list()
+
+    def print_current_pane(self):
+        pane_num = self.ui.toolBox.currentIndex()
+        printer = QtGui.QPrinter()
+        print_dialog = QtGui.QPrintDialog(printer, self)
+
+        if print_dialog.exec_() == QtGui.QDialog.Accepted:
+            if pane_num == 0:
+                self.noteEditor.print_(printer)
+            elif pane_num == 1:
+                self.ui.notePreview.print_(printer)
+            elif pane_num == 2:
+                self.ui.noteDiff.print_(printer)
+
 
     def new_note(self):
         tagged_title = self.ui.omniBar.text()
