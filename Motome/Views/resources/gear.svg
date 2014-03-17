@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- The icon can be used freely in both personal and commercial projects with no attribution required, but always appreciated. 
+You may NOT sub-license, resell, rent, redistribute or otherwise transfer the icon without express written permission from iconmonstr.com -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   x="0px"
+   y="0px"
+   width="512px"
+   height="512px"
+   viewBox="0 0 512 512"
+   enable-background="new 0 0 512 512"
+   xml:space="preserve"
+   id="svg2"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="gear.svg"><metadata
+   id="metadata9"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs7" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1536"
+   inkscape:window-height="842"
+   id="namedview5"
+   showgrid="false"
+   inkscape:zoom="0.92187498"
+   inkscape:cx="68.247447"
+   inkscape:cy="223.23836"
+   inkscape:window-x="-32000"
+   inkscape:window-y="-32000"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="svg2" />
+
+<path
+   id="gear-icon"
+   d="m 503.64352,288.48742 v -66.23918 l -35.79196,-12.72853 c -13.64657,-4.85287 -24.62614,-15.27375 -30.17264,-28.6529 -0.002,-0.005 -0.005,-0.0108 -0.007,-0.0155 -5.56201,-13.41258 -5.17283,-28.55382 1.06131,-41.66794 l 16.29913,-34.29133 -46.83838,-46.838387 -34.28655,16.298049 c -13.10697,6.230553 -28.2697,6.620933 -41.67392,1.061306 -0.006,-0.0024 -0.0119,-0.0036 -0.0167,-0.0059 -13.3887,-5.551295 -23.79643,-16.515349 -28.6517,-30.171472 L 290.83412,9.4412276 H 224.59614 L 211.86761,45.233185 c -4.85287,13.646572 -15.27375,24.624953 -28.6529,30.172641 -0.006,0.0024 -0.0108,0.0047 -0.0167,0.0059 -13.41258,5.563207 -28.55501,5.172828 -41.67034,-1.061307 l -34.29015,-16.2992 -46.83839,46.838381 16.299249,34.28774 c 6.230552,13.10697 6.619738,28.27089 1.061308,41.67631 -0.002,0.005 -0.005,0.0108 -0.0071,0.0155 -5.55007,13.38752 -16.515323,23.79406 -30.169055,28.64933 L 11.789187,222.2482 v 66.23918 L 47.58,301.21472 c 13.646576,4.85287 24.624954,15.27375 30.172636,28.65171 0.002,0.006 0.004,0.0119 0.006,0.0167 5.563204,13.41377 5.174019,28.5574 -1.060109,41.67153 l -16.300438,34.29013 46.838391,46.83839 34.28775,-16.29805 c 13.10695,-6.23055 28.27088,-6.62094 41.67511,-1.06131 0.006,0.002 0.012,0.005 0.0167,0.007 13.38751,5.55008 23.79286,16.51414 28.64932,30.16907 l 12.73091,35.79553 h 66.23798 l 12.64854,-35.56394 c 4.89825,-13.77431 15.40985,-24.86013 28.90958,-30.47229 0.006,-0.002 0.0108,-0.005 0.0167,-0.007 13.28364,-5.52501 28.28639,-5.14656 41.27995,1.03027 l 34.50382,16.40072 46.83839,-46.83839 -16.3076,-34.30684 c -6.22459,-13.09503 -6.61257,-28.24462 -1.05773,-41.63691 0.002,-0.006 0.005,-0.0108 0.007,-0.0167 5.55605,-13.40064 16.53204,-23.81555 30.2001,-28.67678 l 35.77048,-12.72017 z m -245.92719,57.06943 c -49.81101,0 -90.19082,-40.37862 -90.19082,-90.18843 0,-49.8098 40.37981,-90.18962 90.19082,-90.18962 49.8098,0 90.18842,40.37982 90.18842,90.18962 0,49.80981 -40.37862,90.18843 -90.18842,90.18843 z"
+   style="fill:none;stroke:#597a94;stroke-width:20.14573479;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+   inkscape:export-xdpi="5.625"
+   inkscape:export-ydpi="5.625"
+   inkscape:connector-curvature="0"
+   inkscape:export-filename="C:\Users\Aaron Kehrer\Dropbox\Workspaces\Motome\Motome\Views\resources\gear_32x32.png" />
+
+</svg>

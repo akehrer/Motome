@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="100"
+   height="100"
+   viewBox="0 0 1152 1792"
+   id="svg3809"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="pushpin.svg">
+  <metadata
+     id="metadata3817">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3815" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1536"
+     inkscape:window-height="842"
+     id="namedview3813"
+     showgrid="false"
+     inkscape:zoom="1.18"
+     inkscape:cx="-162.32244"
+     inkscape:cy="50.601697"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3809" />
+  <path
+     d="m -2017.5484,1066.6237 -1677.636,-1677.63599 q -52.4262,-52.42617 -119.8312,-52.4261 -67.405,-7e-5 -119.8311,52.42603 -52.4262,52.42617 -52.4261,119.83119 -10e-5,67.40503 52.4261,119.8312 L -2257.2108,1306.286 q 52.4261,52.4261 119.8312,52.4261 67.405,0 119.8311,-52.4262 52.4261,-52.4261 52.4261,-119.831 10e-5,-67.4051 -52.426,-119.8312 z M 1817.0482,-131.68786 q 97.3628,97.362802 97.3629,239.66232 -10e-5,142.29952 -97.3629,239.6623 L 210.56202,1954.123 1828.2823,3953.8053 q 37.4473,52.4262 37.4473,116.0864 0,63.6603 -44.9368,108.597 l -3.7446,3.7447 q -101.1076,101.1075 -220.9387,18.7236 L -504.68018,2669.3652 -2017.5484,4182.2334 q -97.3627,97.3627 -239.6622,97.3628 -142.2995,-1e-4 -239.6623,-97.3629 -460.601,-460.6009 -535.4955,-1123.417 -74.8945,-662.816 295.8331,-1033.5435 L -4653.8336,107.97452 q -194.7255,194.72554 -479.3245,194.72561 -284.5989,-7e-5 -479.3246,-194.72568 -194.7256,-194.725609 -194.7256,-479.3245 0,-284.59902 194.7256,-479.32456 l 2396.6229,-2396.62299 q 194.7256,-194.7255 479.3246,-194.7255 284.5989,0 479.3245,194.7256 194.7256,194.7256 194.7257,479.3246 -10e-5,284.5989 -194.7256,479.3245 l 1917.29822,1917.29821 q 370.727597,-370.72753 1033.5436,-295.83307 662.81608,74.89445 1123.41698,535.4954 z"
+     id="path3811"
+     style="fill:none;stroke:#597a94;stroke-width:362.7649231;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+     inkscape:connector-curvature="0"
+     inkscape:export-filename="C:\Users\Aaron Kehrer\Dropbox\Workspaces\Motome\Motome\Views\resources\pushpin_16.png"
+     inkscape:export-xdpi="3.1919351"
+     inkscape:export-ydpi="3.1919351" />
+</svg>

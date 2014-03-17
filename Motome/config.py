@@ -1,7 +1,7 @@
 # Import the future
 from __future__ import unicode_literals
 
-VERSION = '0.1.1'
+VERSION = '0.2.0'
 
 # Import standard library modules
 import logging
@@ -36,8 +36,6 @@ NOTE_DATA_DIR = '.motome'
 NOTE_EXTENSION = '.txt'
 ZIP_EXTENSION = '.zip'
 HTML_EXTENSION = '.html'
-INDEX_EXTENSION = '.index'
-LOCK_EXTENSION = '.lock'
 
 # file encoding
 ENCODING = 'utf-8'
@@ -58,7 +56,14 @@ UNSAFE_CHARS = '<>:"/\|?*#'
 # This signifies where the note content ends and any metadata begins
 END_OF_TEXT = '\u0003'
 
-# found search terms highlight color
+# the YAML bracket that splits the files metadata
+YAML_BRACKET = '---'
+
+# colors
+MOTOME_BLUE = QColor.fromRgb(38, 87, 127, a=255)
+MOTOME_LTBLUE = QColor.fromRgb(145, 177, 203, a=255)
+MOTOME_GRYBLUE = QColor.fromRgb(89, 122, 148, a=255)
+MOTOME_BRTBLUE = QColor.fromRgb(61, 139, 203, a=255)
 HIGHLIGHT_COLOR = QColor.fromRgb(255, 255, 153, a=255)
 
 # diff status template, to show when at current note record

@@ -39,11 +39,12 @@ Dependencies
 - A [Python](http://www.python.org/) installation (currently known to work with ver. 2.7)
 - The [PySide](http://qt-project.org/wiki/PySide) Qt framework
 - [Markdown](http://pypi.python.org/pypi/Markdown) for Python
+- The [PyYAML](https://pypi.python.org/pypi/PyYAML) Python module
 
 Installation
 ============
 
-Currently Motome is in a pre-release state and there are no OS specific binaries and no automated installation and
+Currently Motome is in a pre-release state and there are no OS specific binaries, no automated installation and
 limited frozen binaries.  The easiest way to get Motome is to make sure you have the dependencies installed and run:
 
     pip install Motome
@@ -91,7 +92,7 @@ Double-clicking on any note in the notes list will pin or unpin it.  Alternately
 `Ctrl-Shift-P` to pin/unpin the current note.
 
 ## Switching between views
-Motome is very keyboard focused, to the point that accessing the Preview and Diff views requires using `Ctrl-P` and
+Motome is very keyboard focused, to the point that accessing the Preview and Diff views requires using `Ctrl-W` and
 `Ctrl-D` respectively.  To get back to the Editor press `Ctrl-E`.  The preview pane contains an HTML rendering of the
 text entered in the Editor pane.  The text is passed through a [markdown](http://daringfireball.net/projects/markdown/)
 parser before being shown in the Preview, so any markdown formatting will be converted to HTML.
@@ -114,20 +115,23 @@ was taken.  These zip files are stored in the `/archve` folder inside you note d
 
 A note's history can easily be browsed using the slider and buttons at the bottom of the window.  The content of the
 historical record will be shown in the Editor and Preview panes and the difference between the historical note and the
-current text will be shown in the Diff pane.  Toggling between the panes can be done using the `Ctrl-E`, `Ctrl-P`, and
+current text will be shown in the Diff pane.  Toggling between the panes can be done using the `Ctrl-E`, `Ctrl-W`, and
 `Ctrl-D` keyboard shortcuts.  Moving forward and backward in the history can be done with the `Ctrl-<` and `Ctrl->`
 shortcuts.
 
 ## Including files
-Motome makes it easy to include more than just text information in your notes.  By dragging and dropping a file in the
-Editor or pressing `Ctrl-Shift-K` you can insert a link to a local data file at the current cursor location.  This file
-can be of any type and can be opened by clicking on the hyperlink in the Editor or Preview panes.  The file will be
-opened in whatever application your operating system has assigned to that file type.
+Motome makes it easy to include more than just text information in your notes.  By dragging and dropping or cutting and
+pasting a file in the Editor or pressing `Ctrl-Shift-K` you can insert a link to a local data file at the current cursor
+location.  This file can be of any type and can be opened by clicking on the hyperlink in the Editor or Preview panes.
+The file will be opened in whatever application your operating system has assigned to that file type.
 
 Motome stores a copy of any files you attach to a note in the `/media` folder inside your note directory.
 
 ## HTML Export
-Right-clicking on the Preview pane will bring up the option to export the current HTML data.  The .html file is stored in a folder with the note's title in the `/html` folder inside the note directory and any stylesheets or media files are copied over so styles and links work. This folder can then be moved or deleted as needed since it is not needed by Motome for the Preview display.
+Right-clicking on the Preview pane will bring up the option to export the current HTML data.  The .html file is stored
+in a folder with the note's title in the `/html` folder inside the note directory and any stylesheets or media files are
+copied over so styles and links work. This folder can then be moved or deleted since it is not needed by
+Motome for the Preview display.
 
 ## A note on the Motome text files
 
@@ -135,10 +139,15 @@ The text files Motome writes are slightly unique but should still be readable by
 able to edit them just like any other text file but they have a few important features that Motome uses:
 
 - Motome saves the note files using UTF-8 encoding
-- There is a special [ASCII control character](http://en.wikipedia.org/wiki/Control_character) called End-of-text (␃)
-that Motome uses to delineate note content from note metadata.  This is represented in the text file by a UTF code
-point U+0003 and may show up in other text editors as a strange looking character.  All the text in the metadata
-section is editable just like in a normal text file and as long as you keep the ␃ character Motome will know what to do.
+- There is a special section at the end that contains YAML formatted data that holds the note's metadata.  This section
+should be surrounded by `---` for proper parsing.
+
+
+    ---
+    pinned: 0
+    tags: site draft
+    title: Readme
+    ---
 
 Bugs, Feedback & Helping Out
 ==============================

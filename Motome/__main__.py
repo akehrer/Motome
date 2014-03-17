@@ -10,7 +10,7 @@ import sys
 from PySide import QtGui
 
 # Import app modules
-from Motome.Modules.MainWindow import MainWindow
+from Motome.Controllers.MainWindow import MainWindow
 
 from Motome.config import LOG_LEVEL, APP_DIR
 

@@ -32,17 +32,17 @@ class SettingsDialog(QtGui.QDialog):
         except KeyError:
             pass
 
-        if 'conf_checkbox_history' in self.conf.keys():
-            if int(self.conf['conf_checkbox_history']) == 0:
-                self.ui.conf_checkbox_history.setChecked(False)
-        else:
-            self.ui.conf_checkbox_history.setChecked(True)
+        # if 'conf_checkbox_history' in self.conf.keys():
+        #     if int(self.conf['conf_checkbox_history']) == 0:
+        #         self.ui.conf_checkbox_history.setChecked(False)
+        # else:
+        #     self.ui.conf_checkbox_history.setChecked(True)
 
-        if 'conf_checkbox_deleteempty' in self.conf.keys():
-            if int(self.conf['conf_checkbox_deleteempty']) == 0:
-                self.ui.conf_checkbox_deleteempty.setChecked(False)
+        if 'conf_checkbox_recordonsave' in self.conf.keys():
+            if int(self.conf['conf_checkbox_recordonsave']) == 0:
+                self.ui.conf_checkbox_recordonsave.setChecked(False)
         else:
-            self.ui.conf_checkbox_deleteempty.setChecked(True)
+            self.ui.conf_checkbox_recordonsave.setChecked(True)
 
         if 'conf_checkbox_recordonexit' in self.conf.keys():
             if int(self.conf['conf_checkbox_recordonexit']) == 0:
@@ -74,5 +74,5 @@ class SettingsDialog(QtGui.QDialog):
         else:
             dirpath = None
 
-        savedir = QtGui.QFileDialog.getExistingDirectory (self, 'Notes Directory', dirpath)
+        savedir = QtGui.QFileDialog.getExistingDirectory(self, 'Notes Directory', dirpath)
         self.ui.conf_notesLocation.setText(savedir)

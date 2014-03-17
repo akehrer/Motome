@@ -5,7 +5,7 @@
 test_motome_notemodel
 ----------------------------------
 
-Tests for `Motome.Modules.NoteModel`
+Tests for `Motome.Models.NoteModel`
 """
 
 import glob
@@ -13,7 +13,7 @@ import os
 import shutil
 import unittest
 
-from Motome.Modules.NoteModel import NoteModel
+from Motome.Models.NoteModel import NoteModel
 from Motome.config import NOTE_EXTENSION, HISTORY_FOLDER, END_OF_TEXT
 
 TESTS_DIR = os.path.join(os.getcwd(), 'tests')

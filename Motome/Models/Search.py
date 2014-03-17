@@ -38,7 +38,7 @@ class SearchModel(object):
         content_words = note_model.wordset
         try:
             content_tags = note_model.metadata['tags']
-        except KeyError:
+        except (KeyError, TypeError):
             content_tags = ''
 
         has_tag_filters = len(self.use_tags + self.ignore_tags) > 0  # are there tags in the search term

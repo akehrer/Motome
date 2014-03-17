@@ -1,11 +1,15 @@
 <RCC>
   <qresource prefix="icons">
-    <file>resources/bullet_black.png</file>
+    <file>resources/gear_check_32x32.png</file>
+    <file>resources/gear_error_32x32.png</file>
+    <file>resources/gear_fullcenter_32x32.png</file>
+    <file>resources/gear_warn_32x32.png</file>
+    <file>resources/pushpin_16.png</file>
+    <file>resources/gear_32x32.png</file>
     <file>resources/arrow_down.png</file>
     <file>resources/arrow_in.png</file>
     <file>resources/arrow_join.png</file>
     <file>resources/arrow_up.png</file>
-    <file>resources/cog.png</file>
     <file>resources/date_next.png</file>
     <file>resources/date_previous.png</file>
     <file>resources/disk.png</file>

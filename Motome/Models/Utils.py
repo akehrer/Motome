@@ -4,13 +4,24 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 # Import standard library modules
+import cgi
+import cPickle
 import difflib
+import logging
+import glob
+import inspect
 import os
 import re
 from datetime import datetime
 
-from Motome.config import END_OF_TEXT
-from Motome.Modules.NoteModel import NoteModel
+import yaml
+
+from Motome.config import END_OF_TEXT, YAML_BRACKET, UNSAFE_CHARS
+from Motome.Models.NoteModel import NoteModel
+from Motome.Models.External import diff_match_patch as dmp
+
+# Set up the logger
+logger = logging.getLogger(__name__)
 
 # RegEx to find urls
 # https://mail.python.org/pipermail/tutor/2002-September/017228.html
@@ -41,32 +52,28 @@ URL_RE = r"""
            'punc': punc}
 
 
-def parse_note_content(data):
-        meta = {}
-        try:
-            idx = data.index(END_OF_TEXT)
-            content = data[:idx]
-            lines = data[idx:].splitlines()
-        except ValueError:
-            content = data
-            lines = []
+def inspect_where():
+    return inspect.stack()[1][3]
 
-        for line in lines:
-            try:
-                key,value = line.strip().split(':',1)
-                if key == 'tags':
-                    tags = re.findall(r'\w+',value)  # find all words
-                    meta['tags'] = u' '.join(tags)
-                else:
-                    meta[key] = unicode(value)
-            except ValueError:
-                pass
-        return content,meta
+
+def inspect_caller():
+    return inspect.stack()[2][3]
+
+
+def pickle_find_NoteModel(module, name):
+    """ A special unpickler to restrict unpickeled data to only NoteModels
+
+    :see http://docs.python.org/2/library/pickle.html#subclassing-unpicklers
+    """
+    if module == 'Motome.Models.NoteModel' and name == 'NoteModel':
+        return NoteModel
+    # Forbid everything else.
+    raise cPickle.UnpicklingError("module '%s.%s' is forbidden" %(module, name))
 
 
 def open_and_parse_note(filepath):
     data = NoteModel.enc_read(filepath)
-    return parse_note_content(data)
+    return NoteModel.parse_note_content(data)
 
 
 def safe_filename(filename):
@@ -74,8 +81,24 @@ def safe_filename(filename):
         pattern = re.compile('[\W_]+')
         root, ext = os.path.splitext(os.path.basename(filename))
         return pattern.sub('_', root) if ext is '' else ''.join([pattern.sub('_', root), ext])
-    except:
+    except OSError:
         return None
+
+
+def clean_filename(unclean, replace='_'):
+        clean = unclean
+        for c in UNSAFE_CHARS:
+            clean = clean.replace(c, replace)
+        return clean
+
+
+def history_timestring_to_datetime(timestring):
+        return datetime(int(timestring[0:4]),
+                        int(timestring[4:6]),
+                        int(timestring[6:8]),
+                        int(timestring[8:10]),
+                        int(timestring[10:12]),
+                        int(timestring[12:]))
 
 
 def human_date(dt):
@@ -111,15 +134,19 @@ def diff_to_html(text1, text2, fromdesc='', todesc='Current'):
     """
     Returns an HTML sequence of the difference between two strings
     """
-    # hdiff = dmp()
-    # diffs = hdiff.diff_main(text1,text2)
-    # hdiff.diff_cleanupSemantic(diffs)
-    # return hdiff.diff_prettyHtml(diffs)
-    hdiff = difflib.HtmlDiff(wrapcolumn=80)
-    diff_table = hdiff.make_table(text1.splitlines(True), text2.splitlines(True),
-                           fromdesc=fromdesc, todesc=todesc, context=True)
-    return build_diff_header_html() + diff_table + build_diff_footer_html()
+    gdiff = dmp.diff_match_patch()
+    diffs = gdiff.diff_main(text1, text2)
+    gdiff.diff_cleanupSemantic(diffs)
+    html = ''
+    for diff in diffs:
+        if diff[0] == 0:
+            html += cgi.escape(diff[1]).replace('\n', '<br />')
+        elif diff[0] == 1:
+            html += '<ins>' + cgi.escape(diff[1]).replace('\n', '<br />') + '</ins>'
+        elif diff[0] == -1:
+            html += '<del>' + cgi.escape(diff[1]).replace('\n', '<br />') + '</del>'
 
+    return build_diff_header_html() + html + build_diff_footer_html()
 
 def grab_urls(text):
     """ Given a text string, returns all the urls we can find in it.
@@ -157,23 +184,60 @@ def build_diff_header_html():
 <body>
     """
 
+
 def build_diff_footer_html():
     return """
-<table class="diff" summary="Legends">
-    <tr> <th colspan="2"> Legends </th> </tr>
-    <tr> <td> <table border="" summary="Colors">
-                  <tr><th> Colors </th> </tr>
-                  <tr><td class="diff_add">&nbsp;Added&nbsp;</td></tr>
-                  <tr><td class="diff_chg">Changed</td> </tr>
-                  <tr><td class="diff_sub">Deleted</td> </tr>
-              </table></td>
-         <td> <table border="" summary="Links">
-                  <tr><th colspan="2"> Links </th> </tr>
-                  <tr><td>(f)irst change</td> </tr>
-                  <tr><td>(n)ext change</td> </tr>
-                  <tr><td>(t)op</td> </tr>
-              </table></td> </tr>
-</table>
 </body>
 </html>
     """
+
+
+def parse_note_content_old(data):
+        """
+        Given a file's data, split it into its note content and metadata.
+        :param data: file data
+        :return: content str, metadata dict
+        """
+        meta = {}
+        try:
+            idx = data.index(END_OF_TEXT)
+            content = data[:idx]
+            lines = data[idx:].splitlines()
+        except ValueError:
+            # idx not found
+            content = data
+            lines = []
+
+        for line in lines:
+            try:
+                key, value = line.strip().split(':', 1)
+                if key == 'tags':
+                    tags = sorted(set(re.findall(r'\w+', value)))  # all unique tags sorted alphabetically
+                    meta['tags'] = ' '.join(tags)
+                else:
+                    meta[key] = value
+            except ValueError:
+                pass
+        return content, meta
+
+
+def transition_versions(notes_dir):
+    """ Change notes from the old metadata style to the new (0.1.0 - 0.2.0)
+
+    :param notes_dir:
+    :return:
+    """
+    notepaths = set(glob.glob(notes_dir + '/*' + '.txt'))
+
+    for notepath in notepaths:
+        try:
+            data = NoteModel.enc_read(notepath)
+            c, m = parse_note_content_old(data)
+            if len(m.keys()) == 0:
+                new_data = c
+            else:
+                new_data = c + YAML_BRACKET + '\n' + yaml.safe_dump(m, default_flow_style=False) + YAML_BRACKET
+
+            NoteModel.enc_write(notepath, new_data)
+        except Exception as e:
+            logging.error('[transition_versions] %r' % e)
