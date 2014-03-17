@@ -29,9 +29,9 @@ Released under a BSD licence.  Please see the LICENSE file.
 Screenshots
 ===========
 
-![Editor](screenshots/motome_editor_pane_0.1.0.png)
-![Preview](screenshots/motome_preview_pane_0.1.0.png)
-![Diff](screenshots/motome_diff_pane_0.1.0.png)
+![Editor](screenshots/motome_editor_pane_0.2.0.png)
+![Preview](screenshots/motome_preview_pane_0.2.0.png)
+![Diff](screenshots/motome_diff_pane_0.2.0.png)
 
 Dependencies
 ============
@@ -61,7 +61,7 @@ First Run
 When running Motome for the first time you will be shown the settings dialog where you need to pick a directory to store
 your notes in.
 
-![First Run Settings](screenshots/motome_first_run_0.1.0.png)
+![First Run Settings](screenshots/motome_first_run_0.2.0.png)
 
 The application will then create a `.Motome` folder in your home directory to store configuration settings and you can
 always change your settings by using the small gear icon next to the search input.
