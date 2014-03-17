@@ -142,12 +142,13 @@ able to edit them just like any other text file but they have a few important fe
 - There is a special section at the end that contains YAML formatted data that holds the note's metadata.  This section
 should be surrounded by `---` for proper parsing.
 
-
-    ---
-    pinned: 0
-    tags: site draft
-    title: Readme
-    ---
+```
+---
+pinned: 0
+tags: site draft
+title: Readme
+---
+```
 
 Bugs, Feedback & Helping Out
 ==============================
