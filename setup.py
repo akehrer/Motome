@@ -37,7 +37,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     long_description=read('DESCRIPTION.rst'),
-    install_requires = ['Markdown', 'PySide'],
+    install_requires = ['Markdown', 'PySide', 'PyYAML'],
     license='BSD',
     app=APP,
     data_files=DATA_FILES,

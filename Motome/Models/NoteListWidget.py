@@ -52,6 +52,14 @@ class NoteListWidget(QtGui.QListWidget):
     def all_items(self):
         return self.findItems('*', QtCore.Qt.MatchWildcard)
 
+    @property
+    def all_visible_items(self):
+        items = []
+        for item in self.all_items:
+            if not item.isHidden():
+                items.append(item)
+        return items
+
     def update_list(self):
         self._update_notemodel_dict()
         for value in self.session_notemodel_dict.values():
@@ -66,6 +74,13 @@ class NoteListWidget(QtGui.QListWidget):
                 nw.setHidden(True)
             else:
                 nw.setHidden(False)
+        try:
+            self.setCurrentItem(self.all_visible_items[0])
+            return True
+        except IndexError:
+            # no items found
+            self.setCurrentRow(-1)
+            return False
 
     def show_all(self):
         for nw in self.all_items:

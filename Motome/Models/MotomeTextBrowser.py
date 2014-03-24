@@ -49,7 +49,7 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         self.save_timer = QtCore.QTimer()
         self.save_timer.timeout.connect(self.save_note)
 
-        self.textChanged.connect(self.start_save)
+        self.textChanged.connect(self.save_note)
 
         self.keyboard_shortcuts = {}
         self.setup_keyboard_shortcuts()
@@ -177,6 +177,7 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
             intralink_transform = r'[[<a href="\1">\1</a>]]'
             intralink_content = re.sub(intralink_pattern, intralink_transform, linked_content)
             self.setHtml(intralink_content.replace('\n', '<br />'))
+            self.setDocumentTitle(self.notemodel.title)  # for things like print to pdf
         except AttributeError:
             self.setHtml('')
 

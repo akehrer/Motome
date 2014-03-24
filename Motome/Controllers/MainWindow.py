@@ -158,7 +158,7 @@ class MainWindow(QtGui.QMainWindow):
         if self.record_on_exit:
             unrecorded = (nw.notemodel for nw in self.notesList.all_items if not nw.notemodel.recorded)
             for note in unrecorded:
-                note.record(self.notes_dir)
+                note.record()
 
         self.save_session_data()
 
@@ -500,10 +500,8 @@ class MainWindow(QtGui.QMainWindow):
             self.save_the_unsaved()
             if self.record_on_save:
                 self.record_current_note()
-                self.load_history_data()
         elif seq == 'ctrl_r':
             self.record_current_note()
-            self.load_history_data()
         elif seq == 'ctrl_p':
             self.print_current_pane()
         elif seq == 'ctrl_up':
@@ -544,27 +542,43 @@ class MainWindow(QtGui.QMainWindow):
 
         :param direction: which direction to move 'up' or 'down'
         """
+        what_rownums = [self.notesList.row(i) for i in self.notesList.all_visible_items]
+        if len(what_rownums) <= 0:
+            return
+
         current_row = self.notesList.currentRow()
         row_count = self.notesList.count()
-        if direction == 'down' and current_row > 0:
-            self.notesList.setCurrentRow(current_row - 1)
-        elif direction == 'down' and current_row == 0:
-            self.notesList.setCurrentRow(row_count - 1)
-        elif direction == 'up' and current_row < row_count - 1:
-            self.notesList.setCurrentRow(current_row + 1)
-        elif direction == 'up' and current_row == row_count - 1:
-            self.notesList.setCurrentRow(0)
+        next_row = current_row
+        while True:
+            if direction == 'down' and next_row > 0:
+                next_row = next_row - 1
+            elif direction == 'down' and next_row == 0:
+                next_row = row_count - 1
+            elif direction == 'up' and next_row < row_count - 1:
+                next_row = next_row + 1
+            elif direction == 'up' and next_row == row_count - 1:
+                next_row = 0
+
+            if next_row in what_rownums:
+                break
+        self.notesList.setCurrentRow(next_row)
 
     def update_ui_views(self):
         if self.record_on_switch:
-            if not self.noteList.previous_item.notemodel.recorded:
-                self.noteList.previous_item.notemodel.record()
+            try:
+                if not self.notesList.previous_item.notemodel.recorded:
+                    self.notesList.previous_item.notemodel.record()
+            except AttributeError:
+                pass
 
         # update the note editor
         self.noteEditor.blockSignals(True)
         self.noteEditor.set_note_text()
-        self.noteEditor.setDocumentTitle(self.current_note.title)  # for things like print to pdf
+        # self.noteEditor.setDocumentTitle(self.current_note.title)  # for things like print to pdf
         self.noteEditor.blockSignals(False)
+
+        # clear any old data
+        self.old_data = None
 
         # highlight any search terms
         if self.query is not '':
@@ -630,7 +644,8 @@ class MainWindow(QtGui.QMainWindow):
         html = self.generate_html(content)
         self.ui.notePreview.setSearchPaths([self.notes_dir])
         self.ui.notePreview.setHtml(html)
-        self.ui.notePreview.setDocumentTitle(self.current_note.title)  # for things like print to pdf
+        if self.current_note is not None:
+            self.ui.notePreview.setDocumentTitle(self.current_note.title)  # for things like print to pdf
         self.ui.notePreview.reload()
 
     def update_ui_diff(self):
@@ -641,7 +656,7 @@ class MainWindow(QtGui.QMainWindow):
             dt = history_timestring_to_datetime(dt_str)
             tab_date = '[' + human_date(dt) + ']'
             fromdesc = ' '.join([self.current_note.title, tab_date])
-            diff_html = diff_to_html(content, new_content, fromdesc, self.current_note.title)  # for things like print to pdf
+            diff_html = diff_to_html(content, new_content, fromdesc, self.current_note.title)
         else:
             try:
                 diff_html = self.current_note.get_status()
@@ -649,7 +664,8 @@ class MainWindow(QtGui.QMainWindow):
                 # current_note is None
                 diff_html = ''
         self.ui.noteDiff.setHtml(diff_html)
-        self.ui.noteDiff.setDocumentTitle(self.current_note.title)
+        if self.current_note is not None:
+            self.ui.noteDiff.setDocumentTitle(self.current_note.title)  # for things like print to pdf
         self.ui.noteDiff.reload()
 
     def update_ui_historyLabel(self):
@@ -754,6 +770,8 @@ class MainWindow(QtGui.QMainWindow):
     def record_current_note(self):
         if not self.current_note.recorded:
             self.current_note.record()
+            self.load_history_data()
+            self.update_ui_historyLabel()
 
     def pin_current_note(self):
         if self.current_note.pinned:
@@ -808,9 +826,13 @@ class MainWindow(QtGui.QMainWindow):
 
         self.ui.omniBar.setText('')
         self.query = ''
-
-        item = self.notesList.findItems(tagged_title, QtCore.Qt.MatchWildcard)[0]
-        self.notesList.setCurrentItem(item)
+        try:
+            item = self.notesList.findItems(tagged_title, QtCore.Qt.MatchWildcard)[0]
+            self.notesList.setCurrentItem(item)
+        except IndexError:
+            for item in self.notesList.all_items[::-1]:
+                if not item.notemodel.pinned:
+                    self.notesList.setCurrentItem(item)
 
         # set the focus on the editor and move the cursor to the end
         self.noteEditor.setFocus()
