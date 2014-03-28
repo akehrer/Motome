@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\MainWindow.ui'
 #
-# Created: Fri Mar 14 15:48:30 2014
+# Created: Tue Mar 25 09:44:49 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!

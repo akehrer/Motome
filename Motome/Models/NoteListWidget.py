@@ -29,7 +29,7 @@ class NoteListWidget(QtGui.QListWidget):
 
         self._notes_dir = None
         self.dir_watcher = QtCore.QFileSystemWatcher(self)
-        self.dir_watcher.directoryChanged.connect(self.update_list)
+        # self.dir_watcher.directoryChanged.connect(self.update_list)
 
         self.update_list()
 
@@ -112,6 +112,7 @@ class NoteListWidget(QtGui.QListWidget):
     def rename_current_item(self):
         self.dir_watcher.blockSignals(True)
         self.currentItem().notemodel.rename()
+        self.update()
         self.dir_watcher.blockSignals(False)
 
     def _dblclick_pin_note(self, noteitem):
@@ -131,7 +132,7 @@ class NoteListWidget(QtGui.QListWidget):
 
         # remove keys missing notes
         for filename in keys_missing_notes:
-            del (self.session_notemodel_dict[filename])
+            del self.session_notemodel_dict[filename]
 
         # add notes missing keys
         for filepath in notepaths:
