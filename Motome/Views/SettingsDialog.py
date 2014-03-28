@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\SettingsDialog.ui'
 #
-# Created: Fri Mar 14 15:48:31 2014
+# Created: Tue Mar 25 09:44:50 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -53,10 +53,6 @@ class Ui_SettingsDialog(object):
         self.conf_checkbox_firstlinetitle.setChecked(True)
         self.conf_checkbox_firstlinetitle.setObjectName("conf_checkbox_firstlinetitle")
         self.verticalLayout.addWidget(self.conf_checkbox_firstlinetitle)
-        self.conf_checkbox_titleasfilename = QtGui.QCheckBox(self.tab)
-        self.conf_checkbox_titleasfilename.setChecked(True)
-        self.conf_checkbox_titleasfilename.setObjectName("conf_checkbox_titleasfilename")
-        self.verticalLayout.addWidget(self.conf_checkbox_titleasfilename)
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem1)
         self.conf_checkbox_recordonsave = QtGui.QCheckBox(self.tab)
@@ -139,7 +135,6 @@ class Ui_SettingsDialog(object):
         self.conf_author.setToolTip(QtGui.QApplication.translate("SettingsDialog", "Chijiiwa Motome <cmotome@example.com>", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_author.setPlaceholderText(QtGui.QApplication.translate("SettingsDialog", "Optional - Please enter your name", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_firstlinetitle.setText(QtGui.QApplication.translate("SettingsDialog", "Use the first  line of the note as the title", None, QtGui.QApplication.UnicodeUTF8))
-        self.conf_checkbox_titleasfilename.setText(QtGui.QApplication.translate("SettingsDialog", "Set the note title as the file name", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_recordonsave.setText(QtGui.QApplication.translate("SettingsDialog", "Record note data to version history with Ctrl/Cmd-S", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_recordonswitch.setText(QtGui.QApplication.translate("SettingsDialog", "Record changed note data to version history when switching notes", None, QtGui.QApplication.UnicodeUTF8))
         self.conf_checkbox_recordonexit.setText(QtGui.QApplication.translate("SettingsDialog", "Record changed note data to version history on exit", None, QtGui.QApplication.UnicodeUTF8))

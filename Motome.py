@@ -1,3 +1,14 @@
+"""
+Motome
+------
+
+Motome is a note taking and information aggregation application inspired by many other note taking programs.
+
+Released under the BSD licence.  Please see the LICENSE file.
+
+website: <https://github.com/akehrer/Motome>
+"""
+
 __author__ = 'Aaron Kehrer'
 
 from Motome import main

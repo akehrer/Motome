@@ -68,7 +68,6 @@ class MainWindow(QtGui.QMainWindow):
         self.record_on_save = False
         self.record_on_exit = False
         self.record_on_switch = False
-        self.title_as_filename = True
         self.first_line_title = True
 
         # notes list splitter size for hiding and showing the notes list
@@ -371,11 +370,6 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.record_on_switch = False
 
-        if 'conf_checkbox_titleasfilename' in self.conf.keys() and int(self.conf['conf_checkbox_titleasfilename']) > 0:
-            self.title_as_filename = True
-        else:
-            self.title_as_filename = False
-
         if 'conf_checkbox_firstlinetitle' in self.conf.keys() and int(self.conf['conf_checkbox_firstlinetitle']) > 0:
             self.first_line_title = True
         else:
@@ -457,6 +451,7 @@ class MainWindow(QtGui.QMainWindow):
                     else:
                         pass
             self.save_conf()
+            self.set_config_vars()
             # set the notes directories
             self.notes_dir = self.conf['conf_notesLocation']
             self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
@@ -521,7 +516,7 @@ class MainWindow(QtGui.QMainWindow):
         elif seq == 'ctrl_shift_f':
             self.toggle_notes_list_view()
             self.toggle_omnibar_view()
-            self.toggle_history_bar_view()
+            self.ui.frameHistory.hide()
         elif seq == 'ctrl_shift_u':
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             if self.noteEditor.hasFocus():

@@ -24,7 +24,7 @@ documents (the inspiration for this comes from bigger note taking apps like Ever
 
 Motome is developed with [Python](http://www.python.org/) and [Qt](http://qt-project.org/) and is cross platform.
 
-Released under a BSD licence.  Please see the LICENSE file.
+Released under the BSD licence.  Please see the LICENSE file.
 
 Screenshots
 ===========
