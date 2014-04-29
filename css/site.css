@@ -1,0 +1,52 @@
+/* ==========================================================================
+   Site custom styles
+   ========================================================================== */
+   
+html, 
+body {
+	font-family: 'Roboto Slab', serif;
+	height: 100%;
+	font-size: 1.0em;
+}
+
+h1,
+h2,
+h3 {
+	font-family: 'Lato', sans-serif;
+}
+
+h1 {
+	font-size: 5em;
+	font-weight: bold;
+}
+
+h2 {
+	font-size: 1.7em;
+}
+
+a {
+	color: #6D7B8D; 
+}
+
+.hero {
+	text-align: center;
+	background: no-repeat center;
+	background-color: #F8F8FF;
+	background-image: url(../imgs/hero_background.png);
+	padding: 1.5em 0 1.5em 0;
+}
+
+header {
+	text-align: center;
+	background-color: #F5F5F5;
+	padding: 0.5em 0 0.5em 0;
+}
+
+section {
+	padding: 0 1.5em 0 1.5em;
+	font-size: 1.2em;
+}
+
+section img {
+	padding: 1em 0 1em 5em
+}
