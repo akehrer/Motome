@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="icons">
+    <file>resources/down_tri_fill.png</file>
+    <file>resources/down_tri_open.png</file>
     <file>resources/plus.png</file>
     <file>resources/gear_check_32x32.png</file>
     <file>resources/gear_error_32x32.png</file>

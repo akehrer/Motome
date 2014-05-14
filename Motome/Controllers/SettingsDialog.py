@@ -25,10 +25,10 @@ class SettingsDialog(QtGui.QDialog):
 
         self.setWindowTitle('Settings')
 
-        try:
-            self.ui.conf_notesLocation.setText(self.conf['conf_notesLocation'])
-        except KeyError:
-            pass
+        # try:
+        #     self.ui.conf_notesLocation.setText(self.conf['conf_notesLocation'])
+        # except KeyError:
+        #     pass
 
         try:
             self.ui.tbl_notesLocations.blockSignals(True)
@@ -67,14 +67,14 @@ class SettingsDialog(QtGui.QDialog):
         else:
             self.ui.conf_checkbox_firstlinetitle.setChecked(True)
 
-    def load_folder_location(self):
-        if 'conf_notesLocation' in self.conf.keys():
-            dirpath = self.conf['conf_notesLocation']
-        else:
-            dirpath = None
-
-        savedir = QtGui.QFileDialog.getExistingDirectory(self, 'Notes Directory', dirpath)
-        self.ui.conf_notesLocation.setText(savedir)
+    # def load_folder_location(self):
+    #     if 'conf_notesLocation' in self.conf.keys():
+    #         dirpath = self.conf['conf_notesLocation']
+    #     else:
+    #         dirpath = None
+    #
+    #     savedir = QtGui.QFileDialog.getExistingDirectory(self, 'Notes Directory', dirpath)
+    #     self.ui.conf_notesLocation.setText(savedir)
 
     def add_folder_location(self):
         notesdir = QtGui.QFileDialog.getExistingDirectory(self, 'Notes Directory', os.path.expanduser('~'))

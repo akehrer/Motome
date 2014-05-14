@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\Motome\Views\SettingsDialog.ui'
 #
-# Created: Tue May 13 21:31:28 2014
+# Created: Wed May 14 13:33:37 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,18 +26,9 @@ class Ui_SettingsDialog(object):
         self.tab.setObjectName("tab")
         self.verticalLayout = QtGui.QVBoxLayout(self.tab)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.horizontalLayout = QtGui.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
         self.label_3 = QtGui.QLabel(self.tab)
         self.label_3.setObjectName("label_3")
-        self.horizontalLayout.addWidget(self.label_3)
-        self.conf_notesLocation = QtGui.QLineEdit(self.tab)
-        self.conf_notesLocation.setObjectName("conf_notesLocation")
-        self.horizontalLayout.addWidget(self.conf_notesLocation)
-        self.btn_browse = QtGui.QPushButton(self.tab)
-        self.btn_browse.setObjectName("btn_browse")
-        self.horizontalLayout.addWidget(self.btn_browse)
-        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.verticalLayout.addWidget(self.label_3)
         self.tbl_notesLocations = QtGui.QTableWidget(self.tab)
         self.tbl_notesLocations.setAlternatingRowColors(True)
         self.tbl_notesLocations.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
@@ -151,7 +142,6 @@ class Ui_SettingsDialog(object):
         self.tabWidget.setCurrentIndex(0)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), SettingsDialog.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), SettingsDialog.reject)
-        QtCore.QObject.connect(self.btn_browse, QtCore.SIGNAL("clicked()"), SettingsDialog.load_folder_location)
         QtCore.QObject.connect(self.btn_addNotebook, QtCore.SIGNAL("clicked()"), SettingsDialog.add_folder_location)
         QtCore.QObject.connect(self.btn_removeNotebook, QtCore.SIGNAL("clicked()"), SettingsDialog.remove_folder_location)
         QtCore.QObject.connect(self.tbl_notesLocations, QtCore.SIGNAL("cellChanged(int,int)"), SettingsDialog.update_noteslocations_conf)
@@ -159,9 +149,7 @@ class Ui_SettingsDialog(object):
 
     def retranslateUi(self, SettingsDialog):
         SettingsDialog.setWindowTitle(QtGui.QApplication.translate("SettingsDialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("SettingsDialog", "Notes location", None, QtGui.QApplication.UnicodeUTF8))
-        self.conf_notesLocation.setPlaceholderText(QtGui.QApplication.translate("SettingsDialog", "Required - Please select a notes location...", None, QtGui.QApplication.UnicodeUTF8))
-        self.btn_browse.setText(QtGui.QApplication.translate("SettingsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("SettingsDialog", "Note Locations", None, QtGui.QApplication.UnicodeUTF8))
         self.btn_addNotebook.setText(QtGui.QApplication.translate("SettingsDialog", "+", None, QtGui.QApplication.UnicodeUTF8))
         self.btn_removeNotebook.setText(QtGui.QApplication.translate("SettingsDialog", "-", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("SettingsDialog", "Author", None, QtGui.QApplication.UnicodeUTF8))

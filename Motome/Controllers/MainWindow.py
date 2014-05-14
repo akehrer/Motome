@@ -26,7 +26,7 @@ from Motome.Views.MainWindow import Ui_MainWindow
 
 # Import configuration values
 from Motome.config import NOTE_EXTENSION, MEDIA_FOLDER, APP_DIR, WINDOW_TITLE, VERSION, \
-    NOTE_DATA_DIR, HTML_FOLDER, HTML_EXTENSION, MOTOME_BLUE
+    NOTE_DATA_DIR, HTML_FOLDER, HTML_EXTENSION, MOTOME_BLUE, DEFAULT_NOTES_DIR
 
 # Import additional modules
 from Motome.Models.NoteModel import NoteModel
@@ -314,6 +314,10 @@ class MainWindow(QtGui.QMainWindow):
                 self.notesLocationsList.setObjectName("notesLocationsList")
                 self.ui.verticalLayout_3.insertWidget(0, self.notesLocationsList)
                 self.notesLocationsList.addItems(sorted(self.conf['conf_notesLocations'].values()))
+                if self.notes_dir != '':
+                    idx = self.notesLocationsList.findText(self.conf['conf_notesLocations'][self.notes_dir])
+                    if idx != -1:
+                        self.notesLocationsList.setCurrentIndex(idx)
                 self.notesLocationsList.currentIndexChanged[str].connect(self.update_notesdir)
             else:
                 pass
@@ -472,18 +476,28 @@ class MainWindow(QtGui.QMainWindow):
             self.set_config_vars()
             # set the notes directories
             try:
+                self.conf['conf_notesLocation'] = self.conf['conf_notesLocations'].keys()[0]
+                self.notes_dir = self.conf['conf_notesLocation']
+                self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
                 if len(self.conf['conf_notesLocations']) > 1:
                     try:
                         self.update_notesLocationsList()
                     except AttributeError:
                         self.insert_ui_notesLocationsList()
-                self.conf['conf_notesLocation'] = self.conf['conf_notesLocations'].keys()[0]
-                self.notes_dir = self.conf['conf_notesLocation']
-                self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
             except KeyError:
                 # no notes locations entered during first run
-                self.conf['conf_notesLocations'] = {}
-                self.conf['conf_notesLocation'] = ''
+                # create default notes directory
+                default_dir = os.path.join(self.user_home_dir, DEFAULT_NOTES_DIR)
+                self.conf['conf_notesLocations'] = {default_dir: DEFAULT_NOTES_DIR}
+                self.conf['conf_notesLocation'] = default_dir
+                self.notes_dir = self.conf['conf_notesLocation']
+                self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
+                try:
+                    os.makedirs(default_dir)
+                except OSError:
+                    pass
+                self.show_default_notes_dir_message()
+
             # get any session data
             self.load_session_data()
             # update the notes list
@@ -715,7 +729,12 @@ class MainWindow(QtGui.QMainWindow):
     def update_notesLocationsList(self):
         self.notesLocationsList.clear()
         self.notesLocationsList.addItems(sorted(self.conf['conf_notesLocations'].values()))
-        self.notesLocationsList.setCurrentIndex(0)
+        if self.notes_dir != '':
+            idx = self.notesLocationsList.findText(self.conf['conf_notesLocations'][self.notes_dir])
+            if idx != -1:
+                self.notesLocationsList.setCurrentIndex(idx)
+        else:
+            self.notesLocationsList.setCurrentIndex(0)
 
     def generate_html(self, content):
         try:
@@ -988,6 +1007,19 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.splitter.setSizes([0, current_size[1]])
         else:
             logger.warning('Toggle notes list view wierdness {0}'.format(self.notes_list_splitter_size))
+
+    def show_default_notes_dir_message(self):
+        message_box = QtGui.QMessageBox()
+        message_box.setTextFormat(QtCore.Qt.RichText)
+        message_box.setWindowTitle("Using default notes directory")
+        message_box.setText("<center><b>Using Default Notes Directory</b></center>")
+        message_box.setInformativeText('<center>No location was selected for your note files.  '
+                                       'The default directory is being used.<br>'
+                                       '<a href="file:///{0}">{0}</a></center>'.format(self.notes_dir))
+        ok_btn = message_box.addButton(QtGui.QMessageBox.Ok)
+        message_box.setDefaultButton(ok_btn)
+
+        message_box.exec_()
 
     def show_custom_preview_menu(self, point):
         preview_rclk_menu = self.ui.notePreview.createStandardContextMenu()

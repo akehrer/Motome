@@ -64,3 +64,27 @@ QSlider::handle {
     margin: -2px 0;
     border-radius: 3px;
 }
+
+QComboBox {
+    font-family: 'CMU Typewriter Text', monospace, fixed;
+    font-size: 17px;
+    color: rgb(100, 100, 100);
+    background: white;
+    border: 2px solid WhiteSmoke;
+    padding-right: 2px;
+}
+
+QComboBox::drop-down {
+    border: 2px solid white;
+    padding: 2px 5px 2px 2px;
+}
+
+QComboBox::down-arrow {
+     image: url(":/icons/resources/down_tri_open.png");
+     border: 0px;
+ }
+
+ QComboBox::down-arrow:on {
+     image: url(":/icons/resources/down_tri_fill.png");
+     border: 0px;
+ }
