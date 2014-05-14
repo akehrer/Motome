@@ -121,6 +121,7 @@ class MainWindow(QtGui.QMainWindow):
         self.insert_ui_noteslist()
         self.insert_ui_noteeditor()
         self.insert_ui_tageditor()
+        self.insert_ui_notesLocationsList()
 
         # load the text browser styles
         self.style_dir = os.path.join(APP_DIR, 'styles', 'default')
@@ -160,6 +161,9 @@ class MainWindow(QtGui.QMainWindow):
                 note.record()
 
         self.save_session_data()
+
+        # set the current notes directory to be the default next time
+        self.conf['conf_notesLocation'] = self.notes_dir
 
         window_geo = self.geometry()
         self.conf['window_x'] = window_geo.x()
@@ -273,7 +277,7 @@ class MainWindow(QtGui.QMainWindow):
                                                 QtCore.Qt.TextEditorInteraction | QtCore.Qt.TextSelectableByKeyboard |
                                                 QtCore.Qt.TextSelectableByMouse)
         self.noteEditor.setObjectName("noteEditor")
-        self.ui.horizontalLayout_3.insertWidget(1, self.noteEditor)
+        self.ui.horizontalLayout_3.insertWidget(0, self.noteEditor)
         self.noteEditor.anchorClicked.connect(self.load_anchor)
         self.noteEditor.noteSaved.connect(self.save_note_meta)  # to check for first line title change
         # Custom right-click menu
@@ -300,6 +304,20 @@ class MainWindow(QtGui.QMainWindow):
             qlist = QtGui.QStringListModel(list(completer_list))
             self.tagEditor.setCompleterModel(qlist)
         except AttributeError:
+            pass
+
+    def insert_ui_notesLocationsList(self):
+        try:
+            if len(self.conf['conf_notesLocations']) > 1:
+                self.notesLocationsList = QtGui.QComboBox(self.ui.layoutWidget)
+                self.notesLocationsList.setFrame(True)
+                self.notesLocationsList.setObjectName("notesLocationsList")
+                self.ui.verticalLayout_3.insertWidget(0, self.notesLocationsList)
+                self.notesLocationsList.addItems(sorted(self.conf['conf_notesLocations'].values()))
+                self.notesLocationsList.currentIndexChanged[str].connect(self.update_notesdir)
+            else:
+                pass
+        except KeyError:
             pass
 
     def load_session_data(self):
@@ -419,9 +437,9 @@ class MainWindow(QtGui.QMainWindow):
             for f in to_find:
                 for c in dialog.ui.tabWidget.currentWidget().findChildren(f):
                     name = c.objectName()
-                    if name == 'conf_notesLocation':
-                        self.conf[name] = c.text()
-                    elif name == 'conf_author':
+                    # if name == 'conf_notesLocation':
+                    #     self.conf[name] = c.text()
+                    if name == 'conf_author':
                         self.conf[name] = c.text()
                     elif name == 'conf_checkbox_recordonsave':
                         if c.checkState() == QtCore.Qt.CheckState.Unchecked:
@@ -453,8 +471,19 @@ class MainWindow(QtGui.QMainWindow):
             self.save_conf()
             self.set_config_vars()
             # set the notes directories
-            self.notes_dir = self.conf['conf_notesLocation']
-            self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
+            try:
+                if len(self.conf['conf_notesLocations']) > 1:
+                    try:
+                        self.update_notesLocationsList()
+                    except AttributeError:
+                        self.insert_ui_notesLocationsList()
+                self.conf['conf_notesLocation'] = self.conf['conf_notesLocations'].keys()[0]
+                self.notes_dir = self.conf['conf_notesLocation']
+                self.notes_data_dir = os.path.join(self.notes_dir, NOTE_DATA_DIR)
+            except KeyError:
+                # no notes locations entered during first run
+                self.conf['conf_notesLocations'] = {}
+                self.conf['conf_notesLocation'] = ''
             # get any session data
             self.load_session_data()
             # update the notes list
@@ -470,7 +499,7 @@ class MainWindow(QtGui.QMainWindow):
             self.tagEditor.blockSignals(False)
         else:
             # user hit cancel
-            if not 'conf_notesLocation' in self.conf.keys() or self.conf['conf_notesLocation'] == '':
+            if not 'conf_notesLocations' in self.conf.keys() or len(self.conf['conf_notesLocations']) == 0:
                 sys.exit(1)
 
     def process_keyseq(self, seq):
@@ -557,6 +586,14 @@ class MainWindow(QtGui.QMainWindow):
             if next_row in what_rownums:
                 break
         self.notesList.setCurrentRow(next_row)
+
+    def update_notesdir(self, location_val):
+        try:
+            location_key = [k for k, v in self.conf['conf_notesLocations'].iteritems() if v == location_val][0]
+            self.notes_dir = location_key
+            self.notesList.notes_dir = location_key
+        except IndexError:
+            pass
 
     def update_ui_views(self):
         if self.record_on_switch:
@@ -674,6 +711,11 @@ class MainWindow(QtGui.QMainWindow):
             color=color,
             num=l,
             version='versions' if l != 1 else 'version'))
+
+    def update_notesLocationsList(self):
+        self.notesLocationsList.clear()
+        self.notesLocationsList.addItems(sorted(self.conf['conf_notesLocations'].values()))
+        self.notesLocationsList.setCurrentIndex(0)
 
     def generate_html(self, content):
         try:

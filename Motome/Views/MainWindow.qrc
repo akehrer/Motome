@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>resources/plus.png</file>
     <file>resources/gear_check_32x32.png</file>
     <file>resources/gear_error_32x32.png</file>
     <file>resources/gear_fullcenter_32x32.png</file>

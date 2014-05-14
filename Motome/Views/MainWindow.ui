@@ -503,5 +503,6 @@
   <slot>start_search(QString)</slot>
   <slot>dblclick_pin_list_item(QModelIndex)</slot>
   <slot>toggle_history_bar_view()</slot>
+  <slot>update_notesdir(QString)</slot>
  </slots>
 </ui>
