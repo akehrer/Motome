@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 # Import standard library modules
-import glob
 import logging
 import os
 import shutil
@@ -42,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 
 class MainWindow(QtGui.QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, portable=False):
         super(MainWindow, self).__init__(parent)
 
         self.ui = Ui_MainWindow()
@@ -50,9 +49,15 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setWindowTitle(WINDOW_TITLE)
 
-        # create the app storage directory
-        self.user_home_dir = os.path.expanduser('~')
+        self.portable_mode = portable  # the portable mode flag is set by the command line argument 'portable'
+
+        # create the app configuration storage directory
+        if self.portable_mode:
+            self.user_home_dir = APP_DIR
+        else:
+            self.user_home_dir = os.path.expanduser('~')
         self.app_data_dir = os.path.join(self.user_home_dir, '.Motome')
+
         try:
             os.makedirs(self.app_data_dir)
             self.first_run = True
@@ -108,6 +113,7 @@ class MainWindow(QtGui.QMainWindow):
         self.notesList = None
         self.noteEditor = None
         self.tagEditor = None
+        self.notesLocationsList = None
 
         # setup GUI elements
         self.keyboard_shortcuts = {}
@@ -165,6 +171,7 @@ class MainWindow(QtGui.QMainWindow):
         # set the current notes directory to be the default next time
         self.conf['conf_notesLocation'] = self.notes_dir
 
+        # save the window position and geometry
         window_geo = self.geometry()
         self.conf['window_x'] = window_geo.x()
         self.conf['window_y'] = window_geo.y()
@@ -202,7 +209,6 @@ class MainWindow(QtGui.QMainWindow):
 
     def setup_keyboard_shortcuts(self):
         """ Setup the keyboard shortcuts and load the keyboard_shortcuts dict for use elsewhere
-
         """
         esc = QtCore.Qt.Key_Escape
         delete = QtCore.Qt.Key_Delete
@@ -251,7 +257,7 @@ class MainWindow(QtGui.QMainWindow):
                                    'DelNote': {'seq': QtGui.QKeySequence(delete),
                                                'func': lambda item=None: self.delete_current_note()}
                                     }
-
+        # create all the shortcuts
         for s in self.keyboard_shortcuts.values():
             QtGui.QShortcut(s['seq'], self, s['func'])
 
@@ -334,7 +340,7 @@ class MainWindow(QtGui.QMainWindow):
         except IOError:
             self.session_notes_dict = dict()
         except pickle.UnpicklingError as e:
-            logger.warning('[load_db_data] %r' % e)
+            logger.warning('[load_session_data] %r' % e)
 
     def save_session_data(self):
         try:
@@ -398,7 +404,7 @@ class MainWindow(QtGui.QMainWindow):
             self.first_line_title = False
 
         # Set the window location and size
-        if 'window_x' in self.conf.keys():
+        if 'window_x' in self.conf.keys() and not self.portable_mode:
             rect = QtCore.QRect(int(self.conf['window_x']),
                                 int(self.conf['window_y']),
                                 int(self.conf['window_width']),
@@ -589,11 +595,11 @@ class MainWindow(QtGui.QMainWindow):
         next_row = current_row
         while True:
             if direction == 'down' and next_row > 0:
-                next_row = next_row - 1
+                next_row -= 1
             elif direction == 'down' and next_row == 0:
                 next_row = row_count - 1
             elif direction == 'up' and next_row < row_count - 1:
-                next_row = next_row + 1
+                next_row += 1
             elif direction == 'up' and next_row == row_count - 1:
                 next_row = 0
 
@@ -848,7 +854,6 @@ class MainWindow(QtGui.QMainWindow):
                 self.ui.notePreview.print_(printer)
             elif pane_num == 2:
                 self.ui.noteDiff.print_(printer)
-
 
     def new_note(self):
         tagged_title = self.ui.omniBar.text()
