@@ -30,7 +30,7 @@ class NoteModel(object):
         self.is_saved = True
 
         self._content = ''
-        self._metadata = {}
+        self._metadata = dict()
         self._history = []
         self._last_seen = -1
 
@@ -360,6 +360,10 @@ class NoteModel(object):
             m = s[-2]
             content = ''.join(s[:-2])
             meta = yaml.safe_load(m.strip())  # use safe_load to prevent loading non-standard YAML tags
+            # sanity check, is it valid metadata?
+            if meta is None or 'title' not in meta.keys():
+                meta = dict()
+                content = data
         except IndexError:
             content = data
         except yaml.YAMLError:
