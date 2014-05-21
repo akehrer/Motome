@@ -1,7 +1,7 @@
 # Import the future
 from __future__ import unicode_literals
 
-VERSION = '0.2.2'
+VERSION = '0.2.3'
 
 # Import standard library modules
 import logging
@@ -29,6 +29,9 @@ elif __file__:
 # window title prefix
 WINDOW_TITLE = 'Motome'  # 'Mo\u0305to\u0305me'
 
+# Default notes directory if the user never chooses one, this will be created in their home directory
+DEFAULT_NOTES_DIR = "Notes"
+
 # app data directory in note directory
 NOTE_DATA_DIR = '.motome'
 
@@ -54,7 +57,7 @@ UNSAFE_CHARS = '<>:"/\|?*#'
 # the unicode end of text character
 # http://www.fileformat.info/info/unicode/char/0003/index.htm
 # This signifies where the note content ends and any metadata begins
-END_OF_TEXT = '\u0003'
+END_OF_TEXT = '\u0003'  # Only applies to pre 0.2 versions
 
 # the YAML bracket that splits the files metadata
 YAML_BRACKET = '---'

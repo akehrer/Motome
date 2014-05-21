@@ -24,7 +24,12 @@ logging.basicConfig(filename='motome.log',
 class App(QtGui.QApplication):
     def __init__(self, *args):
         QtGui.QApplication.__init__(self, *args)
-        self.main = MainWindow()
+
+        if len(args[0]) > 1 and args[0][1] == 'portable':
+        # the commandline args are passed to the class, check to see if the portable option is set
+            self.main = MainWindow(portable=True)
+        else:
+            self.main = MainWindow()
 
         # Load custom fonts
         self.font_database = QtGui.QFontDatabase()

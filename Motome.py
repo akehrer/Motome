@@ -9,8 +9,6 @@ Released under the BSD licence.  Please see the LICENSE file.
 website: <https://github.com/akehrer/Motome>
 """
 
-__author__ = 'Aaron Kehrer'
-
 from Motome import main
 
 if __name__ == '__main__':

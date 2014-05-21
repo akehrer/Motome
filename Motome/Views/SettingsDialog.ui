@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>578</width>
-    <height>417</height>
+    <height>456</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,27 +35,79 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Note Locations</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="tbl_notesLocations">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="gridStyle">
+          <enum>Qt::SolidLine</enum>
+         </property>
+         <property name="cornerButtonEnabled">
+          <bool>false</bool>
+         </property>
+         <property name="rowCount">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>2</number>
+         </property>
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>200</number>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column/>
+         <column/>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QLabel" name="label_3">
+          <widget class="QPushButton" name="btn_addNotebook">
            <property name="text">
-            <string>Notes location</string>
+            <string>+</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="conf_notesLocation">
-           <property name="placeholderText">
-            <string>Required - Please select a notes location...</string>
+          <widget class="QPushButton" name="btn_removeNotebook">
+           <property name="text">
+            <string>-</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
-           <property name="text">
-            <string>...</string>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-          </widget>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -120,6 +172,9 @@
         <widget class="QCheckBox" name="conf_checkbox_recordonsave">
          <property name="text">
           <string>Record note data to version history with Ctrl/Cmd-S</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -260,8 +315,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>238</x>
-     <y>405</y>
+     <x>249</x>
+     <y>444</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -276,8 +331,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>306</x>
-     <y>405</y>
+     <x>317</x>
+     <y>444</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -286,23 +341,58 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton</sender>
+   <sender>btn_addNotebook</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>load_folder_location()</slot>
+   <slot>add_folder_location()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>550</x>
-     <y>75</y>
+     <x>96</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
-     <x>212</x>
-     <y>264</y>
+     <x>425</x>
+     <y>5</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_removeNotebook</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>remove_folder_location()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>217</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>409</x>
+     <y>9</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tbl_notesLocations</sender>
+   <signal>cellChanged(int,int)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>update_noteslocations_conf(int,int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>439</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>571</x>
+     <y>10</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
   <slot>load_folder_location()</slot>
+  <slot>add_folder_location()</slot>
+  <slot>remove_folder_location()</slot>
+  <slot>update_noteslocations_conf(int,int)</slot>
  </slots>
 </ui>
