@@ -6,7 +6,7 @@ html,
 body {
 	font-family: 'Roboto Slab', serif;
 	height: 100%;
-	font-size: 1.0em;
+	font-size: 19px;
 }
 
 h1,
@@ -16,12 +16,12 @@ h3 {
 }
 
 h1 {
-	font-size: 5em;
+	font-size: 50px;
 	font-weight: bold;
 }
 
 h2 {
-	font-size: 1.7em;
+	font-size: 31px;
 }
 
 a {
@@ -33,18 +33,21 @@ a {
 	background: no-repeat center;
 	background-color: #F8F8FF;
 	background-image: url(../imgs/hero_background.png);
-	padding: 1.5em 0 1.5em 0;
+	padding-top: 4%;
+	padding-bottom: 4%;
 }
 
 header {
 	text-align: center;
 	background-color: #F5F5F5;
 	padding: 0.5em 0 0.5em 0;
+	font-size: 15px;
 }
 
 section {
 	padding: 0 1.5em 0 1.5em;
-	font-size: 1.2em;
+	margin-left: 12%;
+	margin-right: 4%;
 }
 
 section img {
