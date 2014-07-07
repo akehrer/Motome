@@ -358,7 +358,7 @@ class NoteModel(object):
             # find the metadata at the end of the document
             s = data.split(YAML_BRACKET)
             m = s[-2]
-            content = ''.join(s[:-2])
+            content = YAML_BRACKET.join(s[:-2])
             meta = yaml.safe_load(m.strip())  # use safe_load to prevent loading non-standard YAML tags
             # sanity check, is it valid metadata?
             if meta is None or 'title' not in meta.keys():

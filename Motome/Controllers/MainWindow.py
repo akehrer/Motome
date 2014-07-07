@@ -89,7 +89,8 @@ class MainWindow(QtGui.QMainWindow):
         self.old_data = None
 
         # markdown translator
-        self.md = markdown.Markdown()
+        # extensions docs: https://pythonhosted.org/Markdown/extensions/index.html
+        self.md = markdown.Markdown(extensions=['extra', 'smarty', 'codehilite'])
 
         # save metadata timer
         self.save_meta_interval = 1000  # msec
@@ -773,7 +774,8 @@ class MainWindow(QtGui.QMainWindow):
             filename = os.path.basename(mediapath[1])
             shutil.copy(os.path.join(self.notes_dir, MEDIA_FOLDER, filename), os.path.join(media_dir, filename))
         htmlpath = os.path.join(export_dir, self.current_note.safename + HTML_EXTENSION)
-        self._write_file(htmlpath, html)
+
+        NoteModel.enc_write(htmlpath, html)
 
         message_box = QtGui.QMessageBox()
         message_box.setTextFormat(QtCore.Qt.RichText)

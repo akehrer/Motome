@@ -188,7 +188,9 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         :param source:
         :return:
         """
-        if source.hasImage():
+        if source.hasFormat('XML Spreadsheet'):
+            return True
+        elif source.hasImage():
             return True
         elif source.hasUrls():
             return True
@@ -202,7 +204,10 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         :param source:
         :return:
         """
-        if source.hasImage():
+        if source.hasFormat('XML Spreadsheet'):
+            csv = source.data('Csv')
+            self._insert_table(str(csv))
+        elif source.hasImage():
             image = source.imageData()
             now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
             imagepath = os.path.join(self.notes_dir, MEDIA_FOLDER, now + '.png')
@@ -211,7 +216,8 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         elif source.hasUrls():
             urls = source.urls()
             self._insert_list_of_files(urls)
-        super(MotomeTextBrowser, self).insertFromMimeData(source)
+        else:
+            super(MotomeTextBrowser, self).insertFromMimeData(source)
 
     def dragEnterEvent(self, e):
         """
@@ -271,6 +277,16 @@ class MotomeTextBrowser(QtGui.QTextBrowser):
         # url_re_compile = re.compile(r'\[([^\[]+)\]\(([^\)]+)\)', re.VERBOSE | re.MULTILINE)
         # return url_re_compile.findall(self.toPlainText())
         return self.notemodel.urls
+
+    def _insert_table(self, csv):
+        table = csv.replace(',', ' | ')
+        rows = table.split('\n')
+        header = rows[0].split(' | ')
+        self.insertPlainText(rows[0])
+        sep = ' | '.join(['-'*len(col.strip()) for col in header])
+        self.insertPlainText(sep)
+        self.insertPlainText('\n')
+        self.insertPlainText(''.join(rows[1:]))
 
     def _insert_list_of_files(self, file_list):
         for filepath in file_list:
